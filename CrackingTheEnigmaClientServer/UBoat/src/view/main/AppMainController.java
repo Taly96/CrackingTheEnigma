@@ -12,8 +12,7 @@ import java.io.IOException;
 import okhttp3.*;
 import view.header.UBoatHeaderController;
 
-import static http.Configuration.BASE_URL;
-import static http.Configuration.HTTP_CLIENT;
+import static http.Configuration.*;
 
 
 public class AppMainController {
@@ -28,7 +27,7 @@ public class AppMainController {
 
     private StringProperty filePathProperty = null;
 
-    private final int SC_OK = 200;
+
 
     @FXML
     public void initialize(){
@@ -49,7 +48,6 @@ public class AppMainController {
         fileChooser.setTitle("Select an XML file");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xml files", "*.xml"));
         File f = fileChooser.showOpenDialog(primaryStage);
-        String RESOURCE = "/BattleField_Web_exploded/upload-file";
 
         RequestBody body =
                 new MultipartBody.Builder()
@@ -57,7 +55,7 @@ public class AppMainController {
                         .build();
 
         Request request = new Request.Builder()
-                .url(BASE_URL + RESOURCE)
+                .url(BASE_URL + FILE_UPLOAD)
                 .post(body)
                 .build();
 
@@ -70,6 +68,5 @@ public class AppMainController {
         else{
             this.filePathProperty.set("An invalid file was chosen.");
         }
-
     }
 }

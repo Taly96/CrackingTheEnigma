@@ -9,7 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
 public class Configuration {
-    public final static String BASE_URL = "http://localhost:8080";
+    public final static String BASE_URL = "http://localhost:8080/BattleField_Web_exploded";
+
+    public final static String FILE_UPLOAD = "/upload-file";
+
+    public final static int SC_OK = 200;
 
     public final static OkHttpClient HTTP_CLIENT = new OkHttpClient();
 

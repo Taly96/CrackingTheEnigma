@@ -4,7 +4,9 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/BattleField/BattleField.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/BattleField/BattleField.iml" />
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigma.iml" filepath="$PROJECT_DIR$/CrackingTheEnigma.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/DTO/DTO.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/DTO/DTO.iml" />
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/Engine/Engine.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/Engine/Engine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/Machine/Machine.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/Machine/Machine.iml" />
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/UBoat/UBoat.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/UBoat/UBoat.iml" />
     </modules>
   </component>
