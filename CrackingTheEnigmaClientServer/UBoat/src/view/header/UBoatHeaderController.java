@@ -1,10 +1,13 @@
 package view.header;
 
+import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import view.main.AppMainController;
+
+import java.io.IOException;
 
 public class UBoatHeaderController {
 
@@ -15,11 +18,20 @@ public class UBoatHeaderController {
     private TextField textFieldXMLFile;
 
 
-    private final AppMainController uBoatController = null;
+    private AppMainController uBoatController = null;
+
 
     @FXML
-    void onLoadXMLFile(ActionEvent event) {
+    void onLoadXMLFile(ActionEvent event) throws IOException {
         this.uBoatController.loadXMLFile();
+    }
+
+    public void setMainController(AppMainController mainController){
+        this.uBoatController = mainController;
+    }
+
+    public void bind(StringProperty filePathProperty){
+        this.textFieldXMLFile.textProperty().bind(filePathProperty);
     }
 
 }

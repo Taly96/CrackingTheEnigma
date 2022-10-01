@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="UBoat:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/UBoat_jar</output-path>
+    <root id="archive" name="UBoat.jar">
+      <element id="module-output" name="UBoat" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jetbrains/annotations/20.1.0/annotations-20.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/CrackingTheEnigmaClientServer/lib/okhttp-4.9.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

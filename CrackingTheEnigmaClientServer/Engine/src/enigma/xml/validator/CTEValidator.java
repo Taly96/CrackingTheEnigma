@@ -35,7 +35,7 @@ public class CTEValidator {
         this.exceptionsToShowUser = new ArrayList<>();
     }
 
-    public boolean isValid (CTEEnigma toValidate) {
+    public List<String> isValid (CTEEnigma toValidate) {
         this.abcToValidate = toValidate.getCTEMachine().getABC().trim();
         this.rotorsToValidate = toValidate.getCTEMachine().getCTERotors().getCTERotor();
         this.reflectorsToValidate = toValidate.getCTEMachine().getCTEReflectors().getCTEReflector();
@@ -44,7 +44,7 @@ public class CTEValidator {
         this.isValidRotorsConfig();
         this.isValidReflectorsConfig();
 
-        return this.exceptionsToShowUser.size() == 0;
+        return this.exceptionsToShowUser;
     }
 
     private void isValidRotorsConfig() {
