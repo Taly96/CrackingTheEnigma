@@ -1,9 +1,9 @@
-package enigma.machine;
+package enigma.engine.managers;
 
 import dto.battlefield.BattleFieldDTO;
 import dto.loadedmachine.LoadedMachineDTO;
 import dto.staticinfo.StaticMachineDTO;
-import enigma.inventory.MachineInventory;
+import enigma.machine.inventory.MachineInventory;
 import enigma.machine.reflector.Reflector;
 import enigma.machine.rotor.Rotor;
 import enigma.xml.generated.*;
@@ -15,10 +15,25 @@ public class InventoryManager {
     private MachineInventory theEnigmaInventory = null;
 
     public LoadedMachineDTO configureManager(CTEEnigma enigma){
-        this.theEnigmaInventory = new MachineInventory(enigma.getCTEMachine().getRotorsCount());
-        this.theEnigmaInventory.setAvailableReflectors(this.getAvailableReflectors(enigma.getCTEMachine().getCTEReflectors()));
-        this.theEnigmaInventory.setAvailableRotors(this.getAvailableRotors(enigma.getCTEMachine().getCTERotors()));
-        this.theEnigmaInventory.setBattleFieldInfo(this.getBattleFieldInfo(enigma.getCTEBattlefield()));
+        this.theEnigmaInventory =
+                new MachineInventory(
+                        enigma.getCTEMachine().getRotorsCount()
+                );
+        this.theEnigmaInventory.setAvailableReflectors(
+                this.getAvailableReflectors(
+                        enigma.getCTEMachine().getCTEReflectors()
+                )
+        );
+        this.theEnigmaInventory.setAvailableRotors(
+                this.getAvailableRotors(
+                        enigma.getCTEMachine().getCTERotors()
+                )
+        );
+        this.theEnigmaInventory.setBattleFieldInfo(
+                this.getBattleFieldInfo(
+                        enigma.getCTEBattlefield()
+                )
+        );
         this.theEnigmaInventory.setStaticMachineInfo(
                 this.getStaticMachineInfo(
                         enigma.getCTEDecipher(),
@@ -26,12 +41,37 @@ public class InventoryManager {
                 )
         );
 
+        List<Integer> availableRotors = this.getAvailableRotorsIDList();
+        List<String> availableReflectors = this.getAvailableReflectorsIDList();
+
         return new LoadedMachineDTO(
                 this.theEnigmaInventory.getStaticMachineInfo().getAbc(),
                 this.theEnigmaInventory.getRotorsCount(),
-                this.theEnigmaInventory.getAvailableRotors().size(),
-                this.theEnigmaInventory.getAvailableReflectors().size()
+                availableRotors,
+                availableReflectors,
+                this.theEnigmaInventory.getBattleFieldInfo(),
+                this.theEnigmaInventory.getStaticMachineInfo()
         );
+    }
+
+    private List<String> getAvailableReflectorsIDList() {
+        List<String> res = new ArrayList<>();
+
+        for(Reflector reflectors : this.theEnigmaInventory.getAvailableReflectors()){
+            res.add(reflectors.getID());
+        }
+
+        return res;
+    }
+
+    private List<Integer> getAvailableRotorsIDList() {
+        List<Integer> res = new ArrayList<>();
+
+        for(Rotor rotor : this.theEnigmaInventory.getAvailableRotors()){
+            res.add(rotor.getID());
+        }
+
+        return res;
     }
 
     private StaticMachineDTO getStaticMachineInfo(CTEDecipher cteDecipher, String abc) {
@@ -134,7 +174,13 @@ public class InventoryManager {
         return availableReflectors;
     }
 
-    public MachineInventory getTheEnigmaInventory() {
-        return this.theEnigmaInventory;
+    public String getABC() {
+
+        return this.theEnigmaInventory.getStaticMachineInfo().getAbc();
+    }
+
+    public int getRotorsCount() {
+
+        return this.theEnigmaInventory.getRotorsCount();
     }
 }

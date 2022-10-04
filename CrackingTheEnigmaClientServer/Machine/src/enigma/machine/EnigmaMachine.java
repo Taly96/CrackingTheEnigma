@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EnigmaMachine implements Serializable {
-    private String alphabet = "";
+    private String alphabet = null;
 
     private List<Rotor> rotors = null;
 
     private Reflector reflector = null;
 
     private PlugBoard plugBoard = null;
+
 
     //private MachineHistory currentMachineHistory = null;
 
@@ -25,8 +26,10 @@ public class EnigmaMachine implements Serializable {
 
     private int numOfProcessedMessages = 0;
 
+    private int rotorsCount = 0;
+
     public EnigmaMachine(){
-        this.rotors = new ArrayList<>();
+        //this.rotors = new ArrayList<>();
         this.plugBoard = new PlugBoard();
         //this.currentMachineHistory = new MachineHistory();
     }
@@ -34,6 +37,11 @@ public class EnigmaMachine implements Serializable {
 //    public List<CodeConfigStatsDTO> getCurrentMachineHistory(){
 //        return this.currentMachineHistory.getCodeConfigStats();
 //    }
+
+    public void setRotorsCount(int rotorsCount){
+        this.rotorsCount = rotorsCount;
+        this.rotors = new ArrayList<>(this.rotorsCount);
+    }
 
     public void setABC(String abc){
         this.alphabet = abc;

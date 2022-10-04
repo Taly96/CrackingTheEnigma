@@ -1,4 +1,4 @@
-package enigma.inventory;
+package enigma.machine.inventory;
 
 import dto.battlefield.BattleFieldDTO;
 import dto.staticinfo.StaticMachineDTO;

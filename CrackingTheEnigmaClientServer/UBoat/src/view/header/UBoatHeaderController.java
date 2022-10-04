@@ -1,5 +1,6 @@
 package view.header;
 
+import dto.loadedmachine.LoadedMachineDTO;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

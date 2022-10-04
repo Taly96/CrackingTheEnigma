@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="okHttp" type="kotlin.js">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/CrackingTheEnigmaClientServer/lib/okHttp/annotations-13.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/CrackingTheEnigmaClientServer/lib/okHttp/kotlin-stdlib-1.4.10.jar!/" />
+      <root url="jar://$PROJECT_DIR$/CrackingTheEnigmaClientServer/lib/okHttp/okhttp-4.9.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/CrackingTheEnigmaClientServer/lib/okHttp/okio-2.8.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/CrackingTheEnigmaClientServer/lib/okHttp/kotlin-stdlib-common-1.4.10.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

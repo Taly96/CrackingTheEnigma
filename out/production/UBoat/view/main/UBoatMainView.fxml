@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.main.AppMainController">
-   <top>
-        <fx:include fx:id="hBoxHeaderComponent" source="../header/UBoatHeaderView.fxml" />
-   </top>
-</BorderPane>
+<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.main.AppMainController">
+   <content>
+      <BorderPane>
+         <top>
+            <fx:include fx:id="hBoxHeaderComponent" source="../header/UBoatHeaderView.fxml" />
+         </top>
+         <center>
+            <fx:include fx:id="tabPaneCenterComponent" source="../body/UBoatCenterView.fxml" />
+         </center>
+      </BorderPane>
+   </content>
+</ScrollPane>

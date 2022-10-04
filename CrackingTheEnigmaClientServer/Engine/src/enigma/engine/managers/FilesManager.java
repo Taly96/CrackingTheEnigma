@@ -1,4 +1,4 @@
-package enigma.files;
+package enigma.engine.managers;
 
 import enigma.xml.generated.CTEEnigma;
 import enigma.xml.validator.CTEValidator;

@@ -1,8 +1,11 @@
 package view.main;
 
+import com.google.gson.Gson;
+import dto.loadedmachine.LoadedMachineDTO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -10,6 +13,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import okhttp3.*;
+import view.body.UBoatCenterController;
 import view.header.UBoatHeaderController;
 
 import static http.Configuration.*;
@@ -23,10 +27,15 @@ public class AppMainController {
     @FXML
     private UBoatHeaderController hBoxHeaderComponentController;
 
+    @FXML
+    private TabPane tabPaneCenterComponent;
+
+    @FXML
+    private UBoatCenterController tabPaneCenterComponentController;
+
     private Stage primaryStage = null;
 
     private StringProperty filePathProperty = null;
-
 
 
     @FXML
@@ -64,6 +73,13 @@ public class AppMainController {
 
         if(response.code() == SC_OK){
             this.filePathProperty.set(f.getAbsolutePath());
+            Gson gson = new Gson();
+            LoadedMachineDTO loadedMachineDTO =
+                    gson.fromJson(
+                            response.body().string(),
+                            LoadedMachineDTO.class
+                    );
+            this.tabPaneCenterComponentController.fileLoaded(loadedMachineDTO);
         }
         else{
             this.filePathProperty.set("An invalid file was chosen.");

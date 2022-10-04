@@ -8,9 +8,12 @@
           <element id="module-output" name="BattleField" />
         </element>
         <element id="directory" name="lib">
-          <element id="file-copy" path="$PROJECT_DIR$/CrackingTheEnigmaClientServer/lib/okhttp-4.9.1.jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/CrackingTheEnigmaClientServer/lib/annotations-13.0.jar" />
+          <element id="library" level="project" name="lib" />
+          <element id="library" level="project" name="Engine" />
+          <element id="library" level="project" name="google-gson-2" />
+          <element id="artifact" artifact-name="DTO:jar" />
           <element id="artifact" artifact-name="Engine:jar" />
+          <element id="artifact" artifact-name="Machine:jar" />
         </element>
       </element>
     </root>

@@ -2,9 +2,8 @@ package servlets.fileupload;
 
 import com.google.gson.Gson;
 import dto.loadedmachine.LoadedMachineDTO;
-import enigma.files.FilesManager;
-import enigma.machine.InventoryManager;
-import enigma.machine.MachineManager;
+import enigma.engine.managers.FilesManager;
+import enigma.engine.managers.MachineManager;
 import jakarta.servlet.http.HttpServlet;
 
 import jakarta.servlet.ServletException;
@@ -26,7 +25,7 @@ public class FileUploadServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("text/plain");
+        response.setContentType("string/json");
         PrintWriter out = response.getWriter();
         Collection<Part> parts = request.getParts();
         StringBuilder fileContent = new StringBuilder();
@@ -41,16 +40,15 @@ public class FileUploadServlet extends HttpServlet {
             xmlManager.checkFile(is);
             if(xmlManager.getFileErrors().isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_OK);
-                InventoryManager inventoryManager = ServletUtils.getInventoryManager(getServletContext());
+                MachineManager machineManager = new MachineManager();
                 LoadedMachineDTO loadedMachineDTO =
-                        inventoryManager.configureManager(
-                                xmlManager.getCurrentLoadedMachine());
-                MachineManager machineManager = ServletUtils.getMachineManager(getServletContext());
-                machineManager.configureMachine(inventoryManager.getTheEnigmaInventory());
+                        machineManager.configureMachine(
+                                xmlManager.getCurrentLoadedMachine()
+                        );
+                ServletUtils.setMachineManager(getServletContext(), machineManager);
                 Gson gson = new Gson();
                 String json = gson.toJson(loadedMachineDTO);
                 out.println(json);
-                out.flush();
             }
             else {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -58,6 +56,7 @@ public class FileUploadServlet extends HttpServlet {
                     out.println(error);
                 }
             }
+            out.flush();
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }

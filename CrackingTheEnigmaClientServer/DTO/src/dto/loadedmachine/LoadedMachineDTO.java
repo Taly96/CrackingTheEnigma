@@ -1,40 +1,55 @@
 package dto.loadedmachine;
 
+import dto.battlefield.BattleFieldDTO;
+import dto.staticinfo.StaticMachineDTO;
+
+import java.util.List;
+
 public class LoadedMachineDTO {
 
     private String abc = null;
 
-    private int numOfNeededRotors = 0;
+    private int rotorsCount = 0;
 
-    private int numOfAvailableRotors = 0;
 
-    private int numOfAvailableReflectors = 0;
+    private List<Integer> availableRotors = null;
+
+
+    private List<String> availableReflectors = null;
+
+    private BattleFieldDTO battleFieldDTO = null;
+
+    private StaticMachineDTO staticMachineDTO = null;
 
     public LoadedMachineDTO(
             String abc,
-            int numOfNeededRotors,
-            int numOfAvailableRotors,
-            int numOfAvailableReflectors
+            int rotorsCount,
+            List<Integer> availableRotors,
+            List<String> availableReflectors,
+            BattleFieldDTO battleFieldDTO,
+            StaticMachineDTO staticMachineDTO
     ){
         this.abc = abc;
-        this.numOfAvailableReflectors =  numOfAvailableReflectors;
-        this.numOfAvailableRotors = numOfAvailableRotors;
-        this.numOfNeededRotors = numOfNeededRotors;
+        this.availableReflectors =  availableReflectors;
+        this.availableRotors = availableRotors;
+        this.rotorsCount = rotorsCount;
+        this.battleFieldDTO = battleFieldDTO;
+        this.staticMachineDTO = staticMachineDTO;
     }
 
     public String getAbc() {
         return this.abc;
     }
 
-    public int getNumOfNeededRotors() {
-        return this.numOfNeededRotors;
+    public int getRotorsCount() {
+        return this.rotorsCount;
     }
 
-    public int getNumOfAvailableRotors() {
-        return this.numOfAvailableRotors;
+    public List<Integer> getAvailableRotors() {
+        return this.availableRotors;
     }
 
-    public int getNumOfAvailableReflectors() {
-        return this.numOfAvailableReflectors;
+    public List<String> getAvailableReflectors() {
+        return this.availableReflectors;
     }
 }
