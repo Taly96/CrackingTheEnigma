@@ -52,4 +52,12 @@ public class LoadedMachineDTO {
     public List<String> getAvailableReflectors() {
         return this.availableReflectors;
     }
+
+    public BattleFieldDTO getBattleFieldDTO() {
+        return this.battleFieldDTO;
+    }
+
+    public StaticMachineDTO getStaticMachineDTO() {
+        return this.staticMachineDTO;
+    }
 }

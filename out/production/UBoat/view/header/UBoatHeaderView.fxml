@@ -4,8 +4,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 
-
-<HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="600.0" spacing="50.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.header.UBoatHeaderController">
+<HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="600.0" spacing="50.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.header.UBoatHeaderController">
    <children>
       <Button fx:id="buttonLoad" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#onLoadXMLFile" prefHeight="25.0" prefWidth="60.0" text="Load" textAlignment="CENTER" />
       <TextField fx:id="textFieldXMLFile" editable="false" minHeight="-Infinity" prefHeight="25.0" promptText="Please click the Load button to load an XML file." HBox.hgrow="ALWAYS" />

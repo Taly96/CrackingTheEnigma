@@ -63,4 +63,26 @@ public class MachineInventory implements Serializable {
     public void setBattleFieldInfo(BattleFieldDTO battleFieldInfo) {
         this.battleFieldInfo = battleFieldInfo;
     }
+
+    public Reflector getReflector(String reflectorID) {
+
+        for(Reflector reflector : this.availableReflectors){
+            if(reflector.getID().equals(reflectorID)){
+                return reflector;
+            }
+        }
+
+        return null;
+    }
+
+    public Rotor getRotor(Integer rotorID) {
+
+        for(Rotor rotor : this.availableRotors){
+            if(rotor.getID() == rotorID){
+                return  rotor;
+            }
+        }
+
+        return null;
+    }
 }

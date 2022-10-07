@@ -15,7 +15,7 @@ public class EnigmaMachine implements Serializable {
 
     private Reflector reflector = null;
 
-    private PlugBoard plugBoard = null;
+    //private PlugBoard plugBoard = null;
 
 
     //private MachineHistory currentMachineHistory = null;
@@ -29,8 +29,7 @@ public class EnigmaMachine implements Serializable {
     private int rotorsCount = 0;
 
     public EnigmaMachine(){
-        //this.rotors = new ArrayList<>();
-        this.plugBoard = new PlugBoard();
+        //this.plugBoard = new PlugBoard();
         //this.currentMachineHistory = new MachineHistory();
     }
 
@@ -64,12 +63,12 @@ public class EnigmaMachine implements Serializable {
     public char encrypt (char charToEncrypt){
         int charIndex = -1;
         this.advanceRotors();
-        if (this.isPlugBoardUsed && this.plugBoard.isExistingPlug(charToEncrypt)){
-            charIndex = this.alphabet.lastIndexOf(this.plugBoard.encrypt(charToEncrypt));
-        }
-        else{
+//        if (this.isPlugBoardUsed && this.plugBoard.isExistingPlug(charToEncrypt)){
+//            charIndex = this.alphabet.lastIndexOf(this.plugBoard.encrypt(charToEncrypt));
+//        }
+//        else{
             charIndex = this.alphabet.lastIndexOf(charToEncrypt);
-        }
+        //}
 
         for (int i = 0; i < this.rotors.size(); i++){
             charIndex = this.rotors.get(i).encrypt(charIndex, true);
@@ -81,9 +80,9 @@ public class EnigmaMachine implements Serializable {
             charIndex = this.rotors.get(i).encrypt(charIndex, false);
         }
 
-        if (this.isPlugBoardUsed && this.plugBoard.isExistingPlug(this.alphabet.charAt(charIndex))){
-            charIndex = this.alphabet.lastIndexOf(this.plugBoard.encrypt(this.alphabet.charAt(charIndex)));
-        }
+//        if (this.isPlugBoardUsed && this.plugBoard.isExistingPlug(this.alphabet.charAt(charIndex))){
+//            charIndex = this.alphabet.lastIndexOf(this.plugBoard.encrypt(this.alphabet.charAt(charIndex)));
+//        }
 
         return this.alphabet.charAt(charIndex);
     }
@@ -115,32 +114,18 @@ public class EnigmaMachine implements Serializable {
         return this.rotors.get(rotorIndex).setStartingPosition(startingPos);
     }
 
-    public boolean addPlugToPlugBoard(String from, String to) {
-        if(from == null && to == null){
-            this.isPlugBoardUsed = false;
-            return true;
-        }
-        else{
-            this.isPlugBoardUsed = true;
-
-            return this.plugBoard.addPlug(from.charAt(0), to.charAt(0));
-        }
-    }
-
     public void setIsConfigured(boolean isConfigured){
         this.isConfigured = isConfigured;
     }
 
     public void clearCodeConfig() {
         this.rotors.clear();
-        this.plugBoard.clear();
         this.reflector = null;
         this.isPlugBoardUsed = false;
     }
 
     public void resetMachine() {
         this.alphabet = "";
-        //this.currentMachineHistory.clear();
         this.isPlugBoardUsed = false;
         this.isConfigured = false;
         this.numOfProcessedMessages = 0;

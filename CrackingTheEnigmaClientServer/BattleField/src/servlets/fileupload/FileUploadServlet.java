@@ -2,8 +2,8 @@ package servlets.fileupload;
 
 import com.google.gson.Gson;
 import dto.loadedmachine.LoadedMachineDTO;
-import enigma.engine.managers.FilesManager;
-import enigma.engine.managers.MachineManager;
+import enigma.managers.FilesManager;
+import enigma.managers.MachineManager;
 import jakarta.servlet.http.HttpServlet;
 
 import jakarta.servlet.ServletException;
@@ -25,7 +25,7 @@ public class FileUploadServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("string/json");
+        response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         Collection<Part> parts = request.getParts();
         StringBuilder fileContent = new StringBuilder();
