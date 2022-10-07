@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<GridPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="460.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="client.view.body.contest.UBoatContestController">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" prefWidth="300.0" />
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" prefWidth="300.0" />
+  </columnConstraints>
+  <rowConstraints>
+      <RowConstraints fillHeight="false" minHeight="-Infinity" prefHeight="120.0" vgrow="SOMETIMES" />
+    <RowConstraints minHeight="-Infinity" prefHeight="100.0" vgrow="SOMETIMES" />
+    <RowConstraints minHeight="-Infinity" prefHeight="100.0" vgrow="SOMETIMES" />
+    <RowConstraints fillHeight="false" minHeight="-Infinity" prefHeight="30.0" vgrow="NEVER" />
+  </rowConstraints>
+   <children>
+      <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="5.0" GridPane.columnSpan="2">
+         <children>
+            <Label alignment="CENTER" text="Active Teams" textAlignment="CENTER">
+               <font>
+                  <Font name="Bauhaus 93" size="25.0" />
+               </font>
+            </Label>
+            <TableView fx:id="tableViewActiveTeams" prefHeight="200.0" prefWidth="300.0">
+               <columns>
+                  <TableColumn fx:id="tableColumnAllies" editable="false" prefWidth="75.0" sortable="false" text="Allies" />
+                  <TableColumn fx:id="tableColumnAgents" editable="false" prefWidth="75.0" sortable="false" text="Agents" />
+                  <TableColumn fx:id="tableColumnAssignmentSize" editable="false" prefWidth="75.0" sortable="false" text="Assignment Size" />
+               </columns>
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </TableView>
+         </children>
+      </VBox>
+      <VBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="100.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.rowSpan="2" GridPane.vgrow="SOMETIMES">
+         <children>
+            <Label alignment="CENTER" text="Candidates" textAlignment="CENTER">
+               <font>
+                  <Font name="Bauhaus 93" size="25.0" />
+               </font>
+            </Label>
+            <TableView fx:id="tableViewCandidates" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="tableColumnCandidates" editable="false" prefWidth="75.0" sortable="false" text="Candidate" />
+                  <TableColumn fx:id="tableColumnFoundBy" editable="false" prefWidth="75.0" sortable="false" text="Found By" />
+                  <TableColumn fx:id="tableColumnCodeConfig" editable="false" prefWidth="75.0" sortable="false" text="Code Configuration" />
+               </columns>
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+            </TableView>
+         </children>
+         <GridPane.margin>
+            <Insets left="5.0" />
+         </GridPane.margin>
+      </VBox>
+      <VBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="100.0" spacing="5.0" GridPane.rowIndex="1" GridPane.rowSpan="2" GridPane.vgrow="SOMETIMES">
+         <children>
+            <Label alignment="CENTER" text="Process Message" textAlignment="CENTER">
+               <font>
+                  <Font name="Bauhaus 93" size="25.0" />
+               </font>
+            </Label>
+            <TextField fx:id="textFieldMessageToProcess" editable="false" promptText="Your message will appear here." />
+            <ListView fx:id="listViewDictionary" minHeight="-Infinity" minWidth="-Infinity" prefHeight="79.0" prefWidth="300.0" VBox.vgrow="SOMETIMES">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </ListView>
+            <TextField fx:id="textFieldProcessedMessage" alignment="TOP_LEFT" editable="false" minHeight="-Infinity" minWidth="-Infinity" prefHeight="106.0" prefWidth="300.0" promptText="Your processed message will appear here." VBox.vgrow="SOMETIMES" />
+         </children>
+      </VBox>
+      <HBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="200.0" spacing="60.0" GridPane.rowIndex="3">
+         <children>
+            <Button fx:id="buttonProcessMessage" mnemonicParsing="false" onAction="#onProcessMessage" text="Process" textAlignment="CENTER">
+               <HBox.margin>
+                  <Insets top="2.0" />
+               </HBox.margin>
+            </Button>
+            <Button fx:id="buttonClearAll" mnemonicParsing="false" onAction="#onClearAll" text="Clear" textAlignment="CENTER">
+               <HBox.margin>
+                  <Insets top="2.0" />
+               </HBox.margin>
+            </Button>
+            <Button fx:id="buttonReady" mnemonicParsing="false" onAction="#onStartContest" text="Ready" textAlignment="CENTER">
+               <HBox.margin>
+                  <Insets top="2.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
+   </children>
+</GridPane>
