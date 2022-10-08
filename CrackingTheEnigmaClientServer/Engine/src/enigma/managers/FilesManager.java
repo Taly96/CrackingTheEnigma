@@ -38,6 +38,10 @@ public class FilesManager {
         return this.fileErrors;
     }
 
+    public String getCurrentBattleFieldName(){
+        return this.currentLoadedMachine.getCTEBattlefield().getBattleName().trim();
+    }
+
     public CTEEnigma getCurrentLoadedMachine() {
         return this.currentLoadedMachine;
     }

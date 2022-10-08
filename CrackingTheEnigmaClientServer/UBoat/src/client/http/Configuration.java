@@ -16,6 +16,10 @@ public class Configuration {
 
     public final static int SC_OK = 200;
 
+    public final static String REFRESH_DATA = "/refresh";
+
+    public final static int REFRESH_RATE = 2000;
+
     public final static OkHttpClient HTTP_CLIENT = new OkHttpClient();
 
 

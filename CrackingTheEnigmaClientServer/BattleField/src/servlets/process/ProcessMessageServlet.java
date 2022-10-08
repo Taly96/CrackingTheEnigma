@@ -1,7 +1,7 @@
 package servlets.process;
 
 import com.google.gson.Gson;
-import enigma.managers.MachineManager;
+import enigma.managers.BattleFieldManager;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,6 +12,8 @@ import utils.ServletUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Properties;
+
+import static utils.ServletUtils.BATTLE_FIELD;
 
 @WebServlet("/process")
 public class ProcessMessageServlet extends HttpServlet {
@@ -24,9 +26,13 @@ public class ProcessMessageServlet extends HttpServlet {
         prop.load(req.getInputStream());
         String json = prop.getProperty("message");
         Gson gson = new Gson();
+        String battleFieldName = req.getParameter(BATTLE_FIELD);
         String messageToProcess = gson.fromJson(json, String.class);
-        MachineManager machineManager = ServletUtils.getMachineManager(getServletContext());
-        String processedMessage = machineManager.processMessage(messageToProcess);
+        BattleFieldManager battleFieldManager = ServletUtils.getBattleFieldManager(getServletContext());
+        String processedMessage =
+                battleFieldManager
+                        .getBattleField(battleFieldName)
+                        .processMessage(messageToProcess);
         json = gson.toJson(processedMessage);
         resp.setContentType("application/json");
         out.println(json);

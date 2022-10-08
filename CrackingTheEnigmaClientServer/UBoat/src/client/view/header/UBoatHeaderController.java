@@ -6,7 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import client.view.main.AppMainController;
+import client.view.main.MainUBoatAppController;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ public class UBoatHeaderController {
     private TextField textFieldXMLFile;
 
 
-    private AppMainController uBoatMainController = null;
+    private MainUBoatAppController uBoatMainController = null;
 
 
     @FXML
@@ -35,7 +35,7 @@ public class UBoatHeaderController {
         this.buttonLoad.disableProperty().bind(isFileLoadedProperty);
     }
 
-    public void setMainAppController(AppMainController appMainController) {
-        this.uBoatMainController = appMainController;
+    public void setMainAppController(MainUBoatAppController mainUBoatAppController) {
+        this.uBoatMainController = mainUBoatAppController;
     }
 }

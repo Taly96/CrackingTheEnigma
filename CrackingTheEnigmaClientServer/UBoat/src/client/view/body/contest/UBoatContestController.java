@@ -1,6 +1,11 @@
 package client.view.body.contest;
 
+import dto.activeteams.ActiveTeamInfo;
+import dto.activeteams.ActiveTeamsDTO;
+import dto.candidates.CandidatesDTO;
+import dto.candidates.CandidatesInfo;
 import dto.staticinfo.StaticMachineDTO;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -14,31 +19,36 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import client.view.body.UBoatCenterController;
 
+import java.math.BigDecimal;
+import java.util.Timer;
+
+import static client.http.Configuration.REFRESH_RATE;
+
 public class UBoatContestController {
 
     @FXML
-    private TableView<?> tableViewActiveTeams;
+    private TableView<ActiveTeamInfo> tableViewActiveTeams;
 
     @FXML
-    private TableColumn<?, ?> tableColumnAllies;
+    private TableColumn<ActiveTeamInfo, String> tableColumnAllies;
 
     @FXML
-    private TableColumn<?, ?> tableColumnAgents;
+    private TableColumn<ActiveTeamInfo, Integer> tableColumnAgents;
 
     @FXML
-    private TableColumn<?, ?> tableColumnAssignmentSize;
+    private TableColumn<ActiveTeamInfo, BigDecimal> tableColumnAssignmentSize;
 
     @FXML
-    private TableView<?> tableViewCandidates;
+    private TableView<CandidatesInfo> tableViewCandidates;
 
     @FXML
-    private TableColumn<?, ?> tableColumnCandidates;
+    private TableColumn<CandidatesInfo, String> tableColumnCandidates;
 
     @FXML
-    private TableColumn<?, ?> tableColumnFoundBy;
+    private TableColumn<CandidatesInfo, String> tableColumnFoundBy;
 
     @FXML
-    private TableColumn<?, ?> tableColumnCodeConfig;
+    private TableColumn<CandidatesInfo, String> tableColumnCodeConfig;
 
     @FXML
     private TextField textFieldMessageToProcess;
@@ -62,8 +72,15 @@ public class UBoatContestController {
 
     private StringProperty messageToProcessProperty = null;
 
+    private ActiveTeamsRefresher activeTeamsRefresher = null;
+
+
+    private CandidatesRefresher candidatesRefresher = null;
+
+    private Timer timer = null;
+
     @FXML
-    public void initialize(){
+    public void initialize() {
         this.messageToProcessProperty = new SimpleStringProperty("");
         this.textFieldMessageToProcess.textProperty().bind(this.messageToProcessProperty);
 
@@ -84,7 +101,12 @@ public class UBoatContestController {
 
     @FXML
     void onStartContest(ActionEvent event) {
-
+        this.activeTeamsRefresher = new ActiveTeamsRefresher(
+                this::updateActiveTeams,
+                this.uBoatCenterController.getBattleFieldName()
+        );
+        this.timer = new Timer();
+        this.timer.schedule(this.activeTeamsRefresher, REFRESH_RATE, REFRESH_RATE);
     }
 
     public void setCenterController(UBoatCenterController uBoatCenterController) {
@@ -104,5 +126,31 @@ public class UBoatContestController {
 
     public void messageProcessed(String processedMessage) {
         this.textFieldProcessedMessage.setText(this.textFieldProcessedMessage.getText() + processedMessage);
+    }
+
+    private void startCandidatesRefresher(String battleFieldName) {
+        this.candidatesRefresher = new CandidatesRefresher(
+                this::updateCandidates,
+                this.uBoatCenterController.getBattleFieldName()
+        );
+        this.timer.schedule(this.candidatesRefresher, REFRESH_RATE, REFRESH_RATE);
+    }
+
+    private void updateCandidates(CandidatesDTO candidatesDTO) {
+        Platform.runLater(() -> {
+            this.tableViewCandidates.getItems().clear();
+            for (CandidatesInfo info : candidatesDTO.getCandidates()){
+                this.tableViewCandidates.getItems().add(info);
+            }
+        });
+    }
+
+    private void updateActiveTeams(ActiveTeamsDTO activeTeamsDTO) {
+        Platform.runLater(() -> {
+            this.tableViewActiveTeams.getItems().clear();
+            for (ActiveTeamInfo info : activeTeamsDTO.getActiveTeams()){
+                this.tableViewActiveTeams.getItems().add(info);
+            }
+        });
     }
 }

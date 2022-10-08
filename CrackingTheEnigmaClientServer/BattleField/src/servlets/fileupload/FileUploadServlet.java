@@ -2,6 +2,7 @@ package servlets.fileupload;
 
 import com.google.gson.Gson;
 import dto.loadedmachine.LoadedMachineDTO;
+import enigma.managers.BattleFieldManager;
 import enigma.managers.FilesManager;
 import enigma.managers.MachineManager;
 import jakarta.servlet.http.HttpServlet;
@@ -25,8 +26,6 @@ public class FileUploadServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
         Collection<Part> parts = request.getParts();
         StringBuilder fileContent = new StringBuilder();
 
@@ -36,31 +35,45 @@ public class FileUploadServlet extends HttpServlet {
 
         InputStream is = new ByteArrayInputStream(fileContent.toString().getBytes());
         try {
-            FilesManager xmlManager = new FilesManager();
-            xmlManager.checkFile(is);
-            if(xmlManager.getFileErrors().isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_OK);
+            this.processRequest(response, is);
+        } catch (JAXBException e) {
+            throw new RuntimeException();
+        }
+    }
+
+    private void processRequest(HttpServletResponse response, InputStream is) throws IOException, JAXBException {
+        PrintWriter out = response.getWriter();
+        FilesManager xmlManager = new FilesManager();
+        xmlManager.checkFile(is);
+        if(xmlManager.getFileErrors().isEmpty()) {
+            BattleFieldManager battleFieldManager =
+                    ServletUtils.getBattleFieldManager(getServletContext());
+            if(!battleFieldManager.isBattleExists(xmlManager.getCurrentBattleFieldName())) {
+                response.setContentType("application/json");
                 MachineManager machineManager = new MachineManager();
                 LoadedMachineDTO loadedMachineDTO =
                         machineManager.configureMachine(
                                 xmlManager.getCurrentLoadedMachine()
                         );
-                ServletUtils.setMachineManager(getServletContext(), machineManager);
+                battleFieldManager.addBattleField(loadedMachineDTO.getBattleFieldDTO().getBattleFieldName(), machineManager);
+                response.setStatus(HttpServletResponse.SC_OK);
                 Gson gson = new Gson();
                 String json = gson.toJson(loadedMachineDTO);
                 out.println(json);
             }
-            else {
+            else{
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                for(String error : xmlManager.getFileErrors()){
-                    out.println(error);
-                }
+                out.println("Can't upload the same file more than once.");
             }
-            out.flush();
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
         }
+        else {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
+            for(String error : xmlManager.getFileErrors()){
+                out.println(error);
+            }
+        }
+        out.flush();
     }
 
     private String readFromInputStream(InputStream inputStream) {

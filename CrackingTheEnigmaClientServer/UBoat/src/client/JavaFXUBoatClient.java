@@ -5,14 +5,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import client.view.main.AppMainController;
+import client.view.main.MainUBoatAppController;
 
 import java.net.URL;
 
 public class JavaFXUBoatClient extends Application {
     private static final String MAIN_UBOAT_SCENE_PATH = "/client/view/main/UBoatMainView.fxml";
 
-    private AppMainController uBoatMainController = null;
+    private MainUBoatAppController uBoatMainController = null;
     public static void main(String[] args) {
         launch(args);
     }

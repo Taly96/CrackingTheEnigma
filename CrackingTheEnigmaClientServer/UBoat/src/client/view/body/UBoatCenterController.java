@@ -6,7 +6,7 @@ import dto.codeconfig.CodeConfigDTO;
 import dto.loadedmachine.LoadedMachineDTO;
 import javafx.fxml.FXML;
 import javafx.scene.layout.GridPane;
-import client.view.main.AppMainController;
+import client.view.main.MainUBoatAppController;
 
 import java.io.IOException;
 
@@ -24,7 +24,7 @@ public class UBoatCenterController {
     @FXML
     private UBoatContestController gridPaneContestTabComponentController;
 
-    private AppMainController uBoatMainController = null;
+    private MainUBoatAppController uBoatMainController = null;
 
     @FXML
     public void initialize(){
@@ -53,7 +53,11 @@ public class UBoatCenterController {
         this.gridPaneContestTabComponentController.messageProcessed(processedMessage);
     }
 
-    public void setMainAppController(AppMainController appMainController) {
-        this.uBoatMainController = appMainController;
+    public void setMainAppController(MainUBoatAppController mainUBoatAppController) {
+        this.uBoatMainController = mainUBoatAppController;
+    }
+
+    public String getBattleFieldName() {
+        return this.uBoatMainController.getBattleFieldName();
     }
 }

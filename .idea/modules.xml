@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/Agent/Agent.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/Agent/Agent.iml" />
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/Allies/Allies.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/Allies/Allies.iml" />
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/BattleField/BattleField.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/BattleField/BattleField.iml" />
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigma.iml" filepath="$PROJECT_DIR$/CrackingTheEnigma.iml" />

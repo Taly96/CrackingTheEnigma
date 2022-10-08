@@ -3,7 +3,7 @@ package client.view.bottom;
 import dto.codeconfig.CodeConfigDTO;
 import javafx.fxml.FXML;
 import javafx.scene.text.Text;
-import client.view.main.AppMainController;
+import client.view.main.MainUBoatAppController;
 
 import java.util.Collections;
 
@@ -12,7 +12,7 @@ public class UBoatBottomController {
     @FXML
     private Text textCodeConfig;
 
-    private AppMainController uBoatMainController = null;
+    private MainUBoatAppController uBoatMainController = null;
 
     public void codeSet(CodeConfigDTO currentCodeConfig) {
         StringBuilder codeConfigToShow = new StringBuilder("<");
@@ -42,7 +42,7 @@ public class UBoatBottomController {
         this.textCodeConfig.setText(codeConfigToShow.toString());
     }
 
-    public void setMainAppController(AppMainController appMainController) {
-        this.uBoatMainController = appMainController;
+    public void setMainAppController(MainUBoatAppController mainUBoatAppController) {
+        this.uBoatMainController = mainUBoatAppController;
     }
 }
