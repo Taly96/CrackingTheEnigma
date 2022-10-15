@@ -1,32 +1,20 @@
 package dto.battlefield;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BattleFieldDTO {
+    private List<BattleFieldInfo> battleFields = null;
 
-    private String battleFieldName = null;
-
-    private String level = null;
-
-    private int maxNumOfAllies = 0;
-
-    public BattleFieldDTO(
-            String battleFieldName,
-            String level,
-            int maxNumOfAllies
-    ){
-        this.battleFieldName = battleFieldName;
-        this.level = level;
-        this.maxNumOfAllies = maxNumOfAllies;
+    public BattleFieldDTO() {
+        this.battleFields = new ArrayList<>();
     }
 
-    public String getBattleFieldName() {
-        return this.battleFieldName;
+    public List<BattleFieldInfo> getBattleFields() {
+        return battleFields;
     }
 
-    public String getLevel() {
-        return this.level;
-    }
-
-    public int getMaxNumOfAllies() {
-        return this.maxNumOfAllies;
+    public void addInfo(BattleFieldInfo battleFieldInfo){
+        this.battleFields.add(battleFieldInfo);
     }
 }

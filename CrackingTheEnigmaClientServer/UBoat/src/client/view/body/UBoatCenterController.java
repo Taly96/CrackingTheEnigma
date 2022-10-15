@@ -2,9 +2,11 @@ package client.view.body;
 
 import client.view.body.contest.UBoatContestController;
 import client.view.body.machine.UBoatMachineController;
-import dto.codeconfig.CodeConfigDTO;
+import dto.codeconfig.CodeConfigInfo;
 import dto.loadedmachine.LoadedMachineDTO;
+import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.GridPane;
 import client.view.main.MainUBoatAppController;
 
@@ -22,6 +24,9 @@ public class UBoatCenterController {
     private GridPane gridPaneContestTabComponent;
 
     @FXML
+    private Tab tabContest;
+
+    @FXML
     private UBoatContestController gridPaneContestTabComponentController;
 
     private MainUBoatAppController uBoatMainController = null;
@@ -30,6 +35,7 @@ public class UBoatCenterController {
     public void initialize(){
         this.gridPaneMachineTabComponentController.setCenterController(this);
         this.gridPaneContestTabComponentController.setCenterController(this);
+        this.tabContest.setDisable(true);
     }
 
     public void fileLoaded(LoadedMachineDTO loadedMachineDTO) {
@@ -37,7 +43,11 @@ public class UBoatCenterController {
         this.gridPaneContestTabComponentController.fileLoaded(loadedMachineDTO.getStaticMachineDTO());
     }
 
-    public void setCode(CodeConfigDTO codeConfigDTO) throws IOException {
+    public void bind(BooleanProperty isMachineConfiguredProperty){
+        this.tabContest.disableProperty().bind(isMachineConfiguredProperty.not());
+    }
+
+    public void setCode(CodeConfigInfo codeConfigDTO) throws IOException {
         this.uBoatMainController.setCodeConfig(codeConfigDTO);
     }
 
@@ -59,5 +69,9 @@ public class UBoatCenterController {
 
     public String getBattleFieldName() {
         return this.uBoatMainController.getBattleFieldName();
+    }
+
+    public void startContest() {
+        this.uBoatMainController.startContest();
     }
 }

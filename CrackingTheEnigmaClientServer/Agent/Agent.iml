@@ -7,15 +7,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/okHttp/okhttp-4.9.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" name="google-gson-2" level="project" />
+    <orderEntry type="module" module-name="DTO" />
+    <orderEntry type="module" module-name="Machine" />
+    <orderEntry type="library" name="okHttp" level="project" />
+    <orderEntry type="library" name="gson-2.1" level="project" />
   </component>
 </module>

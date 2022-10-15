@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
-<VBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="70.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.view.bottom.UBoatBottomController">
+<VBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="90.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.view.bottom.UBoatBottomController">
    <children>
       <Label alignment="CENTER" contentDisplay="CENTER" text="Current Code Configuration" textAlignment="CENTER">
          <font>
@@ -18,5 +18,6 @@
             <Font size="25.0" />
          </font>
       </Text>
+      <Button fx:id="buttonResetCode" mnemonicParsing="false" onAction="#onResetCode" text="Reset" textAlignment="CENTER" />
    </children>
 </VBox>

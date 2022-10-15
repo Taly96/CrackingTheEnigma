@@ -1,6 +1,6 @@
 package enigma.managers;
 
-import dto.battlefield.BattleFieldDTO;
+import dto.battlefield.BattleFieldInfo;
 import dto.loadedmachine.LoadedMachineDTO;
 import dto.staticinfo.StaticMachineDTO;
 import enigma.machine.inventory.MachineInventory;
@@ -11,7 +11,6 @@ import enigma.xml.generated.*;
 import java.util.*;
 
 public class InventoryManager {
-
     private MachineInventory theEnigmaInventory = null;
 
     public LoadedMachineDTO configureManager(CTEEnigma enigma){
@@ -118,9 +117,9 @@ public class InventoryManager {
         return filteredWords;
     }
 
-    private BattleFieldDTO getBattleFieldInfo(CTEBattlefield cteBattlefield) {
+    private BattleFieldInfo getBattleFieldInfo(CTEBattlefield cteBattlefield) {
 
-        return new BattleFieldDTO(
+        return new BattleFieldInfo(
                 cteBattlefield.getBattleName().trim(),
                 cteBattlefield.getLevel().trim(),
                 cteBattlefield.getAllies()
@@ -201,5 +200,9 @@ public class InventoryManager {
     public List<Reflector> getAvailableReflectorIDs(){
 
         return this.theEnigmaInventory.getAvailableReflectors();
+    }
+
+    public MachineInventory getTheEnigmaInventory() {
+        return theEnigmaInventory;
     }
 }

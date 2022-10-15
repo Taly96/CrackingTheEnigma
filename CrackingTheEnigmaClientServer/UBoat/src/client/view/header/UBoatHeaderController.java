@@ -29,10 +29,10 @@ public class UBoatHeaderController {
 
     public void bind(
             StringProperty filePathProperty,
-            BooleanProperty isFileLoadedProperty
+            BooleanProperty isLoggedInProperty
     ){
         this.textFieldXMLFile.textProperty().bind(filePathProperty);
-        this.buttonLoad.disableProperty().bind(isFileLoadedProperty);
+        this.buttonLoad.disableProperty().bind(isLoggedInProperty.not());
     }
 
     public void setMainAppController(MainUBoatAppController mainUBoatAppController) {

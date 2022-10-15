@@ -1,6 +1,7 @@
 package client.view.contest;
 
 import client.view.main.MainAlliesAppController;
+import dto.battlefield.BattleFieldInfo;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -12,7 +13,7 @@ import javafx.scene.control.TableView;
 public class AlliesContestController {
 
     @FXML
-    private TableView<?> tableViewContest;
+    private TableView<BattleFieldInfo> tableViewContest;
 
     @FXML
     private TableColumn<?, ?> tableColumnBattleField;
@@ -89,5 +90,9 @@ public class AlliesContestController {
 
     public void setMainAppController(MainAlliesAppController mainAlliesAppController) {
         this.alliesAppController = mainAlliesAppController;
+    }
+
+    public void updateSignedUpFor(BattleFieldInfo signedUpFor) {
+        this.tableViewContest.getItems().add(signedUpFor);
     }
 }

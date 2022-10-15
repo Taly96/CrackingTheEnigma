@@ -43,6 +43,7 @@ public class AlliesLoginController {
                     .parse(LOGIN_PAGE)
                     .newBuilder()
                     .addQueryParameter("username", userName)
+                    .addQueryParameter("type", "ally")
                     .build()
                     .toString();
             Request request = new Request.Builder()
@@ -64,11 +65,7 @@ public class AlliesLoginController {
                                 showErrors(responseBody)
                         );
                     } else {
-                        Platform.runLater(() -> {
-
-                            alliesAppController.updateUserName(userName);
-                            alliesAppController.switchToDashBoardView();
-                        });
+                        Platform.runLater(() -> alliesAppController.loggedIn(userName));
                     }
                 }
             });

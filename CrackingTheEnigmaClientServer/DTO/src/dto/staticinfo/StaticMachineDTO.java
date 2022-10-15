@@ -1,8 +1,9 @@
 package dto.staticinfo;
 
+import java.io.Serializable;
 import java.util.Set;
 
-public class StaticMachineDTO {
+public class StaticMachineDTO implements Serializable {
 
     private Set<String> words = null;
 

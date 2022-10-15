@@ -1,6 +1,7 @@
 package enigma.machine.inventory;
 
 import dto.battlefield.BattleFieldDTO;
+import dto.battlefield.BattleFieldInfo;
 import dto.staticinfo.StaticMachineDTO;
 import enigma.machine.reflector.Reflector;
 import enigma.machine.rotor.Rotor;
@@ -18,7 +19,7 @@ public class MachineInventory implements Serializable {
 
     private StaticMachineDTO staticMachineInfo = null;
 
-    private BattleFieldDTO battleFieldInfo = null;
+    private BattleFieldInfo battleFieldInfo = null;
 
     public MachineInventory(int rotorsCount){
         this.rotorsCount = rotorsCount;
@@ -56,11 +57,11 @@ public class MachineInventory implements Serializable {
         this.staticMachineInfo = staticMachineInfo;
     }
 
-    public BattleFieldDTO getBattleFieldInfo() {
+    public BattleFieldInfo getBattleFieldInfo() {
         return this.battleFieldInfo;
     }
 
-    public void setBattleFieldInfo(BattleFieldDTO battleFieldInfo) {
+    public void setBattleFieldInfo(BattleFieldInfo battleFieldInfo) {
         this.battleFieldInfo = battleFieldInfo;
     }
 

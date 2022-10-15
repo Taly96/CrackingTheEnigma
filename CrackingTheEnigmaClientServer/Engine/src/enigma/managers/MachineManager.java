@@ -1,10 +1,13 @@
 package enigma.managers;
 
-import dto.codeconfig.CodeConfigDTO;
+import dto.codeconfig.CodeConfigInfo;
+import dto.decipher.DecipherDTO;
 import dto.loadedmachine.LoadedMachineDTO;
 import enigma.machine.EnigmaMachine;
+import enigma.machine.codeconfiguration.CodeConfiguration;
 import enigma.machine.rotor.Rotor;
 import enigma.xml.generated.CTEEnigma;
+import utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +33,14 @@ public class MachineManager {
         return currentLoadedMachineDTO;
     }
 
-    public CodeConfigDTO setCodeConfig(CodeConfigDTO inputConfig) {
+    public CodeConfigInfo setCodeConfig(CodeConfigInfo inputConfig) {
         this.theEnigma.clearCodeConfig();
         this.setReflectorConfig(inputConfig.getReflectorID());
         List<Integer> rotorsPosFromNotch = this.setRotors(
                 inputConfig.getRotorsID(),
                 inputConfig.getRotorsPos());
 
-        CodeConfigDTO setCodeConfig = new CodeConfigDTO(
+        CodeConfigInfo setCodeConfig = new CodeConfigInfo(
                 inputConfig.getRotorsID(),
                 inputConfig.getRotorsStartingPos(),
                 inputConfig.getReflectorID(),
@@ -84,12 +87,12 @@ public class MachineManager {
         this.theEnigma.addReflector(this.machineInventory.getReflector(reflectorID));
     }
 
-    public CodeConfigDTO generateCodeConfig() {
+    public CodeConfigInfo generateCodeConfig() {
         List<Integer> rotorsOrder = this.generateRotorsOrder();
         String rotorsStartingPoints = this.generateRotorsStartingPoints();
         String reflectorID = this.generateReflector();
-        CodeConfigDTO setCodeConfig = this.setCodeConfig(
-                new CodeConfigDTO(
+        CodeConfigInfo setCodeConfig = this.setCodeConfig(
+                new CodeConfigInfo(
                         rotorsOrder,
                         rotorsStartingPoints,
                         reflectorID
@@ -139,5 +142,55 @@ public class MachineManager {
     public String processMessage(String messageToProcess) {
 
         return this.theEnigma.process(messageToProcess);
+    }
+
+    public InventoryManager getMachineInventoryManager() {
+        return machineInventory;
+    }
+
+    public synchronized DecipherDTO getDecipherDTO() {
+        boolean isValid = true;
+        byte[] serInventory =
+                Utils.fromObjectToByteArray(
+                        this.machineInventory.getTheEnigmaInventory()
+                );
+        CodeConfiguration knownComponents =
+                this.theEnigma.getCurrentComponents();
+
+        switch (this.machineInventory.getTheEnigmaInventory().getBattleFieldInfo().getLevel()) {
+            case "Easy":{
+                knownComponents.setRotorsPositions("");
+                break;
+            }
+            case "Medium":
+            case "Hard": {
+                knownComponents.setRotorsPositions("");
+                knownComponents.setReflector(null);
+                break;
+            }
+            case "Advanced":{
+                knownComponents.setRotorsPositions("");
+                knownComponents.setReflector(null);
+                knownComponents.setRotorsOrder(null);
+                break;
+            }
+            default:{
+                isValid = false;
+                break;
+            }
+        }
+
+        if(isValid){
+            byte[] serKnownComponents =
+                    Utils.fromObjectToByteArray(
+                            knownComponents
+                    );
+            return new DecipherDTO(
+                    serKnownComponents,
+                    serInventory
+            );
+        }
+
+        return null;
     }
 }

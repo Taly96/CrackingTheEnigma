@@ -2,7 +2,7 @@ package client.view.body.machine;
 
 import client.view.body.machine.rotors.SingleRotorController;
 import client.view.resources.Constants;
-import dto.codeconfig.CodeConfigDTO;
+import dto.codeconfig.CodeConfigInfo;
 import dto.loadedmachine.LoadedMachineDTO;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -170,7 +170,7 @@ public class UBoatMachineController {
         this.isRotorsReadyProperty.set(false);
         this.isReflectorReadyProperty.set(false);
         this.centerController.setCode(
-                new CodeConfigDTO(
+                new CodeConfigInfo(
                         new ArrayList<>(this.chosenRotors),
                         this.rotorsStartingPoint,
                         this.chosenReflector

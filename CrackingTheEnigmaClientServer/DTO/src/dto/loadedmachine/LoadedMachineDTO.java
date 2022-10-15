@@ -1,6 +1,6 @@
 package dto.loadedmachine;
 
-import dto.battlefield.BattleFieldDTO;
+import dto.battlefield.BattleFieldInfo;
 import dto.staticinfo.StaticMachineDTO;
 
 import java.util.List;
@@ -11,13 +11,11 @@ public class LoadedMachineDTO {
 
     private int rotorsCount = 0;
 
-
     private List<Integer> availableRotors = null;
-
 
     private List<String> availableReflectors = null;
 
-    private BattleFieldDTO battleFieldDTO = null;
+    private BattleFieldInfo battleFieldinFo = null;
 
     private StaticMachineDTO staticMachineDTO = null;
 
@@ -26,14 +24,14 @@ public class LoadedMachineDTO {
             int rotorsCount,
             List<Integer> availableRotors,
             List<String> availableReflectors,
-            BattleFieldDTO battleFieldDTO,
+            BattleFieldInfo battleFieldInfo,
             StaticMachineDTO staticMachineDTO
     ){
         this.abc = abc;
         this.availableReflectors =  availableReflectors;
         this.availableRotors = availableRotors;
         this.rotorsCount = rotorsCount;
-        this.battleFieldDTO = battleFieldDTO;
+        this.battleFieldinFo = battleFieldInfo;
         this.staticMachineDTO = staticMachineDTO;
     }
 
@@ -53,8 +51,8 @@ public class LoadedMachineDTO {
         return this.availableReflectors;
     }
 
-    public BattleFieldDTO getBattleFieldDTO() {
-        return this.battleFieldDTO;
+    public BattleFieldInfo getBattleFieldInfo() {
+        return this.battleFieldinFo;
     }
 
     public StaticMachineDTO getStaticMachineDTO() {

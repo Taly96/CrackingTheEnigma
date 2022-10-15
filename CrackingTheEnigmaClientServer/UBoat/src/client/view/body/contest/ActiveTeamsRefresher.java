@@ -1,6 +1,6 @@
 package client.view.body.contest;
 
-import dto.activeteams.ActiveTeamsDTO;
+import dto.activeteams.AlliesDTO;
 import javafx.application.Platform;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -10,28 +10,29 @@ import java.util.TimerTask;
 import java.util.function.Consumer;
 
 import static client.http.Configuration.*;
+import static client.http.HttpClientUtil.runAsync;
 import static client.view.resources.Constants.*;
 
 public class ActiveTeamsRefresher extends TimerTask {
 
-    private final Consumer<ActiveTeamsDTO> activeTeamsDataConsumer;
+    private final Consumer<AlliesDTO> activeTeamsDataConsumer;
 
-    private String battleFieldName = null;
+    private String uBoatUserName = null;
 
     public ActiveTeamsRefresher(
-            Consumer<ActiveTeamsDTO> activeTeamsDataConsumer,
-            String battleFieldName
+            Consumer<AlliesDTO> activeTeamsDataConsumer,
+            String uBoatUserName
     ){
         this.activeTeamsDataConsumer = activeTeamsDataConsumer;
-        this.battleFieldName = battleFieldName;
+        this.uBoatUserName = uBoatUserName;
     }
     @Override
     public void run() {
         String finalUrl = HttpUrl
                 .parse(REFRESH_DATA)
                 .newBuilder()
-                .addQueryParameter(BATTLE, this.battleFieldName)
-                .addQueryParameter(DATA, "ACTIVE_TEAMS")
+                .addQueryParameter(DATA, "ALLIES")
+                .addQueryParameter("username", this.uBoatUserName)
                 .build()
                 .toString();
 
@@ -48,10 +49,10 @@ public class ActiveTeamsRefresher extends TimerTask {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if(response.code() == SC_OK){
-                    ActiveTeamsDTO data =
+                    AlliesDTO data =
                             GSON_INSTANCE.fromJson(
                                     response.body().string(),
-                                    ActiveTeamsDTO.class
+                                    AlliesDTO.class
                             );
                     activeTeamsDataConsumer.accept(data);
                 }

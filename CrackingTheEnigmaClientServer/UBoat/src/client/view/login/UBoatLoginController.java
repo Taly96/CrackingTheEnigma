@@ -1,6 +1,8 @@
 package client.view.login;
 
+import client.http.HttpClientUtil;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +16,7 @@ import client.view.main.MainUBoatAppController;
 import java.io.IOException;
 
 import static client.http.Configuration.*;
+import static client.http.HttpClientUtil.runAsync;
 import static client.view.resources.Constants.showErrors;
 
 public class UBoatLoginController {
@@ -30,6 +33,9 @@ public class UBoatLoginController {
     private MainUBoatAppController uBoatMainController = null;
 
     @FXML
+    public void initialize(){
+    }
+    @FXML
     void loginButtonClicked(ActionEvent event) {
         String userName = userNameTextField.getText();
         if (userName.isEmpty()) {
@@ -41,10 +47,12 @@ public class UBoatLoginController {
                     .parse(LOGIN_PAGE)
                     .newBuilder()
                     .addQueryParameter("username", userName)
+                    .addQueryParameter("type", "uboat")
                     .build()
                     .toString();
             Request request = new Request.Builder()
                     .url(finalUrl)
+                    .get()
                     .build();
             runAsync(request, new Callback() {
                 @Override
@@ -62,8 +70,12 @@ public class UBoatLoginController {
                                 showErrors(responseBody)
                         );
                     } else {
-                        Platform.runLater(() -> uBoatMainController.updateUserName(userName));
+                        Platform.runLater(() ->{
+                            uBoatMainController.updateUserName(userName);
+                            loginButton.setDisable(true);
+                        });
                     }
+                    response.close();
                 }
             });
         }
@@ -78,7 +90,7 @@ public class UBoatLoginController {
         this.uBoatMainController = mainUBoatAppController;
     }
 
-    public void bind(StringProperty currentUserProperty){
+    public void bind(StringProperty currentUserProperty) {
         this.textInstructions.textProperty().bind(currentUserProperty);
     }
 }

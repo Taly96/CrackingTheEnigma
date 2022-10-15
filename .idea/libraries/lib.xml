@@ -1,8 +1,10 @@
 <component name="libraryTable">
   <library name="lib">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/out/artifacts/BattleField_Web_exploded/WEB-INF/lib/Engine.jar!/" />
-      <root url="jar://$PROJECT_DIR$/out/artifacts/BattleField_Web_exploded/WEB-INF/lib/gson-2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/artifacts/DM_jar/DM.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/artifacts/DTO_jar/DTO.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/artifacts/Engine_jar/Engine.jar!/" />
+      <root url="jar://$PROJECT_DIR$/out/artifacts/Machine_jar/Machine.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

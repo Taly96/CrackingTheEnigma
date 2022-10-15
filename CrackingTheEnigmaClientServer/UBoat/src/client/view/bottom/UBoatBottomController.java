@@ -1,7 +1,9 @@
 package client.view.bottom;
 
-import dto.codeconfig.CodeConfigDTO;
+import dto.codeconfig.CodeConfigInfo;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import client.view.main.MainUBoatAppController;
 
@@ -12,9 +14,16 @@ public class UBoatBottomController {
     @FXML
     private Text textCodeConfig;
 
+    @FXML
+    private Button buttonResetCode;
+
     private MainUBoatAppController uBoatMainController = null;
 
-    public void codeSet(CodeConfigDTO currentCodeConfig) {
+    @FXML
+    void onResetCode(ActionEvent event) {
+        this.uBoatMainController.resetCode();
+    }
+    public void codeSet(CodeConfigInfo currentCodeConfig) {
         StringBuilder codeConfigToShow = new StringBuilder("<");
         int index = 0;
         int notchPos = 0;

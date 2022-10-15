@@ -1,7 +1,7 @@
 package client.view.body.contest;
 
-import dto.activeteams.ActiveTeamInfo;
-import dto.activeteams.ActiveTeamsDTO;
+import dto.activeteams.AlliesInfo;
+import dto.activeteams.AlliesDTO;
 import dto.candidates.CandidatesDTO;
 import dto.candidates.CandidatesInfo;
 import dto.staticinfo.StaticMachineDTO;
@@ -18,25 +18,27 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import client.view.body.UBoatCenterController;
+import okhttp3.*;
 
 import java.math.BigDecimal;
 import java.util.Timer;
 
+import static client.http.Configuration.FILE_UPLOAD;
 import static client.http.Configuration.REFRESH_RATE;
 
 public class UBoatContestController {
 
     @FXML
-    private TableView<ActiveTeamInfo> tableViewActiveTeams;
+    private TableView<AlliesInfo> tableViewActiveTeams;
 
     @FXML
-    private TableColumn<ActiveTeamInfo, String> tableColumnAllies;
+    private TableColumn<AlliesInfo, String> tableColumnAllies;
 
     @FXML
-    private TableColumn<ActiveTeamInfo, Integer> tableColumnAgents;
+    private TableColumn<AlliesInfo, Integer> tableColumnAgents;
 
     @FXML
-    private TableColumn<ActiveTeamInfo, BigDecimal> tableColumnAssignmentSize;
+    private TableColumn<AlliesInfo, BigDecimal> tableColumnAssignmentSize;
 
     @FXML
     private TableView<CandidatesInfo> tableViewCandidates;
@@ -74,7 +76,6 @@ public class UBoatContestController {
 
     private ActiveTeamsRefresher activeTeamsRefresher = null;
 
-
     private CandidatesRefresher candidatesRefresher = null;
 
     private Timer timer = null;
@@ -83,7 +84,6 @@ public class UBoatContestController {
     public void initialize() {
         this.messageToProcessProperty = new SimpleStringProperty("");
         this.textFieldMessageToProcess.textProperty().bind(this.messageToProcessProperty);
-
     }
 
     @FXML
@@ -101,12 +101,14 @@ public class UBoatContestController {
 
     @FXML
     void onStartContest(ActionEvent event) {
-        this.activeTeamsRefresher = new ActiveTeamsRefresher(
-                this::updateActiveTeams,
-                this.uBoatCenterController.getBattleFieldName()
-        );
-        this.timer = new Timer();
-        this.timer.schedule(this.activeTeamsRefresher, REFRESH_RATE, REFRESH_RATE);
+//        this.activeTeamsRefresher = new ActiveTeamsRefresher(
+//                this::updateActiveTeams,
+//                this.uBoatCenterController.getBattleFieldName()
+//        );
+//        this.timer = new Timer();
+//        this.timer.schedule(this.activeTeamsRefresher, REFRESH_RATE, REFRESH_RATE);
+
+        this.uBoatCenterController.startContest();
     }
 
     public void setCenterController(UBoatCenterController uBoatCenterController) {
@@ -125,6 +127,7 @@ public class UBoatContestController {
     }
 
     public void messageProcessed(String processedMessage) {
+        this.buttonReady.setDisable(false);
         this.textFieldProcessedMessage.setText(this.textFieldProcessedMessage.getText() + processedMessage);
     }
 
@@ -145,10 +148,10 @@ public class UBoatContestController {
         });
     }
 
-    private void updateActiveTeams(ActiveTeamsDTO activeTeamsDTO) {
+    private void updateActiveTeams(AlliesDTO activeTeamsDTO) {
         Platform.runLater(() -> {
             this.tableViewActiveTeams.getItems().clear();
-            for (ActiveTeamInfo info : activeTeamsDTO.getActiveTeams()){
+            for (AlliesInfo info : activeTeamsDTO.getAllies()){
                 this.tableViewActiveTeams.getItems().add(info);
             }
         });

@@ -3,8 +3,11 @@ package client.http;
 import com.google.gson.Gson;
 import okhttp3.*;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Configuration {
-    public final static String BASE_URL = "http://localhost:8080/BattleField_Web_exploded";
+    public final static String BASE_URL = "http://localhost:8080/BattleFieldServer_Web_exploded";
 
     public final static String FILE_UPLOAD = BASE_URL + "/upload-file";
 
@@ -20,13 +23,9 @@ public class Configuration {
 
     public final static int REFRESH_RATE = 2000;
 
-    public final static OkHttpClient HTTP_CLIENT = new OkHttpClient();
 
 
     public final static Gson GSON_INSTANCE = new Gson();
 
-    public static void runAsync(Request req, Callback callback) {
-        Call call = HTTP_CLIENT.newCall(req);
-        call.enqueue(callback);
-    }
+
 }

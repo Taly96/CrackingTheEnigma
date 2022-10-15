@@ -1,6 +1,5 @@
 package client.view.body.contest;
 
-import dto.activeteams.ActiveTeamsDTO;
 import dto.candidates.CandidatesDTO;
 import javafx.application.Platform;
 import okhttp3.*;
@@ -12,6 +11,7 @@ import java.util.function.Consumer;
 
 import static client.http.Configuration.*;
 import static client.http.Configuration.GSON_INSTANCE;
+import static client.http.HttpClientUtil.runAsync;
 import static client.view.resources.Constants.*;
 import static client.view.resources.Constants.showErrors;
 

@@ -1,0 +1,21 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="BattleFieldServer:Web exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/BattleFieldServer_Web_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="BattleFieldServer/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="BattleFieldServer" />
+          <element id="module-output" name="Engine" />
+          <element id="module-output" name="Machine" />
+          <element id="module-output" name="DTO" />
+          <element id="module-output" name="DM" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="gson-2.1" />
+          <element id="library" level="project" name="lib" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

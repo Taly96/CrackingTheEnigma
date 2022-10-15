@@ -1,5 +1,6 @@
 package enigma.machine;
 
+import enigma.machine.codeconfiguration.CodeConfiguration;
 import enigma.machine.plugboard.PlugBoard;
 import enigma.machine.reflector.Reflector;
 import enigma.machine.rotor.Rotor;
@@ -28,21 +29,15 @@ public class EnigmaMachine implements Serializable {
 
     private int rotorsCount = 0;
 
-    public EnigmaMachine(){
-        //this.plugBoard = new PlugBoard();
-        //this.currentMachineHistory = new MachineHistory();
+    public EnigmaMachine() {
     }
 
-//    public List<CodeConfigStatsDTO> getCurrentMachineHistory(){
-//        return this.currentMachineHistory.getCodeConfigStats();
-//    }
-
-    public void setRotorsCount(int rotorsCount){
+    public void setRotorsCount(int rotorsCount) {
         this.rotorsCount = rotorsCount;
         this.rotors = new ArrayList<>(this.rotorsCount);
     }
 
-    public void setABC(String abc){
+    public void setABC(String abc) {
         this.alphabet = abc;
     }
 
@@ -50,39 +45,30 @@ public class EnigmaMachine implements Serializable {
         this.rotors.add(rotorToAdd);
     }
 
-    public String process(String messageToEncrypt){
+    public String process(String messageToEncrypt) {
         String res = "";
 
-        for(Character ch : messageToEncrypt.toCharArray()){
+        for (Character ch : messageToEncrypt.toCharArray()) {
             res += this.encrypt(ch);
         }
 
         return res;
     }
 
-    public char encrypt (char charToEncrypt){
+    public char encrypt(char charToEncrypt) {
         int charIndex = -1;
         this.advanceRotors();
-//        if (this.isPlugBoardUsed && this.plugBoard.isExistingPlug(charToEncrypt)){
-//            charIndex = this.alphabet.lastIndexOf(this.plugBoard.encrypt(charToEncrypt));
-//        }
-//        else{
-            charIndex = this.alphabet.lastIndexOf(charToEncrypt);
-        //}
+        charIndex = this.alphabet.lastIndexOf(charToEncrypt);
 
-        for (int i = 0; i < this.rotors.size(); i++){
+        for (int i = 0; i < this.rotors.size(); i++) {
             charIndex = this.rotors.get(i).encrypt(charIndex, true);
         }
 
         charIndex = this.reflector.reflect(charIndex);
 
-        for (int i = this.rotors.size() - 1; i >= 0; i--){
+        for (int i = this.rotors.size() - 1; i >= 0; i--) {
             charIndex = this.rotors.get(i).encrypt(charIndex, false);
         }
-
-//        if (this.isPlugBoardUsed && this.plugBoard.isExistingPlug(this.alphabet.charAt(charIndex))){
-//            charIndex = this.alphabet.lastIndexOf(this.plugBoard.encrypt(this.alphabet.charAt(charIndex)));
-//        }
 
         return this.alphabet.charAt(charIndex);
     }
@@ -91,18 +77,17 @@ public class EnigmaMachine implements Serializable {
         this.rotors.get(0).advance();
         boolean isCheckWindowPos = true;
 
-        for (int i = 0; i < this.rotors.size() - 1; i++){
-            if (isCheckWindowPos && this.rotors.get(i).isNotchAtWindowPosition()){
-                this.rotors.get(i+1).advance();
+        for (int i = 0; i < this.rotors.size() - 1; i++) {
+            if (isCheckWindowPos && this.rotors.get(i).isNotchAtWindowPosition()) {
+                this.rotors.get(i + 1).advance();
                 isCheckWindowPos = true;
-            }
-            else{
+            } else {
                 isCheckWindowPos = false;
             }
         }
     }
 
-    public void addReflector(Reflector inputReflector){
+    public void addReflector(Reflector inputReflector) {
         this.reflector = inputReflector;
     }
 
@@ -114,7 +99,7 @@ public class EnigmaMachine implements Serializable {
         return this.rotors.get(rotorIndex).setStartingPosition(startingPos);
     }
 
-    public void setIsConfigured(boolean isConfigured){
+    public void setIsConfigured(boolean isConfigured) {
         this.isConfigured = isConfigured;
     }
 
@@ -132,48 +117,15 @@ public class EnigmaMachine implements Serializable {
         this.clearCodeConfig();
     }
 
-//    public void addCodeConfigToCurrentHistory(CodeConfigDTO codeConfig) {
-//        this.currentMachineHistory.addNewCodeConfig(codeConfig);
-//    }
-
-//    public void addMessageStatsToCurrentCodeConfig(InputMessageDTO newProcessRes){
-//        this.currentMachineHistory.addStatsToCurrentCodeConfig(newProcessRes);
-//        this.numOfProcessedMessages++;
-//    }
-
     public List<Rotor> getMachineRotors() {
         return this.rotors;
     }
 
-//    public CodeConfigDTO setCodeConfig(CodeConfiguration code){
-//        List<Integer> rotorsOrder = new ArrayList<>();
-//        List<String> rotorsStartingPos = new ArrayList<>();
-//        List<Integer> rotorsNotchPosFromWindow = new ArrayList<>();
-//        String reflectorID = "";
-//
-//        this.rotors = code.getRotorsOrder();
-//        int rotorIndex = 0;
-//
-//        for(Rotor rotor : rotors){
-//            rotorsOrder.add(rotor.getID());
-//            rotor.setStartingPosition(String.format("%s", code.getRotorsPositions().charAt(rotorIndex)));
-//            rotorsStartingPos.add(rotor.getWindowPos());
-//            rotorsNotchPosFromWindow.add(rotor.getNotchPosFromWindow());
-//            rotorIndex++;
-//        }
-//
-//        this.reflector = code.getReflector();
-//        reflectorID = this.reflector.getID();
-//
-//        return new CodeConfigDTO(
-//                rotorsOrder,
-//                rotorsStartingPos,
-//                rotorsNotchPosFromWindow,
-//                reflectorID,
-//                null
-//        );
-//    }
-//
-//    public Reflector getMachineReflector() { return  this.reflector;}
-//
+    public CodeConfiguration getCurrentComponents() {
+        CodeConfiguration currentConfig = new CodeConfiguration();
+        currentConfig.setRotorsOrder(this.rotors);
+        currentConfig.setReflector(this.reflector);
+
+        return currentConfig;
     }
+}

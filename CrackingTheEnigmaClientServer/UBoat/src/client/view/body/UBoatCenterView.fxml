@@ -8,7 +8,7 @@
     <Tab text="Machine">
         <fx:include fx:id="gridPaneMachineTabComponent" source="machine/UBoatMachineView.fxml" />
     </Tab>
-    <Tab text="Contest">
+    <Tab fx:id="tabContest" text="Contest">
         <fx:include fx:id="gridPaneContestTabComponent" source="contest/UBoatContestView.fxml" />
     </Tab>
   </tabs>

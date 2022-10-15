@@ -5,7 +5,7 @@ import client.view.bottom.UBoatBottomController;
 import client.view.header.UBoatHeaderController;
 import client.view.login.UBoatLoginController;
 import client.view.resources.Constants;
-import dto.codeconfig.CodeConfigDTO;
+import dto.codeconfig.CodeConfigInfo;
 import dto.loadedmachine.LoadedMachineDTO;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -28,11 +28,14 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import static client.http.Configuration.*;
+import static client.http.HttpClientUtil.runAsync;
 import static client.view.resources.Constants.NO_NAME;
 import static client.view.resources.Constants.showErrors;
 
@@ -70,32 +73,22 @@ public class MainUBoatAppController {
 
     private BooleanProperty isFileLoadedProperty = null;
 
-    private BooleanProperty isReadyForAppView = null;
-
     private StringProperty currentUserProperty = null;
 
     private StringProperty messageToUserProperty = null;
 
     private StringProperty currentBattleFieldNameProperty = null;
 
+    private BooleanProperty isMachineConfiguredProperty = null;
+
     @FXML
     public void initialize(){
-        this.isReadyForAppView = new SimpleBooleanProperty(false);
         this.isFileLoadedProperty = new SimpleBooleanProperty(false);
         this.currentUserProperty = new SimpleStringProperty(Constants.NO_NAME);
         this.messageToUserProperty = new SimpleStringProperty(this.currentUserProperty.get());
         this.currentBattleFieldNameProperty = new SimpleStringProperty("life");
         this.isLoggedInProperty = new SimpleBooleanProperty(false);
-        this.isReadyForAppView.bind(
-                Bindings.and(
-                        this.isFileLoadedProperty, this.isLoggedInProperty
-                )
-        );
-        this.isReadyForAppView.addListener((observable, oldValue, newValue) -> {
-            if(newValue){
-                this.switchToAppView();
-            }
-        });
+        this.isMachineConfiguredProperty = new SimpleBooleanProperty(false);
         this.loadHeader();
         this.loadCenter();
         this.loadBottom();
@@ -125,6 +118,7 @@ public class MainUBoatAppController {
             this.tabPaneCenterComponent = fxmlLoader.load();
             this.centerController = fxmlLoader.getController();
             this.centerController.setMainAppController(this);
+            this.centerController.bind(this.isMachineConfiguredProperty);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -141,7 +135,7 @@ public class MainUBoatAppController {
             this.headerController.setMainAppController(this);
             this.headerController.bind(
                     this.filePathProperty,
-                    this.isFileLoadedProperty
+                    this.isLoggedInProperty
             );
             this.borderPaneApp.setTop(this.hBoxHeaderComponent);
         } catch (IOException e) {
@@ -177,13 +171,19 @@ public class MainUBoatAppController {
         fileChooser.setTitle("Select an XML file");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xml files", "*.xml"));
         File f = fileChooser.showOpenDialog(primaryStage);
+        String finalUrl = HttpUrl
+                .parse(FILE_UPLOAD)
+                .newBuilder()
+                .build()
+                .toString();
+
         RequestBody body =
                 new MultipartBody.Builder()
                         .addFormDataPart("file1", f.getName(), RequestBody.create(f, MediaType.parse("text/plain")))
                         .build();
 
         Request request = new Request.Builder()
-                .url(FILE_UPLOAD)
+                .url(finalUrl)
                 .post(body)
                 .build();
         runAsync(request, new Callback() {
@@ -200,30 +200,29 @@ public class MainUBoatAppController {
                                     response.body().string(),
                                     LoadedMachineDTO.class
                             );
+                    response.close();
                     Platform.runLater(() -> {
                         filePathProperty.set(f.getAbsolutePath());
-                        currentBattleFieldNameProperty.set(loadedMachineDTO.getBattleFieldDTO().getBattleFieldName());
+                        currentBattleFieldNameProperty.set(loadedMachineDTO.getBattleFieldInfo().getBattleFieldName());
                         centerController.fileLoaded(loadedMachineDTO);
-                        isFileLoadedProperty.set(true);
+                        switchToAppView();
                     });
                 }else {
+                    String error = response.body().string();
+                    response.close();
                     Platform.runLater(() -> {
-                        try {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("File Errors");
-                            alert.setContentText(response.body().string());
-                            filePathProperty.set("An invalid file was chosen.");
-                            alert.showAndWait();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("File Errors");
+                        alert.setContentText(error);
+                        filePathProperty.set("An invalid file was chosen.");
+                        alert.showAndWait();
                     });
                 }
             }
         });
     }
 
-    public void setCodeConfig(CodeConfigDTO userInput) {
+    public void setCodeConfig(CodeConfigInfo userInput) {
         String finalUrl = HttpUrl
                 .parse(CODE)
                 .newBuilder()
@@ -261,17 +260,24 @@ public class MainUBoatAppController {
         runAsync(request, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                Platform.runLater(() -> showErrors(e.getMessage()));
+                Platform.runLater(() -> {
+                    isMachineConfiguredProperty.set(false);
+                    showErrors(e.getMessage());
+                });
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                CodeConfigDTO currentCode =
+                CodeConfigInfo currentCode =
                         GSON_INSTANCE.fromJson(
                                 response.body().string(),
-                                CodeConfigDTO.class
+                                CodeConfigInfo.class
                         );
-                Platform.runLater(() -> bottomController.codeSet(currentCode));
+                response.close();
+                Platform.runLater(() -> {
+                    bottomController.codeSet(currentCode);
+                    isMachineConfiguredProperty.set(true);
+                });
             }
         });
     }
@@ -302,7 +308,7 @@ public class MainUBoatAppController {
                                 response.body().string(),
                                 String.class
                         );
-
+                response.close();
                 Platform.runLater(() -> centerController.messageProcessed(processedMessage));
             }
         });
@@ -338,5 +344,36 @@ public class MainUBoatAppController {
 
     public String getBattleFieldName() {
         return this.currentBattleFieldNameProperty.get();
+    }
+
+    public void startContest() {
+        String finalUrl = HttpUrl
+                .parse(BASE_URL + "/ally-ready")
+                .newBuilder()
+                .addQueryParameter("username", this.currentUserProperty.get())
+                .build()
+                .toString();
+
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .put(RequestBody.create("start".getBytes()))
+                .build();
+
+        runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> showErrors(e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String errors = response.body().string();
+                response.close();
+                Platform.runLater(() -> showErrors(errors));
+            }
+        });
+    }
+
+    public void resetCode() {//todo
     }
 }

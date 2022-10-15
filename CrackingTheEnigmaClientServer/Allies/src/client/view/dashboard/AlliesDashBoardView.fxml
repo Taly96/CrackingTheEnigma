@@ -51,6 +51,6 @@
             </TableView>
          </children>
       </VBox>
-      <Button fx:id="buttonReady" alignment="TOP_CENTER" mnemonicParsing="false" onAction="#onReady" text="Ready" textAlignment="CENTER" VBox.vgrow="NEVER" />
+      <Button fx:id="buttonReady" alignment="TOP_CENTER" mnemonicParsing="false" onAction="#onSignUpContest" text="Ready" textAlignment="CENTER" VBox.vgrow="NEVER" />
    </children>
 </VBox>

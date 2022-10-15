@@ -1,25 +1,50 @@
 package enigma.managers;
 
+import dto.battlefield.BattleFieldDTO;
+import dto.battlefield.BattleFieldInfo;
+import dto.loadedmachine.LoadedMachineDTO;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class BattleFieldManager {
 
-    private Map<String, MachineManager> battleFields = null;
+    private Map<String, BattleField> battleFields = null;
 
-    public BattleFieldManager(){
+    public BattleFieldManager() {
         this.battleFields = new HashMap<>();
     }
 
-    public synchronized void addBattleField(String name, MachineManager machineManager){
-        this.battleFields.put(name, machineManager);
+    public void addBattleField(
+            LoadedMachineDTO loadedMachineDTO,
+            MachineManager machineManager
+    ) {
+        String name = loadedMachineDTO.getBattleFieldInfo().getBattleFieldName();
+        this.battleFields.put(
+                name,
+                new BattleField(
+                        loadedMachineDTO,
+                        machineManager
+                )
+        );
     }
 
-    public synchronized MachineManager getBattleField(String name){
+    public synchronized BattleField getBattleField(String name) {
         return this.battleFields.get(name);
     }
 
-    public boolean isBattleExists(String name){
+    public synchronized boolean isBattleExists(String name) {
         return this.battleFields.containsKey(name);
     }
+
+    public synchronized BattleFieldDTO refreshBattleFields() {
+        BattleFieldDTO data = new BattleFieldDTO();
+
+        for(Map.Entry<String, BattleField> set : this.battleFields.entrySet()){
+            data.addInfo(set.getValue().getBattleFieldInfo());
+        }
+
+        return data;
+    }
 }
+
