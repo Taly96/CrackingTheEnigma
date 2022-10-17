@@ -22,13 +22,4 @@ public class Constants {
 
     final public static String CENTER_VIEW = "/client/view/body/UBoatCenterView.fxml";
 
-    public static void  showErrors(String errors){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText(
-                "Something went wrong" +
-                System.lineSeparator() +
-                errors
-        );
-        alert.showAndWait();
-    }
 }

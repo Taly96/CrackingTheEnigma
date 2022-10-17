@@ -18,13 +18,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import client.view.body.UBoatCenterController;
-import okhttp3.*;
 
 import java.math.BigDecimal;
 import java.util.Timer;
 
-import static client.http.Configuration.FILE_UPLOAD;
-import static client.http.Configuration.REFRESH_RATE;
+import static constants.Constants.REFRESH_RATE;
+
 
 public class UBoatContestController {
 

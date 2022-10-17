@@ -9,6 +9,10 @@ public class AgentsInfo {
 
     private String assignmentSize = null;
 
+    private String alliesTeam = null;
+
+    private Integer assignmentsPerDraw = null;
+
     private Integer candidatesFound = null;
 
     private Integer assignmentsCompleted = null;
@@ -29,6 +33,18 @@ public class AgentsInfo {
         this.candidatesFound = candidatesFound;
         this.assignmentsCompleted = assignmentsCompleted;
         this.assignmentsLeft = assignmentsLeft;
+    }
+
+    public AgentsInfo(
+            String userName,
+            int threads,
+            int assignmentsPerDraw,
+            String alliesTeam
+    ) {
+        this.alliesTeam = alliesTeam;
+        this.assignmentsPerDraw = assignmentsPerDraw;
+        this.numberOfThreads = threads;
+        this.name = userName;
     }
 
     public String getName() {

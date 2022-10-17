@@ -1,6 +1,5 @@
 package client.view.dashboard;
 
-import dto.activeteams.AlliesDTO;
 import dto.battlefield.BattleFieldDTO;
 import javafx.application.Platform;
 import okhttp3.*;
@@ -10,9 +9,10 @@ import java.io.IOException;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
-import static client.http.Configuration.*;
-import static client.http.Configuration.GSON_INSTANCE;
 import static client.resources.Constants.showErrors;
+import static constants.Constants.SC_OK;
+import static utils.HttpClientUtil.GSON_INSTANCE;
+import static utils.HttpClientUtil.runAsync;
 
 public class BattleFieldRefresher extends TimerTask {
 

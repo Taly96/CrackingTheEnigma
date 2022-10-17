@@ -9,6 +9,7 @@
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/DM/DM.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/DM/DM.iml" />
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/DTO/DTO.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/DTO/DTO.iml" />
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/Engine/Engine.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/Engine/Engine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/HttpClientCommon/HttpClientCommon.iml" filepath="$PROJECT_DIR$/HttpClientCommon/HttpClientCommon.iml" />
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/Machine/Machine.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/Machine/Machine.iml" />
       <module fileurl="file://$PROJECT_DIR$/Test/Test.iml" filepath="$PROJECT_DIR$/Test/Test.iml" />
       <module fileurl="file://$PROJECT_DIR$/CrackingTheEnigmaClientServer/UBoat/UBoat.iml" filepath="$PROJECT_DIR$/CrackingTheEnigmaClientServer/UBoat/UBoat.iml" />

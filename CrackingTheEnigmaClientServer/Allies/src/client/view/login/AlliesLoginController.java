@@ -12,8 +12,10 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
-import static client.http.Configuration.*;
 import static client.resources.Constants.showErrors;
+import static constants.Constants.LOGIN_PAGE;
+import static constants.Constants.SC_OK;
+import static utils.HttpClientUtil.runAsync;
 
 public class AlliesLoginController {
 

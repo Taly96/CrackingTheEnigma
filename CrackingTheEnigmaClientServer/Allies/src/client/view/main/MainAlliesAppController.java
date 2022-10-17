@@ -21,8 +21,10 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.net.URL;
 
-import static client.http.Configuration.*;
 import static client.resources.Constants.*;
+import static constants.Constants.SC_OK;
+import static utils.HttpClientUtil.GSON_INSTANCE;
+import static utils.HttpClientUtil.runAsync;
 
 public class MainAlliesAppController {
 

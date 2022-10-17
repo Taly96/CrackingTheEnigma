@@ -9,6 +9,7 @@ import enigma.machine.rotor.Rotor;
 import utils.Utils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -32,6 +33,8 @@ public class AssignmentProducer implements Runnable {
     private BigDecimal counter = null;
 
     private BigDecimal maxValue = null;
+
+    private int[] startingPos = null;
 
     public AssignmentProducer(
             BlockingQueue<AssignmentDTO> assignmentsQueue,
@@ -166,39 +169,71 @@ public class AssignmentProducer implements Runnable {
 
     private void goEasy() {
         System.out.println("Going easy.");
+        int numOfRotors = this.inventory.getRotorsCount();
+        this.startingPos = new int[numOfRotors];
+        for(int i = 0; i < numOfRotors; i++){
+            this.startingPos[i] = 0;
+        }
         while (this.hasMoreStartingPoints) {
-            this.addAssignmentToQueue(this.createAssignment());
+            this.addAssignmentToQueue(this.createAssignment(numOfRotors));
         }
     }
 
-    private AssignmentDTO createAssignment() {//todo-check this guy
+    private AssignmentDTO createAssignment(Integer numOfRotors) {
         int abcSize = this.inventory.getStaticMachineInfo().getAbc().length();
-        int numOfRotors = this.inventory.getRotorsCount();
-        String [] positions = new String[2];
+        String [] positions = new String[] {"",""};
 
-        for (int i = 0; i < 2 && this.hasMoreStartingPoints; i++) {
-            if(this.counter.compareTo(this.maxValue) > 0){
-                this.counter = this.maxValue;
-                this.hasMoreStartingPoints = false;
-            }
-
-            BigDecimal counterCopy = this.counter;
-
-            for (int j = 0; j < numOfRotors; j++) {
-                positions[i] += String.format("%s", counterCopy.remainder(BigDecimal.valueOf(abcSize)));
-                counterCopy = counterCopy.divide(BigDecimal.valueOf(abcSize), BigDecimal.ROUND_HALF_DOWN);
-
-            }
-            this.counter = this.counter.add(this.assignmentSize);
+        for(Integer index : this.startingPos){
+            positions[0] += index;
         }
 
-        System.out.println("Start " + positions[0] + " End: " + positions[1]);
+        positions[1] = this.getNextPos(numOfRotors, abcSize, this.assignmentSize);
+        this.getNextPos(numOfRotors, abcSize, BigDecimal.ONE);
+
+        for(Integer index : this.startingPos){
+            positions[1] += index;
+        }
 
         return new AssignmentDTO(
-                positions[0],
-                positions[1],
+                positions[0].substring(0, numOfRotors),
+                positions[1].substring(0, numOfRotors),
                 this.info.getKnownComponents()
         );
+    }
+
+    private String getNextPos(Integer numOfRotors, int abcSize, BigDecimal assignmentSize) {
+        BigDecimal pos = assignmentSize.add(BigDecimal.valueOf(this.startingPos[0]));
+        Integer nextCarry = pos.divide(BigDecimal.valueOf(abcSize),RoundingMode.FLOOR).intValue();
+        String res = "";
+
+        if(nextCarry != 0){
+            this.startingPos[0] = pos.remainder(BigDecimal.valueOf(abcSize)).intValue();
+        }
+        else{
+            this.startingPos[0] = pos.intValue();
+        }
+        for (int i = 1; i < numOfRotors; i++) {
+            pos = BigDecimal.valueOf(this.startingPos[i] + nextCarry);
+            nextCarry = pos.divide(BigDecimal.valueOf(abcSize), RoundingMode.FLOOR).intValue();
+            if(nextCarry != 0){
+                if(i == numOfRotors - 1){
+                    this.hasMoreStartingPoints = false;
+                    this.startingPos = new int[]{abcSize -1, abcSize - 1, abcSize - 1};
+                }
+                else {
+                    this.startingPos[i] = pos.remainder(BigDecimal.valueOf(abcSize)).intValue();
+                }
+            }
+            else{
+                this.startingPos[i] = pos.intValue();
+            }
+        }
+
+        for(Integer index : this.startingPos){
+            res += index;
+        }
+
+        return res;
     }
 
     private List<int[]> generateRotorsOrder(int availableRotors, int neededRotors) {

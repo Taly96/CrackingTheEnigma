@@ -1,4 +1,4 @@
-package enigma.managers;
+package dm;
 
 import assignment.AssignmentProducer;
 import dto.assignment.AssignmentDTO;

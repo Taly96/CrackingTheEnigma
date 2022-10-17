@@ -8,7 +8,6 @@ import client.view.resources.Constants;
 import dto.codeconfig.CodeConfigInfo;
 import dto.loadedmachine.LoadedMachineDTO;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -28,16 +27,17 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import static client.http.Configuration.*;
-import static client.http.HttpClientUtil.runAsync;
 import static client.view.resources.Constants.NO_NAME;
-import static client.view.resources.Constants.showErrors;
+import static constants.Constants.BASE_URL;
+import static constants.Constants.SC_OK;
+import static utils.HttpClientUtil.GSON_INSTANCE;
+import static utils.HttpClientUtil.runAsync;
+import static utils.Utils.showErrors;
 
 
 public class MainUBoatAppController {

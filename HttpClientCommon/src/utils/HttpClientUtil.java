@@ -1,17 +1,20 @@
-package client.http;
+package utils;
 
+import com.google.gson.Gson;
+import cookies.SimpleCookieManager;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class HttpClientUtil {
 
     private final static SimpleCookieManager simpleCookieManager = new SimpleCookieManager();
+
+    public final static Gson GSON_INSTANCE = new Gson();
     private final static OkHttpClient HTTP_CLIENT =
             new OkHttpClient.Builder()
                     .cookieJar(simpleCookieManager)
@@ -34,4 +37,6 @@ public class HttpClientUtil {
         HTTP_CLIENT.dispatcher().executorService().shutdown();
         HTTP_CLIENT.connectionPool().evictAll();
     }
+
+
 }

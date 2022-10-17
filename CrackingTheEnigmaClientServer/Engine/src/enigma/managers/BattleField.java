@@ -1,5 +1,6 @@
 package enigma.managers;
 
+import dm.DecipherManager;
 import dto.activeteams.AlliesDTO;
 import dto.activeteams.AlliesInfo;
 import dto.battlefield.BattleFieldInfo;

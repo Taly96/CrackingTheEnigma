@@ -1,10 +1,8 @@
 package servlets.fileupload;
 
 import com.google.gson.Gson;
-import dto.decipher.DecipherDTO;
 import dto.loadedmachine.LoadedMachineDTO;
 import enigma.managers.BattleFieldManager;
-import enigma.managers.DecipherManager;
 import enigma.managers.FilesManager;
 import enigma.managers.MachineManager;
 import jakarta.servlet.http.HttpServlet;

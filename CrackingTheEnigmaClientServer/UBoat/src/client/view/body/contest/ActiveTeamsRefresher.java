@@ -9,9 +9,12 @@ import java.io.IOException;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
-import static client.http.Configuration.*;
-import static client.http.HttpClientUtil.runAsync;
 import static client.view.resources.Constants.*;
+import static constants.Constants.REFRESH_DATA;
+import static constants.Constants.SC_OK;
+import static utils.HttpClientUtil.GSON_INSTANCE;
+import static utils.HttpClientUtil.runAsync;
+import static utils.Utils.showErrors;
 
 public class ActiveTeamsRefresher extends TimerTask {
 

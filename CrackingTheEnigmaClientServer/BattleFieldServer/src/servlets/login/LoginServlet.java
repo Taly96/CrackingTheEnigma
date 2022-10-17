@@ -1,6 +1,7 @@
 package servlets.login;
 
 import enigma.managers.UsersManager;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,5 +51,10 @@ public class LoginServlet extends HttpServlet {
         } else {
             response.setStatus(HttpServletResponse.SC_OK);
         }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
     }
 }

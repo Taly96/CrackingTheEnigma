@@ -1,8 +1,6 @@
 package client.view.login;
 
-import client.http.HttpClientUtil;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -15,9 +13,11 @@ import client.view.main.MainUBoatAppController;
 
 import java.io.IOException;
 
-import static client.http.Configuration.*;
-import static client.http.HttpClientUtil.runAsync;
-import static client.view.resources.Constants.showErrors;
+import static constants.Constants.LOGIN_PAGE;
+import static constants.Constants.SC_OK;
+import static utils.HttpClientUtil.runAsync;
+import static utils.Utils.showErrors;
+
 
 public class UBoatLoginController {
 
