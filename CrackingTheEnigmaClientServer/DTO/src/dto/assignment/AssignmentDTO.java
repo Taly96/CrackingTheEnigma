@@ -8,14 +8,19 @@ public class AssignmentDTO {
 
     private byte[] knownComponents = null;
 
+
+    private Integer numOfRotors = 0;
+
     public AssignmentDTO(
             String startingPoint,
             String finishPoint,
-            byte[] knownComponents
+            byte[] knownComponents,
+            Integer numOfRotors
     ){
         this.startingPoint = startingPoint;
         this.finishPoint = finishPoint;
         this.knownComponents = knownComponents;
+        this.numOfRotors = numOfRotors;
     }
 
     public String getStartingPoint() {
@@ -28,5 +33,9 @@ public class AssignmentDTO {
 
     public byte[] getKnownComponents() {
         return knownComponents;
+    }
+
+    public Integer getNumOfRotors() {
+        return numOfRotors;
     }
 }

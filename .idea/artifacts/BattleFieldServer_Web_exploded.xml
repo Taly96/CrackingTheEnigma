@@ -6,13 +6,13 @@
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
           <element id="module-output" name="BattleFieldServer" />
+          <element id="module-output" name="DM" />
+          <element id="module-output" name="DTO" />
           <element id="module-output" name="Engine" />
           <element id="module-output" name="Machine" />
-          <element id="module-output" name="DTO" />
-          <element id="module-output" name="DM" />
         </element>
         <element id="directory" name="lib">
-          <element id="library" level="project" name="gson-2.1" />
+          <element id="library" level="project" name="gson-2.1-javadoc" />
           <element id="library" level="project" name="lib" />
         </element>
       </element>

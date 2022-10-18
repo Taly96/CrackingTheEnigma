@@ -24,7 +24,7 @@ public class BattleFieldInfo implements Serializable {
         this.battleFieldName = battleFieldName;
         this.level = level;
         this.neededNumOfAllies = neededNumOfAllies;
-        this.status = "Waiting";
+        this.status = "Inactive";
         this.registeredAllies = 0;
     }
 
@@ -63,4 +63,6 @@ public class BattleFieldInfo implements Serializable {
     public void setUBoat(String uBoat){
         this.uBoat = uBoat;
     }
+
+    public void incrementAllies() {this.registeredAllies++;}
 }

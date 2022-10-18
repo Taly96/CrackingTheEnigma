@@ -18,6 +18,10 @@ public class AlliesInfo {
         this.numOfAgents = numOfAgents;
     }
 
+    public AlliesInfo(String userName) {
+        this.name = userName;
+    }
+
     public String getName() {
         return name;
     }
@@ -28,5 +32,17 @@ public class AlliesInfo {
 
     public String getAssignmentSize() {
         return assignmentSize;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setNumOfAgents(Integer numOfAgents) {
+        this.numOfAgents = numOfAgents;
+    }
+
+    public void setAssignmentSize(String assignmentSize) {
+        this.assignmentSize = assignmentSize;
     }
 }

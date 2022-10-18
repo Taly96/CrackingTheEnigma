@@ -1,8 +1,9 @@
 package dto.codeconfig;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class CodeConfigInfo {
+public class CodeConfigInfo implements Serializable {
 
     private List<Integer> rotorsID = null;
 
