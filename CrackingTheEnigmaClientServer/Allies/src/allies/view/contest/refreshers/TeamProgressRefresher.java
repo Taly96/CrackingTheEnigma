@@ -1,6 +1,6 @@
-package allies.view.dashboard;
+package allies.view.contest.refreshers;
 
-import dto.battlefield.BattleFieldDTO;
+import dto.agents.AgentsDTO;
 import javafx.application.Platform;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -9,31 +9,29 @@ import java.io.IOException;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
-import static allies.http.Configuration.BATTLES;
-import static allies.resources.Constants.showErrors;
 import static httpcommon.constants.Constants.*;
+import static httpcommon.constants.Constants.SC_OK;
 import static httpcommon.utils.HttpClientUtil.GSON_INSTANCE;
 import static httpcommon.utils.HttpClientUtil.runAsync;
+import static httpcommon.utils.Utils.showErrors;
 
-public class BattleFieldsRefresher extends TimerTask {
+public class TeamProgressRefresher extends TimerTask {
 
-    private final Consumer<BattleFieldDTO> battleFieldsDataConsumer;
+    private String allyUserName = null;
 
-    private String alliesUserName = null;
+    private Consumer<AgentsDTO> agentsConsumer = null;
 
-    public BattleFieldsRefresher(
-            Consumer<BattleFieldDTO> battleFieldsDataConsumer,
-            String alliesUserName
-    ){
-        this.alliesUserName = alliesUserName;
-        this.battleFieldsDataConsumer = battleFieldsDataConsumer;
+    public TeamProgressRefresher(String allyUserName, Consumer<AgentsDTO> agentsConsumer){
+        this.agentsConsumer = agentsConsumer;
+        this.allyUserName = allyUserName;
     }
     @Override
     public void run() {
+
         String finalUrl = HttpUrl
                 .parse(REFRESH_DATA)
                 .newBuilder()
-                .addQueryParameter(DATA, BATTLES)
+                .addQueryParameter(DATA, AGENTS)
                 .build()
                 .toString();
 
@@ -51,12 +49,12 @@ public class BattleFieldsRefresher extends TimerTask {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String body = response.body().string();
                 if(response.code() == SC_OK){
-                    BattleFieldDTO data =
+                    AgentsDTO data =
                             GSON_INSTANCE.fromJson(
                                     body,
-                                    BattleFieldDTO.class
+                                    AgentsDTO.class
                             );
-                    battleFieldsDataConsumer.accept(data);
+                    agentsConsumer.accept(data);
                 }
                 else {
                     Platform.runLater(() -> showErrors(body));

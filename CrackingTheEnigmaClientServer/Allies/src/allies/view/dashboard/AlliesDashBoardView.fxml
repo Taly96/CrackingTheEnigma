@@ -4,6 +4,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -48,8 +50,13 @@
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                </columnResizePolicy>
             </TableView>
+            <HBox alignment="TOP_CENTER" fillHeight="false" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+               <children>
+                  <Button fx:id="buttonReady" alignment="TOP_CENTER" mnemonicParsing="false" onAction="#onSignUpContest" text="Join" textAlignment="CENTER" />
+                  <TextField fx:id="textFieldChosenBattleField" alignment="TOP_CENTER" prefWidth="250.0" promptText="BattleField" HBox.hgrow="NEVER" />
+               </children>
+            </HBox>
          </children>
       </VBox>
-      <Button fx:id="buttonReady" alignment="TOP_CENTER" mnemonicParsing="false" onAction="#onSignUpContest" text="Join" textAlignment="CENTER" VBox.vgrow="NEVER" />
    </children>
 </VBox>

@@ -3,9 +3,9 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Engine_jar</output-path>
     <root id="archive" name="Engine.jar">
       <element id="module-output" name="Engine" />
-      <element id="module-output" name="Machine" />
-      <element id="module-output" name="DTO" />
       <element id="module-output" name="DM" />
+      <element id="module-output" name="DTO" />
+      <element id="module-output" name="Machine" />
     </root>
   </artifact>
 </component>

@@ -48,15 +48,11 @@ public class MainUBoatAppController {
 
     private UBoatHeaderController headerController;
 
-
     private TabPane tabPaneCenterComponent;
-
 
     private UBoatCenterController centerController;
 
-
     private VBox vBoxBottomComponent;
-
 
     private UBoatBottomController bottomController;
 
@@ -225,7 +221,6 @@ public class MainUBoatAppController {
         String finalUrl = HttpUrl
                 .parse(CODE)
                 .newBuilder()
-                .addQueryParameter("battle", this.currentBattleFieldNameProperty.get())
                 .build()
                 .toString();
         String json = "code=" + GSON_INSTANCE.toJson(userInput);
@@ -243,7 +238,6 @@ public class MainUBoatAppController {
         String finalUrl = HttpUrl
                 .parse(CODE)
                 .newBuilder()
-                .addQueryParameter("battle", this.currentBattleFieldNameProperty.get())
                 .build()
                 .toString();
 
@@ -267,16 +261,25 @@ public class MainUBoatAppController {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                CodeConfigInfo currentCode =
-                        GSON_INSTANCE.fromJson(
-                                response.body().string(),
-                                CodeConfigInfo.class
-                        );
+                String body = response.body().string();
+                if(response.code() != SC_OK){
+                    Platform.runLater(() -> {
+                        isMachineConfiguredProperty.set(false);
+                        showErrors(body);
+                    });
+                }
+                else{
+                    CodeConfigInfo currentCode =
+                            GSON_INSTANCE.fromJson(
+                                    body,
+                                    CodeConfigInfo.class
+                            );
+                    Platform.runLater(() -> {
+                        bottomController.codeSet(currentCode);
+                        isMachineConfiguredProperty.set(true);
+                    });
+                }
                 response.close();
-                Platform.runLater(() -> {
-                    bottomController.codeSet(currentCode);
-                    isMachineConfiguredProperty.set(true);
-                });
             }
         });
     }
@@ -301,13 +304,20 @@ public class MainUBoatAppController {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                String processedMessage =
-                        GSON_INSTANCE.fromJson(
-                                response.body().string(),
-                                String.class
-                        );
+                String res = response.body().string();
+                if(response.code() != SC_OK){
+                    Platform.runLater(() -> showErrors(res));
+                }
+                else{
+                    String processedMessage =
+                            GSON_INSTANCE.fromJson(
+                                    res,
+                                    String.class
+                            );
+                    Platform.runLater(() -> centerController.messageProcessed(processedMessage));
+
+                }
                 response.close();
-                Platform.runLater(() -> centerController.messageProcessed(processedMessage));
             }
         });
     }
@@ -353,6 +363,7 @@ public class MainUBoatAppController {
         String json ="encrypt=" + GSON_INSTANCE.toJson(messageToEncrypt);
         Request request = new Request.Builder()
                 .url(finalUrl)
+                .addHeader("Content-type","application/json")
                 .post(RequestBody.create(json.getBytes()))
                 .build();
 
@@ -367,6 +378,14 @@ public class MainUBoatAppController {
                 String body = response.body().string();
                 if(response.code() != SC_OK){
                     Platform.runLater(() -> showErrors(body));
+                }
+                else{
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Contest Created.");
+                        alert.setContentText("Successfully created " + currentBattleFieldNameProperty.get() + " contest.");
+                        alert.showAndWait();
+                    });
                 }
                 response.close();
             }

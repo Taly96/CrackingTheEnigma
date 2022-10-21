@@ -11,14 +11,4 @@ public class Constants {
     public static final String CONTEST_VIEW = "/allies/view/contest/AlliesContestView.fxml";
 
     final public static String NO_NAME = "A girl has no name?";
-
-    public static void  showErrors(String errors){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText(
-                "Something went wrong" +
-                        System.lineSeparator() +
-                        errors
-        );
-        alert.showAndWait();
-    }
 }

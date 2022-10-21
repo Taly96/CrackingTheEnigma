@@ -19,6 +19,7 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URL;
 
 import static allies.resources.Constants.*;
@@ -26,6 +27,7 @@ import static httpcommon.constants.Constants.READY;
 import static httpcommon.constants.Constants.SC_OK;
 import static httpcommon.utils.HttpClientUtil.GSON_INSTANCE;
 import static httpcommon.utils.HttpClientUtil.runAsync;
+import static httpcommon.utils.Utils.showErrors;
 
 public class MainAlliesAppController {
 
@@ -47,7 +49,6 @@ public class MainAlliesAppController {
     private StringProperty currentUserProperty;
 
     private StringProperty messageToUserProperty;
-
 
     @FXML
     public void initialize(){
@@ -120,11 +121,12 @@ public class MainAlliesAppController {
          setMainPanelTo(dashBoardComponent);
     }
 
-    public void signUpContest(String contestName, Integer numOfAgents) {
+    public void signUpContest(String contestName) {
         AlliesInfo me = new AlliesInfo(
                 this.currentUserProperty.get(),
-                numOfAgents,
-                "0"
+                0,
+                "0",
+                contestName
         );
 
         String finalURL = HttpUrl
@@ -153,17 +155,17 @@ public class MainAlliesAppController {
                             body,
                             BattleFieldInfo.class
                     );
-                    Platform.runLater(() -> contestController.updateSignedUpFor(signedUpFor));
+                    Platform.runLater(() -> {
+                        contestController.updateSignedUpFor(signedUpFor);
+                        switchToContestView();
+                        dashBoardController.stopRefreshers();
+                        contestController.startRefreshers();
+                    });
                 }
                 else{
-                    Platform.runLater(() -> {
-                            showErrors(body);
-                            switchToContestView();
-                            dashBoardController.stopRefreshers();
-                            contestController.startRefreshers();
-                    });
-                    response.close();
+                    Platform.runLater(() -> showErrors(body));
                 }
+                response.close();
             }
         });
     }
@@ -179,6 +181,44 @@ public class MainAlliesAppController {
     public void loggedIn(String userName) {
         this.updateUserName(userName);
         this.dashBoardController.startRefreshers();
+        this.dashBoardController.startRefreshers();
+        this.contestController.updateUserName(userName);
         this.switchToDashBoardView();
+    }
+
+    public void startContest(BigInteger assignmentSize) {
+        String finalURL = HttpUrl
+                .parse(READY)
+                .newBuilder()
+                .build()
+                .toString();
+        String json = "assignment=" + GSON_INSTANCE.toJson(assignmentSize.toString());
+        Request request = new Request.Builder()
+                .url(finalURL)
+                .addHeader("Content-type", "application/json")
+                .put(RequestBody.create(json.getBytes()))
+                .build();
+        runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> showErrors(e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String body = response.body().string();
+                if(response.code() != SC_OK){
+                    Platform.runLater(() -> showErrors(body));
+                }
+                else{
+                    Platform.runLater(() ->{
+                        contestController.startRefreshers();
+                        switchToContestView();
+                    });
+                }
+                response.close();
+            }
+        });
+
     }
 }

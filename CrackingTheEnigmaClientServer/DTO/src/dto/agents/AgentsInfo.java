@@ -15,17 +15,17 @@ public class AgentsInfo {
 
     private Integer candidatesFound = null;
 
-    private Integer assignmentsCompleted = null;
+    private String assignmentsCompleted = null;
 
-    private Integer assignmentsLeft = null;
+    private String assignmentsLeft = null;
 
     public AgentsInfo(
             String name,
             Integer threads,
             String assignmentSize,
             Integer candidatesFound,
-            Integer assignmentsCompleted,
-            Integer assignmentsLeft
+            String assignmentsCompleted,
+            String assignmentsLeft
     ){
         this.name = name;
         this.numberOfThreads = threads;
@@ -63,11 +63,19 @@ public class AgentsInfo {
         return candidatesFound;
     }
 
-    public Integer getAssignmentsCompleted() {
+    public String getAssignmentsCompleted() {
         return assignmentsCompleted;
     }
 
-    public Integer getAssignmentsLeft() {
+    public String getAssignmentsLeft() {
         return assignmentsLeft;
+    }
+
+    public String getAlliesTeam() {
+        return alliesTeam;
+    }
+
+    public Integer getAssignmentsPerDraw() {
+        return assignmentsPerDraw;
     }
 }

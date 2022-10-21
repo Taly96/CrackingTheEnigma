@@ -12,10 +12,10 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
-import static allies.resources.Constants.showErrors;
 import static httpcommon.constants.Constants.LOGIN_PAGE;
 import static httpcommon.constants.Constants.SC_OK;
 import static httpcommon.utils.HttpClientUtil.runAsync;
+import static httpcommon.utils.Utils.showErrors;
 
 public class AlliesLoginController {
 
@@ -69,6 +69,7 @@ public class AlliesLoginController {
                     } else {
                         Platform.runLater(() -> alliesAppController.loggedIn(userName));
                     }
+                    response.close();
                 }
             });
         }

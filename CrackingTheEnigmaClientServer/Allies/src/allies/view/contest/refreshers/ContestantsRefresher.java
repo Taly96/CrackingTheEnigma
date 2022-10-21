@@ -1,6 +1,6 @@
-package uboat.view.body.contest;
+package allies.view.contest.refreshers;
 
-import dto.candidates.CandidatesDTO;
+import dto.activeteams.AlliesDTO;
 import javafx.application.Platform;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -9,33 +9,30 @@ import java.io.IOException;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
-import static uboat.view.resources.Constants.*;
-import static httpcommon.constants.Constants.REFRESH_DATA;
+import static httpcommon.constants.Constants.*;
 import static httpcommon.constants.Constants.SC_OK;
 import static httpcommon.utils.HttpClientUtil.GSON_INSTANCE;
 import static httpcommon.utils.HttpClientUtil.runAsync;
 import static httpcommon.utils.Utils.showErrors;
 
-public class CandidatesRefresher extends TimerTask {
+public class ContestantsRefresher extends TimerTask {
 
-    private final Consumer<CandidatesDTO> candidatesConsumer;
+    private String allyUserName = null;
 
-    private String battleFieldName = null;
+    private Consumer<AlliesDTO> alliesConsumer;
 
-    public CandidatesRefresher(
-            Consumer<CandidatesDTO> activeTeamsDataConsumer,
-            String battleFieldName
-    ){
-        this.candidatesConsumer = activeTeamsDataConsumer;
-        this.battleFieldName = battleFieldName;
+
+    public ContestantsRefresher(String allyUserName, Consumer<AlliesDTO> alliesConsumer){
+        this.alliesConsumer = alliesConsumer;
+        this.allyUserName = allyUserName;
     }
     @Override
     public void run() {
+
         String finalUrl = HttpUrl
                 .parse(REFRESH_DATA)
                 .newBuilder()
-                .addQueryParameter(BATTLE, this.battleFieldName)
-                .addQueryParameter(DATA, "CANDIDATES")
+                .addQueryParameter(DATA, ALLIES)
                 .build()
                 .toString();
 
@@ -53,12 +50,12 @@ public class CandidatesRefresher extends TimerTask {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String body = response.body().string();
                 if(response.code() == SC_OK){
-                    CandidatesDTO data =
+                    AlliesDTO data =
                             GSON_INSTANCE.fromJson(
                                     body,
-                                    CandidatesDTO.class
+                                    AlliesDTO.class
                             );
-                    candidatesConsumer.accept(data);
+                    alliesConsumer.accept(data);
                 }
                 else {
                     Platform.runLater(() -> showErrors(body));

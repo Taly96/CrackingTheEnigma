@@ -6,12 +6,12 @@ public class CandidatesInfo {
 
     private String foundBy = null;
 
-    private byte[] codeConfig = null;
+    private String codeConfig = null;
 
     public CandidatesInfo(
             String candidate,
             String foundBy,
-            byte[] codeConfig
+            String codeConfig
     ){
         this.candidate = candidate;
         this.codeConfig = codeConfig;
@@ -26,7 +26,7 @@ public class CandidatesInfo {
         return this.foundBy;
     }
 
-    public byte[] getCodeConfig() {
+    public String getCodeConfig() {
         return this.codeConfig;
     }
 }

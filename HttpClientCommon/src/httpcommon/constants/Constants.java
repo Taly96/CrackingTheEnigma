@@ -7,9 +7,18 @@ public class Constants {
 
     public final static String DATA = "data";
 
+    public final static String CANDIDATES = "candidates";
+
+    public final static String ALLIES = "allies";
+
+    public final static String BATTLES = "battles";
+
+    public final static String AGENTS = "agents";
+
+
     public final static int SC_OK = 200;
 
-    public final static String REFRESH_DATA = "/refresh";
+    public final static String REFRESH_DATA = BASE_URL +  "/refresh";
 
     public final static String READY = BASE_URL + "/ready";
 

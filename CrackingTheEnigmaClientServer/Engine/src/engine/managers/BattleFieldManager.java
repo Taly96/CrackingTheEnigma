@@ -1,6 +1,8 @@
 package engine.managers;
 
 import dto.battlefield.BattleFieldDTO;
+import dto.battlefield.BattleFieldInfo;
+import dto.codeconfig.CodeConfigInfo;
 import dto.loadedmachine.LoadedMachineDTO;
 
 import java.util.HashMap;
@@ -32,7 +34,7 @@ public class BattleFieldManager {
         return this.battleFields.get(name);
     }
 
-    public synchronized boolean isBattleExists(String name) {
+    public boolean isBattleExists(String name) {
         return this.battleFields.containsKey(name);
     }
 
@@ -44,6 +46,34 @@ public class BattleFieldManager {
         }
 
         return data;
+    }
+
+    public synchronized BattleFieldInfo getBattleFieldInfo(String battleName) {
+
+        return this.battleFields.get(battleName).getBattleFieldInfo();
+    }
+
+    public void setAllyReadyForContest(String battleName, String allyName, String assignmentSize) {
+        this.battleFields.get(battleName).setAllyReadyForContest(allyName, assignmentSize);
+    }
+
+    public void assembleContest(String battleName, String toEncrypt) {
+        this.battleFields.get(battleName).assembleContest(toEncrypt);
+    }
+
+    public String processMessage(String battleName, String messageToProcess) {
+
+        return this.battleFields.get(battleName).processMessage(messageToProcess);
+    }
+
+    public CodeConfigInfo setCodeConfig(String battleName, CodeConfigInfo inputConfig) {
+
+        return this.battleFields.get(battleName).setCodeConfig(inputConfig);
+    }
+
+    public CodeConfigInfo generateCodeConfig(String battleName) {
+
+        return this.battleFields.get(battleName).generateCodeConfig();
     }
 }
 

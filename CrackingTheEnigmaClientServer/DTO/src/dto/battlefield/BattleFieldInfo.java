@@ -10,6 +10,8 @@ public class BattleFieldInfo implements Serializable {
 
     private String level = null;
 
+    private String totalNumberOfAssignment = null;
+
     private Integer neededNumOfAllies = null;
 
     private Integer registeredAllies = null;
@@ -65,4 +67,12 @@ public class BattleFieldInfo implements Serializable {
     }
 
     public void incrementAllies() {this.registeredAllies++;}
+
+    public void setTotalNumberOfAssignment(String totalNumberOfAssignment) {
+        this.totalNumberOfAssignment = totalNumberOfAssignment;
+    }
+
+    public String getTotalNumberOfAssignment() {
+        return totalNumberOfAssignment;
+    }
 }

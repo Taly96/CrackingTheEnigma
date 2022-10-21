@@ -1,11 +1,14 @@
 package allies.view.dashboard;
 
+import allies.view.dashboard.refreshers.AgentsRefresher;
+import allies.view.dashboard.refreshers.BattleFieldsRefresher;
 import allies.view.main.MainAlliesAppController;
 import dto.agents.AgentsDTO;
 import dto.agents.AgentsInfo;
 import dto.battlefield.BattleFieldDTO;
 import dto.battlefield.BattleFieldInfo;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
@@ -55,6 +58,9 @@ public class AlliesDashBoardController {
     @FXML
     private Button buttonReady;
 
+    @FXML
+    private TextField textFieldChosenBattleField;
+
     private MainAlliesAppController alliesAppController = null;
 
     private Timer timer = null;
@@ -63,19 +69,30 @@ public class AlliesDashBoardController {
 
     private AgentsRefresher agentsRefresher = null;
 
-    private StringProperty chosenBattleField = null;
+    private StringProperty chosenBattleFieldProperty = null;
 
     @FXML
     public void initialize(){
-        this.chosenBattleField = new SimpleStringProperty();
-        this.tableViewContests.selectionModelProperty()
-                .addListener((observable, oldValue, newValue) ->
-                        this.chosenBattleField
-                                .set(newValue.getSelectedItem()
-                                        .getBattleFieldName()
-                                )
-                );
-        this.startRefreshers();
+        this.chosenBattleFieldProperty = new SimpleStringProperty();
+        this.textFieldChosenBattleField.textProperty().bind(this.chosenBattleFieldProperty);
+        this.initializeActiveTeamsTableView();
+        this.initializeContestTableView();
+    }
+
+    private void initializeContestTableView() {
+        this.tableViewContests.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        this.tableColumnBattleField.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getBattleFieldName()));
+        this.tableColumnUBoat.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUBoat()));
+        this.tableColumnNeeded.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getNeededNumOfAllies()).asObject());
+        this.tableColumnRegistered.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getRegisteredAllies()).asObject());
+        this.tableColumnStatus.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatus()));
+        this.tableColumnLevel.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getLevel()));
+    }
+
+    private void initializeActiveTeamsTableView() {
+        this.tableColumnName.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getAlliesTeam()));
+        this.tableColumnNumberOfThreads.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getNumberOfThreads()).asObject());
+        this.tableColumnAssignment.setCellValueFactory(cellData-> new SimpleIntegerProperty(cellData.getValue().getAssignmentsPerDraw()).asObject());
     }
 
     @FXML
@@ -84,16 +101,14 @@ public class AlliesDashBoardController {
         alert.setTitle("Confirm BattleField");
         alert.setContentText(
                 "You are about to register to the "
-                        + this.chosenBattleField.get()
+                        + this.chosenBattleFieldProperty.get()
                         + " contest."
                         + System.lineSeparator()
                         + "Correct?"
         );
         Optional<ButtonType> res = alert.showAndWait();
-        if(res.isPresent() && res.equals(ButtonType.OK)) {
-            this.alliesAppController.signUpContest(
-                    this.chosenBattleField.get(),
-                    this.tableViewAgents.getItems().size());
+        if(res.isPresent() && res.get().equals(ButtonType.OK)) {
+            this.alliesAppController.signUpContest(this.chosenBattleFieldProperty.get());
         }
     }
 
@@ -118,7 +133,6 @@ public class AlliesDashBoardController {
     private void updateAgents(AgentsDTO agentsDTO) {
         Platform.runLater(() -> {
             this.tableViewAgents.getItems().clear();
-
             for(AgentsInfo info : agentsDTO.getAgents()){
                 this.tableViewAgents.getItems().add(info);
             }
@@ -127,6 +141,20 @@ public class AlliesDashBoardController {
 
     private void updateContests(BattleFieldDTO battleFieldDTO) {
         Platform.runLater(() -> {
+            BattleFieldInfo selectedCell =
+                    this.tableViewContests.getSelectionModel().getSelectedItem();
+            if(selectedCell != null){
+                if(selectedCell.getStatus().equals("Waiting")) {
+                    this.chosenBattleFieldProperty.set(selectedCell.getBattleFieldName());
+                }
+                else {
+                    this.tableViewContests.getSelectionModel().clearSelection();
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Warning");
+                    alert.setContentText("Cant enter a full/inactive contest");
+                    alert.showAndWait();
+                }
+            }
             this.tableViewContests.getItems().clear();
             for(BattleFieldInfo info : battleFieldDTO.getBattleFields()){
                 this.tableViewContests.getItems().add(info);

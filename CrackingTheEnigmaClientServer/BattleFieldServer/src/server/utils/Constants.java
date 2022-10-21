@@ -11,6 +11,16 @@ public class Constants {
 
     public static final String AGENT = "agent";
 
+    public static final String AGENTS = "agents";
+
+    public static final String CANDIDATES = "candidates";
+
+    public static final String BATTLE = "battle";
+
+    public static final String BATTLES = "battles";
+
+    public static final String ALLIES = "allies";
+
     public static final String BATTLE_FIELD = "battle";
 
 }

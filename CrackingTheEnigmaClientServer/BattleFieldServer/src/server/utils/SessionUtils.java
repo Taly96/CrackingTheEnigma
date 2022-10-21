@@ -8,6 +8,7 @@ public class SessionUtils {
     public static final String BATTLE = "battle";
     public static final String USERNAME = "username";
 
+    public static String ALLY_NAME = "team";
     public static final String TYPE = "type";
 
     public static String getBattleFieldName(HttpServletRequest request) {

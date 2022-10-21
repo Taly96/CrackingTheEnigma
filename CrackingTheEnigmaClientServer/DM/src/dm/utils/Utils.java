@@ -1,6 +1,9 @@
 package dm.utils;
 
+import dto.codeconfig.CodeConfigInfo;
+
 import java.io.*;
+import java.util.Collections;
 
 public class Utils {
 
@@ -32,10 +35,37 @@ public class Utils {
             ois.close();
 
             return o;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String createStringCodeConfig(CodeConfigInfo currentCodeConfig){
+        StringBuilder codeConfigToShow = new StringBuilder("<");
+        int index = 0;
+        int notchPos = 0;
+
+        Collections.reverse(currentCodeConfig.getRotorsID());
+
+        for (Integer rotorID : currentCodeConfig.getRotorsID()) {
+            codeConfigToShow.append(String.format("%s", rotorID + ","));
+        }
+
+        Collections.reverse(currentCodeConfig.getRotorsID());
+        codeConfigToShow.replace(codeConfigToShow.length() - 1, codeConfigToShow.length(), ">");
+        codeConfigToShow.append("<");
+        Collections.reverse(currentCodeConfig.getRotorsNotchPos());
+
+        for(int i = currentCodeConfig.getRotorsStartingPos().length() - 1; i >=0; i--){
+            notchPos = currentCodeConfig.getRotorsNotchPos().get(index);
+            codeConfigToShow.append(String.format("%s", currentCodeConfig.getRotorsStartingPos().charAt(i) + "(" + notchPos + ")" + ","));
+            index++;
+        }
+
+        codeConfigToShow.replace(codeConfigToShow.length() - 1, codeConfigToShow.length(), ">");
+        Collections.reverse(currentCodeConfig.getRotorsNotchPos());
+        codeConfigToShow.append(String.format("%s", "<" + currentCodeConfig.getReflectorID() + ">"));
+
+        return codeConfigToShow.toString();
     }
 }

@@ -8,35 +8,51 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import server.utils.ServletUtils;
+import server.utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Properties;
 
-import static server.utils.Constants.BATTLE_FIELD;
+import static server.utils.ServletUtils.GSON_INSTANCE;
 
 @WebServlet("/process")
 public class ProcessMessageServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        PrintWriter out = resp.getWriter();
-        resp.setStatus(HttpServletResponse.SC_OK);
-        Properties prop = new Properties();
-        prop.load(req.getInputStream());
-        String json = prop.getProperty("message");
-        Gson gson = new Gson();
-        String battleFieldName = req.getParameter(BATTLE_FIELD);
-        String messageToProcess = gson.fromJson(json, String.class);
-        BattleFieldManager battleFieldManager = ServletUtils.getBattleFieldManager(getServletContext());
-        String processedMessage =
-                battleFieldManager
-                        .getBattleField(battleFieldName)
-                        .getMachineManager()
-                        .processMessage(messageToProcess);
-        json = gson.toJson(processedMessage);
-        resp.setContentType("application/json");
-        out.println(json);
-        out.flush();
+        String battleName = SessionUtils.getBattleFieldName(req);
+        if(battleName == null || battleName.isEmpty()){
+            resp.setContentType("text/plain");
+            resp.setStatus(HttpServletResponse.SC_CONFLICT);
+            resp.getOutputStream().print("Can't find battle name.");
+        }
+        else{
+            Properties prop = new Properties();
+            prop.load(req.getInputStream());
+            String messageToProcess =
+                    GSON_INSTANCE.fromJson(
+                            prop.getProperty("message"),
+                            String.class
+                    );
+            if(messageToProcess == null || messageToProcess.isEmpty()){
+                resp.setContentType("text/plain");
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                resp.getOutputStream().print("Empty message sent.");
+            }
+            else{
+                BattleFieldManager battleFieldManager = ServletUtils.getBattleFieldManager(getServletContext());
+                synchronized (this){
+                    String processedMessage =
+                            battleFieldManager.processMessage(battleName, messageToProcess);
+                    resp.getOutputStream().print(
+                            GSON_INSTANCE.toJson(processedMessage)
+                    );
+                }
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.setContentType("application/json");
+            }
+        }
+        resp.flushBuffer();
     }
 }

@@ -3,23 +3,23 @@ package uboat.view.body.contest;
 import dto.activeteams.AlliesInfo;
 import dto.activeteams.AlliesDTO;
 import dto.candidates.CandidatesDTO;
+import dto.candidates.CandidatesDTOList;
 import dto.candidates.CandidatesInfo;
 import dto.staticinfo.StaticMachineDTO;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import uboat.view.body.UBoatCenterController;
+import uboat.view.body.contest.refreshers.ActiveTeamsRefresher;
+import uboat.view.body.contest.refreshers.CandidatesRefresher;
 
-import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.Timer;
 
 import static httpcommon.constants.Constants.REFRESH_RATE;
@@ -37,7 +37,7 @@ public class UBoatContestController {
     private TableColumn<AlliesInfo, Integer> tableColumnAgents;
 
     @FXML
-    private TableColumn<AlliesInfo, BigDecimal> tableColumnAssignmentSize;
+    private TableColumn<AlliesInfo, String> tableColumnAssignmentSize;
 
     @FXML
     private TableView<CandidatesInfo> tableViewCandidates;
@@ -84,6 +84,32 @@ public class UBoatContestController {
         this.messageToProcessProperty = new SimpleStringProperty("");
         this.textFieldMessageToProcess.textProperty().bind(this.messageToProcessProperty);
         this.buttonReady.setDisable(true);
+        this.listViewDictionary.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        this.initializeActiveTeamsTableView();
+        this.initializeCandidatesTableView();
+    }
+
+    private void initializeCandidatesTableView() {
+        this.tableColumnCandidates.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getCandidate())
+        );
+        this.tableColumnFoundBy.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getFoundBy())
+        );
+        this.tableColumnCodeConfig.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getCodeConfig())
+        );
+    }
+
+    private void initializeActiveTeamsTableView() {
+        this.tableColumnAllies.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getName()));
+        this.tableColumnAgents.setCellValueFactory(
+                cellData -> new SimpleIntegerProperty(cellData.getValue().getNumOfAgents()).asObject()
+        );
+        this.tableColumnAssignmentSize.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getAssignmentSize())
+        );
     }
 
     @FXML
@@ -102,8 +128,16 @@ public class UBoatContestController {
 
     @FXML
     void onStartContest(ActionEvent event) {
-        this.uBoatCenterController.startContest(this.textFieldProcessedMessage.getText());
-        this.starRefreshers();
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("About to assemble a contest");
+        alert.setContentText("You are about to assemble a contest, using " +
+                this.textFieldProcessedMessage.getText() + " for deciphering." + System.lineSeparator() +
+                "Correct?");
+        Optional<ButtonType> res = alert.showAndWait();
+        if(res.isPresent() && res.get().equals(ButtonType.OK)) {
+            this.uBoatCenterController.startContest(this.textFieldProcessedMessage.getText());
+            this.starRefreshers();
+        }
     }
 
     private void starRefreshers() {
@@ -140,11 +174,13 @@ public class UBoatContestController {
         this.textFieldProcessedMessage.setText(this.textFieldProcessedMessage.getText() + processedMessage);
     }
 
-    private void updateCandidates(CandidatesDTO candidatesDTO) {
+    private void updateCandidates(CandidatesDTOList candidatesDTOList) {
         Platform.runLater(() -> {
             this.tableViewCandidates.getItems().clear();
-            for (CandidatesInfo info : candidatesDTO.getCandidates()){
-                this.tableViewCandidates.getItems().add(info);
+            for (CandidatesDTO DTO : candidatesDTOList.getCandidatesDTOList() ){
+                for(CandidatesInfo info : DTO.getCandidates()){
+                    this.tableViewCandidates.getItems().add(info);
+                }
             }
         });
     }

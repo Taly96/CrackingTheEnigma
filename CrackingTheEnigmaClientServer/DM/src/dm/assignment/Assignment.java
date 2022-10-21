@@ -10,8 +10,8 @@ import machine.codeconfiguration.CodeConfiguration;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 
+import static dm.utils.Utils.createStringCodeConfig;
 import static dm.utils.Utils.fromBytesArrayToObject;
-import static dm.utils.Utils.fromObjectToByteArray;
 
 public class Assignment implements Runnable {
 
@@ -90,27 +90,29 @@ public class Assignment implements Runnable {
 
     private String getNextPos(String abc) {
 
-        Integer carry = 1;
-        String res = "";
+        int carry = 1;
+        StringBuilder res = new StringBuilder();
         for(Integer index: this.indexInAbc){
             this.indexInAbc[index] += carry;
             carry =this.indexInAbc[index]/abc.length();
             if(carry != 0){
                 this.indexInAbc[index] = this.indexInAbc[index] % abc.length();
             }
-            res += abc.charAt(index);
+            res.append(abc.charAt(index));
         }
 
-        return res;
+        return res.toString();
     }
 
-    private void addCandidate(StringBuilder res, CodeConfigInfo codeConfigDTO) {
+    private void addCandidate(StringBuilder res, CodeConfigInfo codeConfigInfo) {
         try {
+            String codeConfig =
+                    createStringCodeConfig(codeConfigInfo);
             this.candidatesInfo.put(
                     new CandidatesInfo(
                             res.toString().trim(),
                             Thread.currentThread().getName(),
-                            fromObjectToByteArray(codeConfigDTO)
+                            codeConfig
                     )
             );
         } catch (InterruptedException e) {

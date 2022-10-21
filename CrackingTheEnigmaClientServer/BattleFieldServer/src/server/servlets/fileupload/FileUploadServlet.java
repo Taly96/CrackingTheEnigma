@@ -95,7 +95,6 @@ public class FileUploadServlet extends HttpServlet {
                 } else {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     out.println("Can't upload the same file more than once.");
-
                 }
             }
         }

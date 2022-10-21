@@ -29,10 +29,12 @@ public class DecipherManager {
 
     //private DecipherDTO decipherDTO = null;
 
-    public DecipherManager(String level){
+    public DecipherManager(String level, String assignmentSize, String totalAssignments){
         this.assignments = new LinkedBlockingQueue<>(1000);
         this.createdAssignments = new BigDecimal(0);
         this.hasMoreAssignments = new AtomicBoolean(true);
+        this.totalNumberOfAssignments = new BigDecimal(totalAssignments);
+        this.sizeOfAssignment = new BigDecimal(assignmentSize);
         this.level = level;
     }
 

@@ -1,60 +1,105 @@
+import dto.agents.AgentsDTO;
+import dto.agents.AgentsInfo;
+import javafx.application.Platform;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static httpcommon.constants.Constants.SC_OK;
+import static httpcommon.utils.HttpClientUtil.GSON_INSTANCE;
+import static httpcommon.utils.HttpClientUtil.runAsync;
+import static httpcommon.utils.Utils.showErrors;
+
 public class Main {
 
-    public static void main(String[] args) {
-        String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ !?'";
-        int abcSize = 30;
-        int sizeOfMission = 30;
-        int counter = 0;
-        int numOfRotors = 3;
-        double maxValue = Math.pow(abcSize, numOfRotors);
-        boolean haMore = true;
-        String sPos = "";
-        int[] positions = new int[]{0,0,0};
-        //int i = 0;
-        //List<Integer> rotorsPos = new ArrayList<>(numOfRotors);
+    public final static String BASE_URL = "http://localhost:8080/BattleFieldServer_Web_exploded";
 
+    public static void main(String[] args) throws InterruptedException {
 
-        for (Integer index : positions) {
-            sPos+=abc.charAt(index);
-        }
-        System.out.println(sPos);
-        sPos = "";
+        doPost();
+        Thread.sleep(2000);
+        doGet();
 
-        while(haMore) {
-            Integer pos = positions[0] + sizeOfMission;
-            Integer nextCarry = pos / abcSize;
-            if(nextCarry != 0){
-                positions[0] = pos % abcSize;
+    }
+
+    private static void doGet() {
+        String finalURL = HttpUrl
+                .parse(BASE_URL + "/test")
+                .newBuilder()
+                .build()
+                .toString();
+
+        Request request = new Request.Builder()
+                .url(finalURL)
+                .get()
+                .build();
+        runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                //Platform.runLater(() -> showErrors(e.getMessage()));
+                System.out.println(e.getMessage());
             }
-            else{
-                positions[0] = pos;
-            }
-            for (int i = 1; i < numOfRotors; i++) {
-                pos = positions[i] + nextCarry;
-                nextCarry = pos / abcSize;
-                if(nextCarry != 0){
-                    if(i == numOfRotors - 1){
-                        haMore = false;
-                        positions = new int[]{abcSize -1, abcSize - 1, abcSize - 1};
-                    }
-                    else {
-                        positions[i] = pos % abcSize;
-                    }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String body = response.body().string();
+                if (response.code() != SC_OK) {
+                    //Platform.runLater(() -> showErrors(body));
+                    System.out.println(body);
                 }
                 else{
-                    positions[i] = pos;
+                    AgentsDTO agentsDTO = GSON_INSTANCE.fromJson(body, AgentsDTO.class);
+                    for(AgentsInfo agent : agentsDTO.getAgents()){
+                        System.out.println(agent.getName() + " " +
+                                agent.getAlliesTeam() + " " +
+                                agent.getAssignmentsPerDraw() + " " +
+                                agent.getNumberOfThreads());
+                    }
                 }
+                response.code();
+            }
+        });
+    }
+
+    private static void doPost() {
+        AgentsDTO agentsDTO = new AgentsDTO();
+        for(int i = 0; i < 2; i++){
+            agentsDTO.addInfo(new AgentsInfo("avrum- " + i, 3, 3, "mike"));
+        }
+        String json = "agents=" + GSON_INSTANCE.toJson(agentsDTO);
+
+        String finalURL = HttpUrl
+                .parse(BASE_URL + "/test")
+                .newBuilder()
+                .build()
+                .toString();
+
+        Request request = new Request.Builder()
+                .url(finalURL)
+                .addHeader("Content-type", "application/json")
+                .post(RequestBody.create(json.getBytes()))
+                .build();
+        runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                //Platform.runLater(() -> showErrors(e.getMessage()));
+                System.out.println(e.getMessage());
             }
 
-            for (Integer index : positions) {
-                sPos+=abc.charAt(index);
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.code() != SC_OK) {
+                    String body = response.body().string();
+                    System.out.println(body);
+                    //Platform.runLater(() -> showErrors(body));
+                }
+                response.code();
             }
-            System.out.println(sPos);
-            sPos = "";
-        }
+        });
+
     }
 
 }

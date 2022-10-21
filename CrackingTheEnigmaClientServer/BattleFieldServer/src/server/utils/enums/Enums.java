@@ -4,7 +4,11 @@ public class Enums {
 
     public enum DataTypes{
         ALLIES,
+
+        ALLY,
         CANDIDATES,
-        BATTLE_FIELDS,
+        BATTLES,
+        AGENTS,
+        BATTLE
     }
 }
