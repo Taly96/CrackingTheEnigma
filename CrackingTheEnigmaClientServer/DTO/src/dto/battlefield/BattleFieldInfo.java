@@ -6,6 +6,8 @@ public class BattleFieldInfo implements Serializable {
 
     private String battleFieldName = null;
 
+    private String messageToDecipher = null;
+
     private String uBoat = null;
 
     private String level = null;
@@ -74,5 +76,13 @@ public class BattleFieldInfo implements Serializable {
 
     public String getTotalNumberOfAssignment() {
         return totalNumberOfAssignment;
+    }
+
+    public void setMessageToDecipher(String messageToDecipher) {
+        this.messageToDecipher = messageToDecipher;
+    }
+
+    public String getMessageToDecipher() {
+        return messageToDecipher;
     }
 }

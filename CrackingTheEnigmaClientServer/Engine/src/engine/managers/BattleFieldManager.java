@@ -53,8 +53,11 @@ public class BattleFieldManager {
         return this.battleFields.get(battleName).getBattleFieldInfo();
     }
 
-    public void setAllyReadyForContest(String battleName, String allyName, String assignmentSize) {
-        this.battleFields.get(battleName).setAllyReadyForContest(allyName, assignmentSize);
+    public boolean setAllyReadyForContest(String battleName, String allyName, String assignmentSize) {
+
+        return
+                this.battleFields.get(battleName)
+                        .setAllyReadyForContest(allyName, assignmentSize);
     }
 
     public void assembleContest(String battleName, String toEncrypt) {
