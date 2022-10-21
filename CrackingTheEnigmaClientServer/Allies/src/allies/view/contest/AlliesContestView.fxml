@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<Accordion minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="750.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="allies.view.contest.AlliesContestController">
+<Accordion minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="allies.view.contest.AlliesContestController">
   <panes>
     <TitledPane alignment="TOP_LEFT" animated="false" minWidth="-Infinity" prefHeight="580.0" prefWidth="700.0" text="Contest Information" textAlignment="CENTER">
          <content>
