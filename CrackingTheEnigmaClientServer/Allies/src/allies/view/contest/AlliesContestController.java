@@ -14,9 +14,7 @@ import dto.candidates.CandidatesDTO;
 import dto.candidates.CandidatesInfo;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -128,10 +126,19 @@ public class AlliesContestController {
 
     private TeamProgressRefresher teamProgressRefresher = null;
 
+    private BooleanProperty isContestOngoing = null;
+
     private Timer timer = null;
 
     @FXML
     public void initialize(){
+        this.isContestOngoing = new SimpleBooleanProperty(false);
+        this.isContestOngoing.addListener((observable, oldValue, newValue) -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Contest information");
+            alert.setContentText("The contest is has " + (newValue ? "started." : "ended."));
+            alert.showAndWait();
+        });
         this.currentlyDecipheringProperty = new SimpleStringProperty("None");
         this.maxAssignmentSizeValue = new BigDecimal(0);
         this.createdAssignments = new BigDecimal(0);
@@ -238,7 +245,7 @@ public class AlliesContestController {
                         System.lineSeparator() + " Correct?");
                 Optional<ButtonType> res = alert.showAndWait();
                 if(res.isPresent() && res.get().equals(ButtonType.OK)){
-                    this.alliesAppController.startContest(assignmentSize);
+                    this.alliesAppController.setReadyForContest(assignmentSize);
                 }
             }
         } catch (NumberFormatException e) {
@@ -260,6 +267,7 @@ public class AlliesContestController {
     public void updateSignedUpFor(BattleFieldInfo signedUpFor) {
         this.tableViewContest.getItems().clear();
         this.tableViewContest.getItems().add(signedUpFor);
+        this.currentlyDecipheringProperty.set(signedUpFor.getMessageToDecipher());
         this.maxAssignmentSizeValue = this.maxAssignmentSizeValue.add(new BigDecimal(signedUpFor.getTotalNumberOfAssignment()));
     }
 
@@ -291,6 +299,7 @@ public class AlliesContestController {
     private void updateTeamsProgress(AgentsDTO agentsDTO) {
         Platform.runLater(() -> {
             this.tableViewAgentsProgress.getItems().clear();
+
             for(AgentsInfo agentsInfo : agentsDTO.getAgents()){
                 this.tableViewAgentsProgress.getItems().add(agentsInfo);
             }
@@ -300,13 +309,14 @@ public class AlliesContestController {
     private void updateBattle(BattleFieldInfo battleFieldInfo) {
         Platform.runLater(() -> {
             this.tableViewContest.getItems().clear();
-                this.tableViewContest.getItems().add(battleFieldInfo);
+            this.tableViewContest.getItems().add(battleFieldInfo);
         });
     }
 
     private void updateContestants(AlliesDTO alliesDTO) {
         Platform.runLater(() -> {
             this.tableViewContestants.getItems().clear();
+
             for(AlliesInfo alliesInfo : alliesDTO.getAllies()){
                 this.tableViewContestants.getItems().add(alliesInfo);
             }
@@ -316,6 +326,7 @@ public class AlliesContestController {
     private void updateCandidates(CandidatesDTO candidatesDTO) {
         Platform.runLater(() -> {
             this.tableViewCandidates.getItems().clear();
+            //todo - check option: if battleInfo equals "Ended"  stop all
             for(CandidatesInfo candidatesInfo : candidatesDTO.getCandidates()){
                 this.tableViewCandidates.getItems().add(candidatesInfo);
             }

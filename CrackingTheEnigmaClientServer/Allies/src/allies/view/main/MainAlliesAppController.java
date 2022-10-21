@@ -159,7 +159,6 @@ public class MainAlliesAppController {
                         contestController.updateSignedUpFor(signedUpFor);
                         switchToContestView();
                         dashBoardController.stopRefreshers();
-                        contestController.startRefreshers();
                     });
                 }
                 else{
@@ -186,7 +185,7 @@ public class MainAlliesAppController {
         this.switchToDashBoardView();
     }
 
-    public void startContest(BigInteger assignmentSize) {
+    public void setReadyForContest(BigInteger assignmentSize) {
         String finalURL = HttpUrl
                 .parse(READY)
                 .newBuilder()

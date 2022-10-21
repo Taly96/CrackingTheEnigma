@@ -46,6 +46,7 @@ public class BattleField {
             ));
             if (contest.size() == this.battleFieldInfo.getRegisteredAllies()) {
                 this.battleFieldInfo.setStatus("full");
+                this.startContest();
             }
 
             return true;
@@ -69,7 +70,7 @@ public class BattleField {
         return this.machineManager.generateCodeConfig();
     }
 
-    public void startContest(){
+    private void startContest(){
         for(DecipherManager dm : this.contest.values()){
             dm.startProducingAssignments();
         }

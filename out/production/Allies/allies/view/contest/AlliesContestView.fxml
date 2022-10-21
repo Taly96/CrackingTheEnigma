@@ -100,7 +100,7 @@
                               <Font name="Bauhaus 93" size="25.0" />
                            </font>
                         </Label>
-                        <TableView fx:id="tableViewCandidates" VBox.vgrow="ALWAYS">
+                        <TableView fx:id="tableViewCandidates" prefHeight="277.0" prefWidth="728.0" VBox.vgrow="ALWAYS">
                            <columns>
                               <TableColumn fx:id="tableColumnCandidates" editable="false" prefWidth="75.0" sortable="false" text="Candidate" />
                               <TableColumn fx:id="tableColumnFoundBy" editable="false" prefWidth="83.33331298828125" sortable="false" text="Found By" />
@@ -117,6 +117,11 @@
                         <Label text="Team's Progress" textAlignment="CENTER">
                            <font>
                               <Font name="Bauhaus 93" size="25.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="labelCurrentlyWorkingOn" alignment="TOP_CENTER" text="Working On:" textAlignment="CENTER">
+                           <font>
+                              <Font size="15.0" />
                            </font>
                         </Label>
                         <TableView fx:id="tableViewAgentsProgress" VBox.vgrow="NEVER">
