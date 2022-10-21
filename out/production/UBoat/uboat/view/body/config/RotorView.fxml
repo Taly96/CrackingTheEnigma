@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox id="vBoxRotor" fx:id="vBoxRotor" alignment="CENTER" fillWidth="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#onChosenRotor" prefHeight="70.0" prefWidth="60.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uboat.view.body.config.rotors.SingleRotorController">
+   <children>
+      <ImageView fitHeight="50.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="NEVER">
+         <image>
+            <Image url="@../../resources/Rotor-removebg-preview.png" />
+         </image>
+      </ImageView>
+      <Label fx:id="labelRotorID" text="ID:" VBox.vgrow="NEVER">
+         <font>
+            <Font name="Bauhaus 93" size="15.0" />
+         </font>
+      </Label>
+   </children>
+</VBox>

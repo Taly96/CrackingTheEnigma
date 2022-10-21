@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="allies.view.dashboard.AlliesDashBoardController">
+   <children>
+      <VBox alignment="TOP_CENTER" spacing="10.0">
+         <children>
+            <Label text="Team's Agents" textAlignment="CENTER">
+               <font>
+                  <Font name="Bauhaus 93" size="25.0" />
+               </font>
+            </Label>
+            <TableView fx:id="tableViewAgents" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="tableColumnName" editable="false" prefWidth="75.0" sortable="false" text="Name" />
+                  <TableColumn fx:id="tableColumnNumberOfThreads" editable="false" prefWidth="75.0" sortable="false" text="Threads" />
+                  <TableColumn fx:id="tableColumnAssignment" editable="false" prefWidth="75.0" sortable="false" text="Assignments Per Pull" />
+               </columns>
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+            </TableView>
+         </children>
+      </VBox>
+      <VBox alignment="TOP_CENTER" spacing="10.0">
+         <children>
+            <Label text="Contests " textAlignment="CENTER">
+               <font>
+                  <Font name="Bauhaus 93" size="25.0" />
+               </font>
+            </Label>
+            <TableView fx:id="tableViewContests" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="tableColumnBattleField" editable="false" prefWidth="75.0" sortable="false" text="BattleField" />
+                  <TableColumn fx:id="tableColumnUBoat" editable="false" prefWidth="75.0" sortable="false" text="UBoat" />
+                  <TableColumn fx:id="tableColumnNeeded" editable="false" prefWidth="75.0" sortable="false" text="Needed Allies" />
+                  <TableColumn fx:id="tableColumnRegistered" editable="false" prefWidth="75.0" sortable="false" text="Registered Allies" />
+                  <TableColumn fx:id="tableColumnStatus" editable="false" prefWidth="75.0" sortable="false" text="Status" />
+                  <TableColumn fx:id="tableColumnLevel" editable="false" prefWidth="75.0" sortable="false" text="Level" />
+               </columns>
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+            </TableView>
+            <HBox alignment="TOP_CENTER" fillHeight="false" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+               <children>
+                  <Button fx:id="buttonReady" alignment="TOP_CENTER" mnemonicParsing="false" onAction="#onSignUpContest" text="Join" textAlignment="CENTER" />
+                  <TextField fx:id="textFieldChosenBattleField" alignment="TOP_CENTER" prefWidth="250.0" promptText="BattleField" HBox.hgrow="NEVER" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</VBox>
