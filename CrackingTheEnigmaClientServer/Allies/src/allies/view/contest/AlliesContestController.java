@@ -16,6 +16,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -104,6 +105,11 @@ public class AlliesContestController {
     @FXML
     private Label labelCreatedAssignments;
 
+    @FXML
+    private Label labelCurrentlyWorkingOn;
+
+    private StringProperty currentlyDecipheringProperty = null;
+
     private BigDecimal maxAssignmentSizeValue = null;
 
     private BigDecimal completedAssignments = null;
@@ -126,6 +132,7 @@ public class AlliesContestController {
 
     @FXML
     public void initialize(){
+        this.currentlyDecipheringProperty = new SimpleStringProperty("None");
         this.maxAssignmentSizeValue = new BigDecimal(0);
         this.createdAssignments = new BigDecimal(0);
         this.completedAssignments = new BigDecimal(0);
@@ -144,6 +151,12 @@ public class AlliesContestController {
                 Bindings.concat(
                         "Created Assignments: ",
                         this.createdAssignments
+                )
+        );
+        this.labelCurrentlyWorkingOn.textProperty().bind(
+                Bindings.concat(
+                        "Currently Deciphering: ",
+                        this.currentlyDecipheringProperty.getValue()
                 )
         );
         this.initializeContestTableView();

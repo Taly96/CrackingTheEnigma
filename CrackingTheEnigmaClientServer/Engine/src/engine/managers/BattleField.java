@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BattleField {
-    private String messageToEncrypt = "Contest is inactive";
-
     private BattleFieldInfo battleFieldInfo = null;
 
     private MachineManager machineManager= null;
@@ -36,14 +34,24 @@ public class BattleField {
 
     public void assembleContest(String messageToEncrypt) {
         this.battleFieldInfo.setStatus("Waiting");
-        this.messageToEncrypt = messageToEncrypt;
+        this.battleFieldInfo.setMessageToDecipher(messageToEncrypt);
     }
-    public void setAllyReadyForContest(String allyName, String assignmentSize) {
-        this.contest.put(allyName, new DecipherManager(
-                this.battleFieldInfo.getLevel(),
-                assignmentSize,
-                this.getBattleFieldInfo().getTotalNumberOfAssignment()
-        ));
+    public boolean setAllyReadyForContest(String allyName, String assignmentSize) {
+        if(!this.battleFieldInfo.getStatus().equals("full")) {
+            this.contest.put(allyName, new DecipherManager(
+                    this.battleFieldInfo.getLevel(),
+                    assignmentSize,
+                    this.getBattleFieldInfo().getTotalNumberOfAssignment(),
+                    this.machineManager.getDecipherDTO()
+            ));
+            if (contest.size() == this.battleFieldInfo.getRegisteredAllies()) {
+                this.battleFieldInfo.setStatus("full");
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public String processMessage(String messageToProcess) {
@@ -59,5 +67,13 @@ public class BattleField {
     public CodeConfigInfo generateCodeConfig() {
 
         return this.machineManager.generateCodeConfig();
+    }
+
+    public void startContest(){
+        for(DecipherManager dm : this.contest.values()){
+            dm.startProducingAssignments();
+        }
+
+        this.battleFieldInfo.setStatus("Active");
     }
 }

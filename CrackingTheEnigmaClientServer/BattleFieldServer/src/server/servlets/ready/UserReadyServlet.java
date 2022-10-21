@@ -107,10 +107,11 @@ public class UserReadyServlet extends HttpServlet {
                     BattleFieldManager battleFieldManager = getBattleFieldManager(getServletContext());
                     AlliesManager alliesManager = getAlliesManager(getServletContext());
                     synchronized (this) {
-                        isValidReq = true;
-                        battleFieldManager.setAllyReadyForContest(battleName, allyName, assignmentSize);
-                        alliesManager.setAllyReadyForContest(allyName, assignmentSize);
-                        resp.setStatus(HttpServletResponse.SC_OK);
+                        if(battleFieldManager.setAllyReadyForContest(battleName, allyName, assignmentSize)){
+                            isValidReq = true;
+                            alliesManager.setAllyReadyForContest(allyName, assignmentSize);
+                            resp.setStatus(HttpServletResponse.SC_OK);
+                        }
                     }
                 }
             }
