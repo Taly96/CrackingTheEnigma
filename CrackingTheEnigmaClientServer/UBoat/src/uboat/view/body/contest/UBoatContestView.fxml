@@ -70,7 +70,7 @@
             <Insets left="5.0" />
          </GridPane.margin>
       </VBox>
-      <VBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="250.0" spacing="5.0" GridPane.rowIndex="1" GridPane.rowSpan="2" GridPane.vgrow="SOMETIMES">
+      <VBox fx:id="vBoxProcess" alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="250.0" spacing="5.0" GridPane.rowIndex="1" GridPane.rowSpan="2" GridPane.vgrow="SOMETIMES">
          <children>
             <Label alignment="CENTER" text="Process Message" textAlignment="CENTER">
                <font>
@@ -86,7 +86,7 @@
             <TextField fx:id="textFieldProcessedMessage" alignment="TOP_LEFT" editable="false" prefHeight="106.0" prefWidth="300.0" promptText="Your processed message will appear here." VBox.vgrow="SOMETIMES" />
          </children>
       </VBox>
-      <HBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="200.0" spacing="60.0" GridPane.rowIndex="3">
+      <HBox fx:id="hBoxButtons" alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="200.0" spacing="60.0" GridPane.rowIndex="3">
          <children>
             <Button fx:id="buttonProcessMessage" mnemonicParsing="false" onAction="#onProcessMessage" text="Process" textAlignment="CENTER">
                <HBox.margin>

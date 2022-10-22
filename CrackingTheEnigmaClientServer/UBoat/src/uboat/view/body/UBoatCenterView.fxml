@@ -5,7 +5,7 @@
 
 <TabPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="uboat.view.body.UBoatCenterController">
   <tabs>
-    <Tab text="Machine">
+    <Tab fx:id="tabMachine" text="Machine">
         <fx:include fx:id="gridPaneMachineTabComponent" source="config/UBoatMachineView.fxml" />
     </Tab>
     <Tab fx:id="tabContest" text="Contest">

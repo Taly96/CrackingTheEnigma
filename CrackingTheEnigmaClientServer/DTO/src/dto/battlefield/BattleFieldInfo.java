@@ -32,57 +32,60 @@ public class BattleFieldInfo implements Serializable {
         this.registeredAllies = 0;
     }
 
-    public String getBattleFieldName() {
+    public BattleFieldInfo() {
+    }
+
+    public synchronized String getBattleFieldName() {
         return battleFieldName;
     }
 
-    public String getLevel() {
+    public synchronized String getLevel() {
         return level;
     }
 
-    public Integer getNeededNumOfAllies() {
+    public synchronized Integer getNeededNumOfAllies() {
         return neededNumOfAllies;
     }
 
-    public Integer getRegisteredAllies() {
+    public synchronized Integer getRegisteredAllies() {
         return registeredAllies;
     }
 
-    public String getStatus() {
+    public synchronized String getStatus() {
         return status;
     }
 
-    public String getUBoat() {
+    public synchronized String getUBoat() {
         return uBoat;
     }
 
-    public void setRegisteredAllies(Integer registeredAllies) {
+    public synchronized void setRegisteredAllies(Integer registeredAllies) {
         this.registeredAllies = registeredAllies;
     }
 
-    public void setStatus(String status) {
+    public synchronized void setStatus(String status) {
         this.status = status;
     }
 
-    public void setUBoat(String uBoat){
+    public synchronized void setUBoat(String uBoat){
         this.uBoat = uBoat;
     }
 
-    public void incrementAllies() {this.registeredAllies++;}
+    public synchronized void incrementAllies() {this.registeredAllies++;}
 
-    public void setTotalNumberOfAssignment(String totalNumberOfAssignment) {
+    public synchronized void setTotalNumberOfAssignment(String totalNumberOfAssignment) {
         this.totalNumberOfAssignment = totalNumberOfAssignment;
     }
 
-    public String getTotalNumberOfAssignment() {
+    public synchronized String getTotalNumberOfAssignment() {
         return totalNumberOfAssignment;
     }
 
-    public void setMessageToDecipher(String messageToDecipher) {
+    public synchronized void setMessageToDecipher(String messageToDecipher) {
         this.messageToDecipher = messageToDecipher;
     }
 
-    public String getMessageToDecipher() {
+    public synchronized String getMessageToDecipher() {
         return messageToDecipher;
     }
 }

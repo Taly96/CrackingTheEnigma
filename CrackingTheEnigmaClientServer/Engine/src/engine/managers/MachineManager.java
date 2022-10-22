@@ -24,7 +24,7 @@ public class MachineManager {
         this.theEnigma = new EnigmaMachine();
     }
 
-    public LoadedMachineDTO configureMachine(CTEEnigma currentLoadedMachine) {
+    public synchronized LoadedMachineDTO configureMachine(CTEEnigma currentLoadedMachine) {
         LoadedMachineDTO currentLoadedMachineDTO =
                 this.machineInventory.configureManager(currentLoadedMachine);
         this.theEnigma.setABC(this.machineInventory.getABC());
@@ -33,7 +33,7 @@ public class MachineManager {
         return currentLoadedMachineDTO;
     }
 
-    public CodeConfigInfo setCodeConfig(CodeConfigInfo inputConfig) {
+    public synchronized CodeConfigInfo setCodeConfig(CodeConfigInfo inputConfig) {
         this.theEnigma.clearCodeConfig();
         this.setReflectorConfig(inputConfig.getReflectorID());
         List<Integer> rotorsPosFromNotch = this.setRotors(
@@ -55,7 +55,7 @@ public class MachineManager {
         return setCodeConfig;
     }
 
-    private List<Integer> setRotors(List<Integer> rotorsOrder, String rotorsStartingPos) {
+    private synchronized List<Integer> setRotors(List<Integer> rotorsOrder, String rotorsStartingPos) {
         List<Integer> rotorsNotchPosFromWindow = new ArrayList<>();
         int rotorIndex = 0;
 
@@ -75,19 +75,19 @@ public class MachineManager {
         return rotorsNotchPosFromWindow;
     }
 
-    private void setRotorStartingPositionsConfig(int rotorIndex, String pos) {
+    private synchronized void setRotorStartingPositionsConfig(int rotorIndex, String pos) {
         this.theEnigma.setRotorsStartingPosition(rotorIndex, pos);
     }
 
-    private void setRotorIDConfig(Integer rotorID) {
+    private synchronized void setRotorIDConfig(Integer rotorID) {
         this.theEnigma.addRotor(this.machineInventory.getRotor(rotorID));
     }
 
-    private void setReflectorConfig(String reflectorID) {
+    private synchronized void setReflectorConfig(String reflectorID) {
         this.theEnigma.addReflector(this.machineInventory.getReflector(reflectorID));
     }
 
-    public CodeConfigInfo generateCodeConfig() {
+    public synchronized CodeConfigInfo generateCodeConfig() {
         List<Integer> rotorsOrder = this.generateRotorsOrder();
         String rotorsStartingPoints = this.generateRotorsStartingPoints();
         String reflectorID = this.generateReflector();
@@ -102,7 +102,7 @@ public class MachineManager {
         return this.setCodeConfig(setCodeConfig);
     }
 
-    private String generateReflector() {
+    private synchronized String generateReflector() {
         Random rand = new Random();
         int reflectorIndex = rand.nextInt(
                 this.machineInventory.getAvailableReflectorIDs().size());
@@ -110,7 +110,7 @@ public class MachineManager {
         return this.machineInventory.getAvailableReflectorIDs().get(reflectorIndex).getID();
     }
 
-    private String generateRotorsStartingPoints() {
+    private synchronized String generateRotorsStartingPoints() {
         int numOfPos = 0;
         StringBuilder rotorsStartingPoint = new StringBuilder();
         Random rand = new Random();
@@ -125,7 +125,7 @@ public class MachineManager {
         return rotorsStartingPoint.toString();
     }
 
-    private List<Integer> generateRotorsOrder() {
+    private synchronized List<Integer> generateRotorsOrder() {
         List<Integer> rotorsIDOrder = new ArrayList<>();
         Random rand = new Random();
 
@@ -139,12 +139,12 @@ public class MachineManager {
         return rotorsIDOrder;
     }
 
-    public String processMessage(String messageToProcess) {
+    public synchronized String processMessage(String messageToProcess) {
 
         return this.theEnigma.process(messageToProcess);
     }
 
-    public InventoryManager getMachineInventoryManager() {
+    public synchronized InventoryManager getMachineInventoryManager() {
         return machineInventory;
     }
 

@@ -4,7 +4,7 @@ public class AlliesInfo {
 
     private String name = null;
 
-    private String battleName = null;
+    private String battleName = "Hasn't Joined Yet.";
 
     private Integer numOfAgents = 0;
 
@@ -26,35 +26,35 @@ public class AlliesInfo {
         this.name = userName;
     }
 
-    public String getName() {
+    public synchronized String getName() {
         return name;
     }
 
-    public Integer getNumOfAgents() {
+    public synchronized Integer getNumOfAgents() {
         return numOfAgents;
     }
 
-    public String getAssignmentSize() {
+    public synchronized String getAssignmentSize() {
         return assignmentSize;
     }
 
-    public void setName(String name) {
+    public synchronized void setName(String name) {
         this.name = name;
     }
 
-    public void incrementNumOfAgents() {
+    public synchronized void incrementNumOfAgents() {
         this.numOfAgents++;
     }
 
-    public void setAssignmentSize(String assignmentSize) {
+    public synchronized void setAssignmentSize(String assignmentSize) {
         this.assignmentSize = assignmentSize;
     }
 
-    public String getBattleName() {
+    public synchronized String getBattleName() {
         return battleName;
     }
 
-    public void setBattleName(String battleName) {
+    public synchronized void setBattleName(String battleName) {
         this.battleName = battleName;
     }
 }

@@ -9,14 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BattleFieldManager {
-
+//Map<BattleName, BattleField>
     private Map<String, BattleField> battleFields = null;
 
     public BattleFieldManager() {
         this.battleFields = new HashMap<>();
     }
 
-    public void addBattleField(
+    public synchronized void addBattleField(
             LoadedMachineDTO loadedMachineDTO,
             MachineManager machineManager
     ) {
@@ -34,11 +34,11 @@ public class BattleFieldManager {
         return this.battleFields.get(name);
     }
 
-    public boolean isBattleExists(String name) {
+    public synchronized boolean isBattleExists(String name) {
         return this.battleFields.containsKey(name);
     }
 
-    public synchronized BattleFieldDTO refreshBattleFields() {
+    public synchronized BattleFieldDTO refreshAllBattleFields() {
         BattleFieldDTO data = new BattleFieldDTO();
 
         for(Map.Entry<String, BattleField> set : this.battleFields.entrySet()){
@@ -53,28 +53,28 @@ public class BattleFieldManager {
         return this.battleFields.get(battleName).getBattleFieldInfo();
     }
 
-    public boolean setAllyReadyForContest(String battleName, String allyName, String assignmentSize) {
+    public synchronized boolean setAllyReadyForContest(String battleName, String allyName, String assignmentSize) {
 
         return
                 this.battleFields.get(battleName)
                         .setAllyReadyForContest(allyName, assignmentSize);
     }
 
-    public void assembleContest(String battleName, String toEncrypt) {
+    public synchronized void assembleContest(String battleName, String toEncrypt) {
         this.battleFields.get(battleName).assembleContest(toEncrypt);
     }
 
-    public String processMessage(String battleName, String messageToProcess) {
+    public synchronized String processMessage(String battleName, String messageToProcess) {
 
         return this.battleFields.get(battleName).processMessage(messageToProcess);
     }
 
-    public CodeConfigInfo setCodeConfig(String battleName, CodeConfigInfo inputConfig) {
+    public synchronized CodeConfigInfo setCodeConfig(String battleName, CodeConfigInfo inputConfig) {
 
         return this.battleFields.get(battleName).setCodeConfig(inputConfig);
     }
 
-    public CodeConfigInfo generateCodeConfig(String battleName) {
+    public synchronized CodeConfigInfo generateCodeConfig(String battleName) {
 
         return this.battleFields.get(battleName).generateCodeConfig();
     }

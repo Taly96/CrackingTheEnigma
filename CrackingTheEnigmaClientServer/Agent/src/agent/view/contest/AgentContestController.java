@@ -1,26 +1,26 @@
 package agent.view.contest;
 
+import agent.view.contest.refreshers.ContestRefresher;
 import agent.view.main.MainAgentAppController;
 import dto.agents.AgentsInfo;
 import dto.battlefield.BattleFieldInfo;
 import dto.candidates.CandidatesInfo;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
+import java.util.Timer;
+
+import static httpcommon.constants.Constants.REFRESH_RATE;
+
 public class AgentContestController {
 
     @FXML
-    private TableView<String> tableViewAlly;
-
-    @FXML
-    private TableColumn<String, String> tableColumnAllyName;
-
+    private Label labelAllyTeam;
     @FXML
     private TableView<BattleFieldInfo> tableViewContest;
 
@@ -65,51 +65,77 @@ public class AgentContestController {
 
     private MainAgentAppController mainAgentAppController = null;
 
-    private StringProperty totalAssignmentsDrawnProperty = null;
+    private ContestRefresher contestRefresher = null;
 
-    private StringProperty totalCompletedAssignmentsProperty = null;
+    private Timer timer = null;
 
-    private StringProperty totalCandidatesFoundProperty = null;
+    private IntegerProperty totalAssignmentsDrawnProperty = null;
 
-    private StringProperty awaitingAssignmentProperty = null;
+    private IntegerProperty totalCompletedAssignmentsProperty = null;
 
-    private  int totalAssignmentsDrawn = 0;
+    private LongProperty totalCandidatesProperty = null;
 
-    private int totalCompletedAssignments = 0;
+    private IntegerProperty awaitingAssignmentsProperty = null;
 
-    private long totalCandidates = 0;
+    private StringProperty allyNameProperty = null;
 
-    private int awaitingAssignments = 0;
+    private boolean isDeciphering = false;
 
     @FXML
     public void initialize(){
-        this.awaitingAssignmentProperty = new SimpleStringProperty();
-        this.totalAssignmentsDrawnProperty = new SimpleStringProperty();
-        this.totalCandidatesFoundProperty = new SimpleStringProperty();
-        this.totalCompletedAssignmentsProperty = new SimpleStringProperty();
+        this.allyNameProperty = new SimpleStringProperty("Hasn't Joined Yet.");
+        this.awaitingAssignmentsProperty = new SimpleIntegerProperty(0);
+        this.totalCandidatesProperty = new SimpleLongProperty(0);
+        this.totalAssignmentsDrawnProperty = new SimpleIntegerProperty(0);
+        this.totalCompletedAssignmentsProperty = new SimpleIntegerProperty(0);
         this.labelAwaitingAssignments.textProperty().bind(
                 Bindings.concat(
-                        "Currently awaiting assignments: ",
-                        this.awaitingAssignments
+                        "Currently Awaiting Assignments: ",
+                        this.awaitingAssignmentsProperty
                 )
         );
         this.labelTotalAssignments.textProperty().bind(
                 Bindings.concat(
-                        "Total drawn assignments: ",
-                        this.totalAssignmentsDrawn
+                        "Total Assignments: ",
+                        this.totalAssignmentsDrawnProperty
                 )
         );
         this.labelTotalCandidates.textProperty().bind(
                 Bindings.concat(
-                        "Total candidates found: ",
-                        this.totalCandidates
+                        "Total Candidates Found: ",
+                        this.totalCandidatesProperty
                 )
         );
         this.labelTotalCompletedAssignments.textProperty().bind(
                 Bindings.concat(
-                        "Total completed assignments: ",
-                        this.totalCompletedAssignments
+                        "Total Completed Assignments: ",
+                        this.totalCompletedAssignmentsProperty
                 )
+        );
+        this.labelAllyTeam.textProperty().bind(
+                Bindings.concat(
+                        "Ally Team: ",
+                        this.allyNameProperty
+                )
+        );
+        this.initializeCandidatesTableView();
+        this.initializeContestTableView();
+    }
+
+    private void initializeContestTableView() {
+        this.tableColumnBattleField.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getBattleFieldName()));
+        this.tableColumnUBoat.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUBoat()));
+        this.tableColumnNeeded.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getNeededNumOfAllies()).asObject());
+        this.tableColumnRegistered.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getRegisteredAllies()).asObject());
+        this.tableColumnStatus.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatus()));
+        this.tableColumnLevel.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getLevel()));
+    }
+    private void initializeCandidatesTableView() {
+        this.tableColumnCandidatesString.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getCandidate())
+        );
+        this.tableColumnCandidateConfig.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getCodeConfig())
         );
     }
 
@@ -117,15 +143,43 @@ public class AgentContestController {
         this.mainAgentAppController = mainAgentAppController;
     }
 
-    public void loggedIn(AgentsInfo newAgent, BattleFieldInfo registeredTo) {
-        this.tableViewAlly.getItems().add(newAgent.getName());
-        this.tableViewContest.getItems().add(registeredTo);
+    public void loggedIn(AgentsInfo newAgent) {
+        this.allyNameProperty.set(newAgent.getAlliesTeam());
+        this.startBattleRefresher();
+    }
 
+    private void startBattleRefresher(){
+        this.contestRefresher = new ContestRefresher(
+                this::updateContest
+        );
+        this.timer = new Timer();
+        this.timer.schedule(this.contestRefresher, REFRESH_RATE, REFRESH_RATE);
+
+    }
+
+    private void updateContest(BattleFieldInfo battleFieldInfo) {
+        if(battleFieldInfo.getBattleFieldName() != null){
+            if(battleFieldInfo.getStatus().equals("Active")){
+                if(!this.isDeciphering){
+                    this.isDeciphering = true;
+                    this.decipher();
+                }
+            } else if (battleFieldInfo.getStatus().equals("Ended")) {
+                this.isDeciphering = false;
+                this.stopRefreshers();
+            }
+            this.tableViewContest.getItems().clear();
+            this.tableViewContest.getItems().add(battleFieldInfo);
+        }
+    }
+
+    private void stopRefreshers() {
+        this.contestRefresher.cancel();
+        this.timer.cancel();
     }
 
     private void decipher(){
-
+        System.out.println("String Deciphering");
+        //todo - start deciphering task
     }
-
-    //todo-refreshBattleStatus
 }

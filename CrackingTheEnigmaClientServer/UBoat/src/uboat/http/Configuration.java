@@ -10,4 +10,6 @@ public class Configuration {
 
     public final static String PROCESS_MESSAGE = BASE_URL + "/process";
 
+    public final static String UBOAT = "uboat";
+
 }

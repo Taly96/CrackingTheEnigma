@@ -10,11 +10,11 @@ public class CandidatesDTO {
     public CandidatesDTO(){
         this.candidates = new ArrayList<>();
     }
-    public List<CandidatesInfo> getCandidates() {
+    public synchronized List<CandidatesInfo> getCandidates() {
         return this.candidates;
     }
 
-    public void addInfo(CandidatesInfo candidatesInfo){
+    public synchronized void addInfo(CandidatesInfo candidatesInfo){
         this.candidates.add(candidatesInfo);
     }
 }

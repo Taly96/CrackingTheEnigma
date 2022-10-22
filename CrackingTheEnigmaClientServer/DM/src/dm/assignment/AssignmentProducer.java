@@ -17,7 +17,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AssignmentProducer implements Runnable {
-    //todo- calc assignment leftovers - if more positions are available but the zzz was passed
     private BlockingQueue<AssignmentDTO> assignments = null;
 
     private String level = null;

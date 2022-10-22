@@ -25,7 +25,7 @@
                               <Font name="Bauhaus 93" size="25.0" />
                            </font>
                         </Label>
-                        <TableView fx:id="tableViewContest" editable="true" minHeight="-Infinity" prefHeight="67.0" prefWidth="728.0" VBox.vgrow="NEVER">
+                        <TableView fx:id="tableViewContest" editable="true" minHeight="-Infinity" prefHeight="62.0" prefWidth="728.0" VBox.vgrow="NEVER">
                            <columns>
                               <TableColumn fx:id="tableColumnBattleField" editable="false" minWidth="-Infinity" prefWidth="0.0" sortable="false" text="BattleField" />
                               <TableColumn fx:id="tableColumnUBoat" editable="false" minWidth="-Infinity" prefWidth="0.0" sortable="false" text="UBoat" />

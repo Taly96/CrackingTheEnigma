@@ -14,46 +14,64 @@ public class Ally {
 
     private boolean isReady = false;
 
+    private boolean hasJoined = false;
+
     private AlliesInfo info = null;
 
     private AgentsManager agents = null;
 
     private CandidatesManager candidatesManager = null;
 
-    public Ally(){
+    public Ally(String allyName){
+        this.info = new AlliesInfo(allyName);
         this.agents = new AgentsManager();
         this.candidatesManager = new CandidatesManager();
     }
 
-    public void updateAlly(AlliesInfo info){
-        this.battleName = info.getBattleName();
-        this.info = info;
+    public synchronized void updateAlly(String battleName){
+        this.info.setBattleName(battleName);
+        this.battleName = battleName;
+        this.hasJoined = true;
     }
 
-    public  AlliesInfo getInfo() {
+    public synchronized  AlliesInfo getInfo() {
         return info;
     }
 
-    public void addAgent(AgentsInfo agent) {
+    public synchronized void addAgent(AgentsInfo agent) {
+        this.info.incrementNumOfAgents();
         this.agents.addAgent(agent);
     }
 
-    public void setReady(String assignmentSize) {
+    public synchronized void setReady(String assignmentSize) {
         this.isReady = true;
+        this.info.setAssignmentSize(assignmentSize);
         this.assignmentSize = assignmentSize;
     }
 
-    public String getBattleName() {
+    public synchronized String getBattleName() {
         return this.battleName;
     }
 
-    public CandidatesDTO refreshCandidates() {
+    public synchronized CandidatesDTO refreshCandidates() {
 
         return this.candidatesManager.getCandidates();
     }
 
-    public List<AgentsInfo> getAgents() {
+    public synchronized List<AgentsInfo> getAgents() {
 
         return this.agents.getAgents();
+    }
+
+    public synchronized boolean isReady() {
+        return isReady;
+    }
+
+    public synchronized boolean hasJoined(){
+        return this.hasJoined;
+    }
+
+    public synchronized void setReady(boolean ready) {
+        isReady = ready;
     }
 }

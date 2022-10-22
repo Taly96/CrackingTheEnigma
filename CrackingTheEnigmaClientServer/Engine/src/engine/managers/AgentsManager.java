@@ -15,11 +15,11 @@ public class AgentsManager {
     public AgentsManager() {
         this.agents = new HashMap<>();
     }
-    public void addAgent(AgentsInfo agent) {
+    public synchronized void addAgent(AgentsInfo agent) {
         this.agents.put(agent.getName(), agent);
     }
 
-    public List<AgentsInfo> getAgents() {
+    public synchronized List<AgentsInfo> getAgents() {
         List<AgentsInfo> agents = new ArrayList<>();
 
         for(AgentsInfo agent : this.agents.values()){

@@ -27,6 +27,9 @@ public class UBoatCenterController {
     private Tab tabContest;
 
     @FXML
+    private Tab tabMachine;
+
+    @FXML
     private UBoatContestController gridPaneContestTabComponentController;
 
     private MainUBoatAppController uBoatMainController = null;
@@ -73,5 +76,14 @@ public class UBoatCenterController {
 
     public void startContest(String messageToEncrypt) {
         this.uBoatMainController.startContest(messageToEncrypt);
+    }
+
+    public void contestStarted(){
+        this.tabMachine.setDisable(true);
+        this.gridPaneContestTabComponentController.contestStarted();
+    }
+
+    public void contestEnded(){
+        this.tabMachine.setDisable(false);
     }
 }

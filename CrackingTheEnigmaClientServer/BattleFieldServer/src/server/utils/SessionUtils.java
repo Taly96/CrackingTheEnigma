@@ -32,4 +32,10 @@ public class SessionUtils {
         Object sessionAttribute = session != null ? session.getAttribute(TYPE) : null;
         return sessionAttribute != null ? sessionAttribute.toString() : null;
     }
+
+    public static String getAllyName(HttpServletRequest req) {
+        HttpSession session = req.getSession(false);
+        Object sessionAttribute = session != null ? session.getAttribute(ALLY_NAME) : null;
+        return sessionAttribute != null ? sessionAttribute.toString() : null;
+    }
 }

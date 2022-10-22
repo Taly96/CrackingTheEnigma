@@ -1,11 +1,14 @@
 package agent.view.login;
 
+import agent.view.login.refreshers.AlliesDataRefresher;
 import agent.view.main.MainAgentAppController;
 import com.sun.istack.internal.NotNull;
+import dto.activeteams.AlliesDTO;
 import dto.activeteams.AlliesInfo;
 import dto.agents.AgentsInfo;
 import dto.battlefield.BattleFieldInfo;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,28 +20,30 @@ import okhttp3.*;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Timer;
 
-import static httpcommon.constants.Constants.LOGIN_PAGE;
+import static agent.http.Configuration.AGENT;
+import static httpcommon.constants.Constants.*;
 import static httpcommon.utils.HttpClientUtil.GSON_INSTANCE;
 import static httpcommon.utils.HttpClientUtil.runAsync;
 import static httpcommon.utils.Utils.showErrors;
 
-public class LoginController {
+public class AgentLoginController {
 
     @FXML
     private TextField textFieldUserName;
 
     @FXML
-    private TextField testFieldAlliesName;
+    private TextField textFieldAlliesName;
 
     @FXML
     private TableView<AlliesInfo> tableViewAllies;
 
     @FXML
-    private TableColumn<?, ?> tableColumnName;
+    private TableColumn<AlliesInfo, String> tableColumnName;
 
     @FXML
-    private TableColumn<?, ?> tableColumnRegistered;
+    private TableColumn<AlliesInfo, Integer> tableColumnRegistered;
 
     @FXML
     private Slider sliderThreads;
@@ -48,6 +53,9 @@ public class LoginController {
 
     @FXML
     private Button buttonSet;
+
+    @FXML
+    private Button buttonLogin;
 
     private MainAgentAppController mainAgentAppController = null;
 
@@ -59,23 +67,32 @@ public class LoginController {
 
     private StringProperty userNameProperty = null;
 
+    private AlliesDataRefresher alliesDataRefresher = null;
+
+    private Timer timer = null;
+
     @FXML
     public void initialize(){
         this.numOfThreadsProperty = new SimpleIntegerProperty();
         this.numOfAssignmentsProperty = new SimpleIntegerProperty();
-        this.alliesChosenProperty = new SimpleStringProperty();
+        this.alliesChosenProperty = new SimpleStringProperty("Click on an ally to join its' team.");
         this.userNameProperty = new SimpleStringProperty();
-        this.tableViewAllies
-                .selectionModelProperty()
-                .addListener((observable, oldValue, newValue) -> this.alliesChosenProperty.set(newValue.getSelectedItem().getName()));
         this.numOfThreadsProperty.bind(this.sliderThreads.valueProperty());
         this.sliderThreads.setValue(1);
+        this.textFieldAlliesName.textProperty().bind(this.alliesChosenProperty);
+        this.tableViewAllies.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        this.tableColumnName.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getName())
+        );
+        this.tableColumnRegistered.setCellValueFactory(
+                cellData -> new SimpleIntegerProperty(cellData.getValue().getNumOfAgents()).asObject()
+        );
     }
 
     @FXML
     void onSet(ActionEvent event) {
         try{
-            Integer parsedAssignments = Integer.parseInt(this.textFieldAssignments.getText());
+            int parsedAssignments = Integer.parseInt(this.textFieldAssignments.getText());
             if(parsedAssignments == 0){
                 throw new NumberFormatException();
             }
@@ -96,6 +113,9 @@ public class LoginController {
         if (userName.isEmpty()) {
             showErrors("User name is empty. Please enter a valid user name to proceed.");
         }
+        else if(this.alliesChosenProperty.get().equals("Click on an ally to join its' team.")){
+            showErrors("Please choose an ally to join.");
+        }
         else {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Login information");
@@ -109,7 +129,7 @@ public class LoginController {
                             "Correct?"
                     );
             Optional<ButtonType> buttonType = alert.showAndWait();
-            if(buttonType .equals(ButtonType.OK)){
+            if(buttonType.isPresent() && buttonType.get().equals(ButtonType.OK)){
                 AgentsInfo newAgent = new AgentsInfo(
                         userName,
                         this.numOfThreadsProperty.get(),
@@ -120,8 +140,8 @@ public class LoginController {
                 String finalUrl = HttpUrl
                         .parse(LOGIN_PAGE)
                         .newBuilder()
-                        .addQueryParameter("username", userName)
-                        .addQueryParameter("type", "agent")
+                        .addQueryParameter(USERNAME, userName)
+                        .addQueryParameter(TYPE, AGENT)
                         .build()
                         .toString();
 
@@ -145,9 +165,12 @@ public class LoginController {
                                     showErrors(responseBody)
                             );
                         } else {
-                            BattleFieldInfo registeredTo = GSON_INSTANCE.fromJson(responseBody, BattleFieldInfo.class);
-                            Platform.runLater(() -> mainAgentAppController.loggedIn(registeredTo, newAgent));
+                            Platform.runLater(() -> {
+                                mainAgentAppController.loggedIn(newAgent);
+                                stopRefresher();
+                            });
                         }
+                        response.close();
                     }
                 });
             }
@@ -161,5 +184,33 @@ public class LoginController {
 
     public void setMainAppController(MainAgentAppController mainAgentAppController) {
         this.mainAgentAppController = mainAgentAppController;
+    }
+
+    public void startRefresher() {
+        this.alliesDataRefresher = new AlliesDataRefresher(
+                this::updateAllies
+        );
+        this.timer = new Timer();
+        this.timer.schedule(this.alliesDataRefresher, REFRESH_RATE, REFRESH_RATE);
+    }
+
+    private void updateAllies(AlliesDTO alliesDTO) {
+        Platform.runLater(() -> {
+            AlliesInfo selectedCell =
+                    this.tableViewAllies.getSelectionModel().getSelectedItem();
+            if(selectedCell != null){
+                this.alliesChosenProperty.set(selectedCell.getName());
+            }
+            this.tableViewAllies.getItems().clear();
+
+            for(AlliesInfo info : alliesDTO.getAllies()){
+                this.tableViewAllies.getItems().add(info);
+            }
+        });
+    }
+
+    private void stopRefresher(){
+        this.alliesDataRefresher.cancel();
+        this.timer.cancel();
     }
 }

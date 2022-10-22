@@ -8,6 +8,7 @@ import dto.agents.AgentsInfo;
 import dto.battlefield.BattleFieldDTO;
 import dto.battlefield.BattleFieldInfo;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -73,7 +74,7 @@ public class AlliesDashBoardController {
 
     @FXML
     public void initialize(){
-        this.chosenBattleFieldProperty = new SimpleStringProperty();
+        this.chosenBattleFieldProperty = new SimpleStringProperty("Click on a battle to join.");
         this.textFieldChosenBattleField.textProperty().bind(this.chosenBattleFieldProperty);
         this.initializeActiveTeamsTableView();
         this.initializeContestTableView();
@@ -90,25 +91,33 @@ public class AlliesDashBoardController {
     }
 
     private void initializeActiveTeamsTableView() {
-        this.tableColumnName.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getAlliesTeam()));
+        this.tableColumnName.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
         this.tableColumnNumberOfThreads.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getNumberOfThreads()).asObject());
         this.tableColumnAssignment.setCellValueFactory(cellData-> new SimpleIntegerProperty(cellData.getValue().getAssignmentsPerDraw()).asObject());
     }
 
     @FXML
     void onSignUpContest(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirm BattleField");
-        alert.setContentText(
-                "You are about to register to the "
-                        + this.chosenBattleFieldProperty.get()
-                        + " contest."
-                        + System.lineSeparator()
-                        + "Correct?"
-        );
-        Optional<ButtonType> res = alert.showAndWait();
-        if(res.isPresent() && res.get().equals(ButtonType.OK)) {
-            this.alliesAppController.signUpContest(this.chosenBattleFieldProperty.get());
+        if(this.chosenBattleFieldProperty.get().equals("Click on a battle to join.")){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Warning");
+            alert.setContentText("Chose a battle before pressing 'Join'.");
+            alert.showAndWait();
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm BattleField");
+            alert.setContentText(
+                    "You are about to register to the "
+                            + this.chosenBattleFieldProperty.get()
+                            + " contest."
+                            + System.lineSeparator()
+                            + "Correct?"
+            );
+            Optional<ButtonType> res = alert.showAndWait();
+            if (res.isPresent() && res.get().equals(ButtonType.OK)) {
+                this.alliesAppController.signUpContest(this.chosenBattleFieldProperty.get());
+            }
         }
     }
 
@@ -116,7 +125,7 @@ public class AlliesDashBoardController {
         this.alliesAppController = mainAlliesAppController;
     }
 
-    public void startRefreshers(){
+    public void startBattleRefresher(){
         this.battleFieldsRefresher = new BattleFieldsRefresher(
                 this::updateContests,
                 this.alliesAppController.getUserName()
@@ -151,7 +160,7 @@ public class AlliesDashBoardController {
                     this.tableViewContests.getSelectionModel().clearSelection();
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Warning");
-                    alert.setContentText("Cant enter a full/inactive contest");
+                    alert.setContentText("Can't enter Full/Inactive/Ended contest");
                     alert.showAndWait();
                 }
             }

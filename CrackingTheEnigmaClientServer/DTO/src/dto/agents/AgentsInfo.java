@@ -13,27 +13,11 @@ public class AgentsInfo {
 
     private Integer assignmentsPerDraw = null;
 
-    private Integer candidatesFound = null;
+    private Integer candidatesFound = 0;
 
-    private String assignmentsCompleted = null;
+    private String assignmentsCompleted = "0";
 
-    private String assignmentsLeft = null;
-
-    public AgentsInfo(
-            String name,
-            Integer threads,
-            String assignmentSize,
-            Integer candidatesFound,
-            String assignmentsCompleted,
-            String assignmentsLeft
-    ){
-        this.name = name;
-        this.numberOfThreads = threads;
-        this.assignmentSize = assignmentSize;
-        this.candidatesFound = candidatesFound;
-        this.assignmentsCompleted = assignmentsCompleted;
-        this.assignmentsLeft = assignmentsLeft;
-    }
+    private String assignmentsLeft = "0";
 
     public AgentsInfo(
             String userName,
@@ -47,35 +31,35 @@ public class AgentsInfo {
         this.name = userName;
     }
 
-    public String getName() {
+    public synchronized String getName() {
         return name;
     }
 
-    public Integer getNumberOfThreads() {
+    public synchronized Integer getNumberOfThreads() {
         return numberOfThreads;
     }
 
-    public String getAssignmentSize() {
+    public synchronized String getAssignmentSize() {
         return assignmentSize;
     }
 
-    public Integer getCandidatesFound() {
+    public synchronized Integer getCandidatesFound() {
         return candidatesFound;
     }
 
-    public String getAssignmentsCompleted() {
+    public synchronized String getAssignmentsCompleted() {
         return assignmentsCompleted;
     }
 
-    public String getAssignmentsLeft() {
+    public synchronized String getAssignmentsLeft() {
         return assignmentsLeft;
     }
 
-    public String getAlliesTeam() {
+    public synchronized String getAlliesTeam() {
         return alliesTeam;
     }
 
-    public Integer getAssignmentsPerDraw() {
+    public synchronized Integer getAssignmentsPerDraw() {
         return assignmentsPerDraw;
     }
 }

@@ -15,6 +15,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import uboat.view.body.UBoatCenterController;
 import uboat.view.body.contest.refreshers.ActiveTeamsRefresher;
 import uboat.view.body.contest.refreshers.CandidatesRefresher;
@@ -65,6 +67,12 @@ public class UBoatContestController {
 
     @FXML
     private Button buttonClearAll;
+
+    @FXML
+    private VBox vBoxProcess;
+
+    @FXML
+    private HBox hBoxButtons;
 
     @FXML
     private Button buttonReady;
@@ -138,6 +146,11 @@ public class UBoatContestController {
             this.uBoatCenterController.startContest(this.textFieldProcessedMessage.getText());
             this.starRefreshers();
         }
+    }
+
+    public void contestStarted(){
+        this.vBoxProcess.setDisable(true);
+        this.hBoxButtons.setDisable(true);
     }
 
     private void starRefreshers() {

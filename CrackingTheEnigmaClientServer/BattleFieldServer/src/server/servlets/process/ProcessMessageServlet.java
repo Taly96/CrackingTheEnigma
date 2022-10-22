@@ -1,6 +1,5 @@
 package server.servlets.process;
 
-import com.google.gson.Gson;
 import engine.managers.BattleFieldManager;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,7 +10,6 @@ import server.utils.ServletUtils;
 import server.utils.SessionUtils;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Properties;
 
 import static server.utils.ServletUtils.GSON_INSTANCE;

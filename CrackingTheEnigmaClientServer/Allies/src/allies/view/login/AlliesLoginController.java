@@ -12,8 +12,8 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 
-import static httpcommon.constants.Constants.LOGIN_PAGE;
-import static httpcommon.constants.Constants.SC_OK;
+import static allies.http.Configuration.ALLY;
+import static httpcommon.constants.Constants.*;
 import static httpcommon.utils.HttpClientUtil.runAsync;
 import static httpcommon.utils.Utils.showErrors;
 
@@ -44,8 +44,8 @@ public class AlliesLoginController {
             String finalUrl = HttpUrl
                     .parse(LOGIN_PAGE)
                     .newBuilder()
-                    .addQueryParameter("username", userName)
-                    .addQueryParameter("type", "ally")
+                    .addQueryParameter(USERNAME, userName)
+                    .addQueryParameter(TYPE, ALLY)
                     .build()
                     .toString();
             Request request = new Request.Builder()

@@ -51,15 +51,16 @@ public class UserReadyServlet extends HttpServlet {
     }
 
     private void setAllyReady(Properties prop, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        AlliesInfo newAlly = GSON_INSTANCE.fromJson(prop.getProperty(ALLY), AlliesInfo.class);
-        if (newAlly != null) {
+        String battleName = GSON_INSTANCE.fromJson(prop.getProperty(BATTLE), String.class);
+        if (battleName != null) {
+            String allyName = SessionUtils.getUsername(req);
             AlliesManager alliesManager = getAlliesManager(getServletContext());
             BattleFieldManager battleFieldManager = getBattleFieldManager(getServletContext());
             synchronized (this) {
-                alliesManager.updateAllyInfo(newAlly);
-                BattleFieldInfo battleFieldInfo = battleFieldManager.getBattleFieldInfo(newAlly.getBattleName());
+                alliesManager.updateAllyInfo(allyName, battleName);
+                BattleFieldInfo battleFieldInfo = battleFieldManager.getBattleFieldInfo(battleName);
                 battleFieldInfo.incrementAllies();
-                req.getSession(false).setAttribute(BATTLE, newAlly.getBattleName());
+                req.getSession(false).setAttribute(BATTLE, battleName);
                 String json = GSON_INSTANCE.toJson(battleFieldInfo);
                 resp.getOutputStream().print(json);
                 resp.setStatus(HttpServletResponse.SC_OK);

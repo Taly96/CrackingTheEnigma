@@ -23,4 +23,8 @@ public class Constants {
     public final static String READY = BASE_URL + "/ready";
 
     public final static int REFRESH_RATE = 2000;
+
+    public final static String TYPE = "type";
+
+    public final static String USERNAME = "username";
 }

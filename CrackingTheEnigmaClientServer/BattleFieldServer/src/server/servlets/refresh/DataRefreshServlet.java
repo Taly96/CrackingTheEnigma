@@ -8,17 +8,16 @@ import dto.battlefield.BattleFieldInfo;
 import dto.candidates.CandidatesDTO;
 import dto.candidates.CandidatesDTOList;
 import engine.managers.AlliesManager;
+import engine.managers.Ally;
 import engine.managers.BattleFieldManager;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import server.utils.enums.Enums;
 import server.utils.SessionUtils;
 
 import java.io.IOException;
-import java.util.List;
 
 import static server.utils.Constants.*;
 import static server.utils.Constants.ALLY;
@@ -26,6 +25,7 @@ import static server.utils.ServletUtils.*;
 
 @WebServlet("/refresh")
 public class DataRefreshServlet extends HttpServlet {
+
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -68,7 +68,7 @@ public class DataRefreshServlet extends HttpServlet {
                 break;
             }
             case BATTLES:{
-                res = this.refreshBattleFields();
+                res = this.refreshAllBattleFields();
                 break;
             }
             case BATTLE:{
@@ -93,9 +93,11 @@ public class DataRefreshServlet extends HttpServlet {
         AlliesManager alliesManager =
                 getAlliesManager(getServletContext());
         if(allyName != null && !allyName.isEmpty()){
-            AgentsDTO agentsDTO =
-                    alliesManager.refreshAgents(allyName);
-            json = GSON_INSTANCE.toJson(agentsDTO);
+            synchronized (this){
+                AgentsDTO agentsDTO =
+                        alliesManager.refreshAgents(allyName);
+                json = GSON_INSTANCE.toJson(agentsDTO);
+            }
         }
 
         return json;
@@ -119,15 +121,43 @@ public class DataRefreshServlet extends HttpServlet {
 
     private String refreshBattle(HttpServletRequest req) {
         String json = null;
+        String userType =
+                SessionUtils.getType(req);
         String battleName =
                 SessionUtils.getBattleFieldName(req);
+        BattleFieldManager battleFieldManager =
+                getBattleFieldManager(getServletContext());
+        AlliesManager alliesManager =
+                getAlliesManager(getServletContext());
         if(battleName != null && !battleName.isEmpty()){
-            BattleFieldManager battleFieldManager =
-                    getBattleFieldManager(getServletContext());
             synchronized (this){
                 BattleFieldInfo battleFieldInfo =
                         battleFieldManager.getBattleFieldInfo(battleName);
                 json = GSON_INSTANCE.toJson(battleFieldInfo);
+            }
+        }
+        else{
+            if(userType != null && ! userType.isEmpty()){
+                if(userType.equals(AGENT)){
+                    String allyName =
+                            SessionUtils.getAllyName(req);
+                    synchronized (this) {
+                        Ally ally =
+                                alliesManager.getAlly(allyName);
+                        if (ally != null) {
+                            if (ally.hasJoined()) {
+                                String battleFieldName =
+                                        ally.getBattleName();
+                                req.getSession(false).setAttribute(BATTLE, battleFieldName);
+                                BattleFieldInfo battleFieldInfo =
+                                        battleFieldManager.getBattleFieldInfo(battleFieldName);
+                                json = GSON_INSTANCE.toJson(battleFieldInfo);
+                            } else {
+                                json = GSON_INSTANCE.toJson(new BattleFieldInfo());
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -136,26 +166,47 @@ public class DataRefreshServlet extends HttpServlet {
 
     private String refreshAllies(HttpServletRequest req) {
         String json = null;
-        String battleFieldName = SessionUtils.getBattleFieldName(req);
-        if(battleFieldName != null && !battleFieldName.isEmpty()){
-            AlliesManager alliesManager = getAlliesManager(getServletContext());
-            synchronized (this){
-                AlliesDTO alliesDTO =
-                        alliesManager.refreshAllAllies(battleFieldName);
-                json = GSON_INSTANCE.toJson(alliesDTO);
+        String userType = SessionUtils.getType(req);
+        AlliesManager alliesManager = getAlliesManager(getServletContext());
+        if(userType != null && !userType.isEmpty()){
+//            if(userType.equals(AGENT)){
+//                AlliesDTO alliesDTO =
+//                        alliesManager.refreshAllAllies();
+//                json = GSON_INSTANCE.toJson(alliesDTO);
+//            }
+            if(userType.equals(ALLY) || userType.equals(UBOAT)){
+                String battleFieldName = SessionUtils.getBattleFieldName(req);
+                if(battleFieldName != null && !battleFieldName.isEmpty()){
+                    synchronized (this){
+                        AlliesDTO alliesDTO =
+                                alliesManager.refreshBattleAllies(battleFieldName);
+                        json = GSON_INSTANCE.toJson(alliesDTO);
+                    }
+                }
+            }
+        }
+        else{
+            String userTypeFromParameter =
+                    req.getParameter(TYPE);
+            if(userTypeFromParameter != null && userTypeFromParameter.equals(AGENT)){
+                synchronized (this){
+                    AlliesDTO alliesDTO =
+                            alliesManager.refreshAllAllies();
+                    json = GSON_INSTANCE.toJson(alliesDTO);
+                }
             }
         }
 
         return json;
     }
 
-    private String refreshBattleFields() {
+    private String refreshAllBattleFields() {
         BattleFieldManager battleFieldManager =
                 getBattleFieldManager(getServletContext());
         String json = null;
         synchronized (this){
             BattleFieldDTO battleFieldDTO =
-                    battleFieldManager.refreshBattleFields();
+                    battleFieldManager.refreshAllBattleFields();
             json = GSON_INSTANCE.toJson(battleFieldDTO);
         }
 
@@ -175,7 +226,7 @@ public class DataRefreshServlet extends HttpServlet {
                 if(userType.equals(UBOAT)){
                     synchronized (this){
                         CandidatesDTOList info = new CandidatesDTOList(
-                                alliesManager.refreshAllCandidates(battleFieldName));
+                                alliesManager.refreshBattleCandidates(battleFieldName));
                         json = GSON_INSTANCE.toJson(info);
                     }
                 }
@@ -184,7 +235,7 @@ public class DataRefreshServlet extends HttpServlet {
                     if(allyName != null && !allyName.isEmpty()){
                         synchronized (this){
                             CandidatesDTO candidatesDTO =
-                                    alliesManager.refreshCandidates(allyName);
+                                    alliesManager.refreshAllyCandidates(allyName);
                             json = GSON_INSTANCE.toJson(candidatesDTO);
                         }
                     }

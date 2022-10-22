@@ -13,7 +13,7 @@ import java.util.*;
 public class InventoryManager {
     private MachineInventory theEnigmaInventory = null;
 
-    public LoadedMachineDTO configureManager(CTEEnigma enigma){
+    public synchronized LoadedMachineDTO configureManager(CTEEnigma enigma){
         this.theEnigmaInventory =
                 new MachineInventory(
                         enigma.getCTEMachine().getRotorsCount()
@@ -53,7 +53,7 @@ public class InventoryManager {
         );
     }
 
-    private List<String> getAvailableReflectorsIDList() {
+    private synchronized List<String> getAvailableReflectorsIDList() {
         List<String> res = new ArrayList<>();
 
         for(Reflector reflectors : this.theEnigmaInventory.getAvailableReflectors()){
@@ -63,7 +63,7 @@ public class InventoryManager {
         return res;
     }
 
-    private List<Integer> getAvailableRotorsIDList() {
+    private synchronized List<Integer> getAvailableRotorsIDList() {
         List<Integer> res = new ArrayList<>();
 
         for(Rotor rotor : this.theEnigmaInventory.getAvailableRotors()){
@@ -73,7 +73,7 @@ public class InventoryManager {
         return res;
     }
 
-    private StaticMachineDTO getStaticMachineInfo(CTEDecipher cteDecipher, String abc) {
+    private synchronized StaticMachineDTO getStaticMachineInfo(CTEDecipher cteDecipher, String abc) {
 
         Set<String> filteredWords =
                 this.filterWords(
@@ -89,7 +89,7 @@ public class InventoryManager {
         );
     }
 
-    private Set<String> filterWords(String abc, String words, String excludeWords) {
+    private synchronized Set<String> filterWords(String abc, String words, String excludeWords) {
         Set<String> filteredWords = new HashSet<>();
         StringTokenizer st = new StringTokenizer(words, " ");
         boolean isValidWord = true;
@@ -117,7 +117,7 @@ public class InventoryManager {
         return filteredWords;
     }
 
-    private BattleFieldInfo getBattleFieldInfo(CTEBattlefield cteBattlefield) {
+    private synchronized BattleFieldInfo getBattleFieldInfo(CTEBattlefield cteBattlefield) {
 
         return new BattleFieldInfo(
                 cteBattlefield.getBattleName().trim(),
@@ -126,7 +126,7 @@ public class InventoryManager {
         );
     }
 
-    private List<Rotor> getAvailableRotors(CTERotors cteRotors) {
+    private synchronized List<Rotor> getAvailableRotors(CTERotors cteRotors) {
         List<Rotor> availableRotors = new ArrayList<>();
         int notchIndex = 1;
         boolean isNotch = false;
@@ -153,7 +153,7 @@ public class InventoryManager {
         return availableRotors;
     }
 
-    private List<Reflector> getAvailableReflectors(CTEReflectors cteReflectors) {
+    private synchronized List<Reflector> getAvailableReflectors(CTEReflectors cteReflectors) {
         List<Reflector> availableReflectors = new ArrayList<>();
 
         for (CTEReflector reflector : cteReflectors.getCTEReflector()) {
@@ -173,36 +173,36 @@ public class InventoryManager {
         return availableReflectors;
     }
 
-    public String getABC() {
+    public synchronized String getABC() {
 
         return this.theEnigmaInventory.getStaticMachineInfo().getAbc();
     }
 
-    public int getRotorsCount() {
+    public synchronized int getRotorsCount() {
 
         return this.theEnigmaInventory.getRotorsCount();
     }
 
-    public Reflector getReflector(String reflectorID) {
+    public synchronized Reflector getReflector(String reflectorID) {
 
         return this.theEnigmaInventory.getReflector(reflectorID);
     }
 
-    public Rotor getRotor(Integer rotorID) {
+    public synchronized Rotor getRotor(Integer rotorID) {
         return this.theEnigmaInventory.getRotor(rotorID);
     }
 
-    public List<Rotor> getAvailableRotorIDs() {
+    public synchronized List<Rotor> getAvailableRotorIDs() {
 
         return this.theEnigmaInventory.getAvailableRotors();
     }
 
-    public List<Reflector> getAvailableReflectorIDs(){
+    public synchronized List<Reflector> getAvailableReflectorIDs(){
 
         return this.theEnigmaInventory.getAvailableReflectors();
     }
 
-    public MachineInventory getTheEnigmaInventory() {
+    public synchronized MachineInventory getTheEnigmaInventory() {
         return theEnigmaInventory;
     }
 }

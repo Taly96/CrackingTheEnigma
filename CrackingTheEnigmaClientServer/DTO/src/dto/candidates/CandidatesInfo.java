@@ -18,15 +18,15 @@ public class CandidatesInfo {
         this.foundBy = foundBy;
     }
 
-    public String getCandidate() {
+    public synchronized String getCandidate() {
         return this.candidate;
     }
 
-    public String getFoundBy() {
+    public synchronized String getFoundBy() {
         return this.foundBy;
     }
 
-    public String getCodeConfig() {
+    public synchronized String getCodeConfig() {
         return this.codeConfig;
     }
 }

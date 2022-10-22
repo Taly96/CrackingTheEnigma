@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Timer;
 
 import static httpcommon.constants.Constants.REFRESH_RATE;
+import static httpcommon.utils.Utils.showErrors;
 
 public class AlliesContestController {
 
@@ -118,6 +119,8 @@ public class AlliesContestController {
 
     private String userName = null;
 
+    private int numberOfAgents = 0;
+
     private CandidatesRefresher candidatesRefresher = null;
 
     private ContestantsRefresher contestantsRefresher = null;
@@ -128,10 +131,19 @@ public class AlliesContestController {
 
     private BooleanProperty isContestOngoing = null;
 
+    private StringProperty totalAssignmentsProperty = null;
+
+    private StringProperty createdAssignmentsProperty = null;
+
+    private StringProperty completedAssignmentsProperty = null;
+
     private Timer timer = null;
 
     @FXML
     public void initialize(){
+        this.completedAssignmentsProperty = new SimpleStringProperty("0");
+        this.totalAssignmentsProperty = new SimpleStringProperty("0");
+        this.createdAssignmentsProperty = new SimpleStringProperty("0");
         this.isContestOngoing = new SimpleBooleanProperty(false);
         this.isContestOngoing.addListener((observable, oldValue, newValue) -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -146,24 +158,24 @@ public class AlliesContestController {
         this.labelTotalAssignments.textProperty().bind(
                 Bindings.concat(
                         "Total Assignments: ",
-                        this.maxAssignmentSizeValue
+                        this.totalAssignmentsProperty
                 )
         );
         this.labelCompletedAssignments.textProperty().bind(
                 Bindings.concat("Completed Assignments: ",
-                        this.completedAssignments
+                        this.completedAssignmentsProperty
                 )
         );
         this.labelCreatedAssignments.textProperty().bind(
                 Bindings.concat(
                         "Created Assignments: ",
-                        this.createdAssignments
+                        this.createdAssignmentsProperty
                 )
         );
         this.labelCurrentlyWorkingOn.textProperty().bind(
                 Bindings.concat(
-                        "Currently Deciphering: ",
-                        this.currentlyDecipheringProperty.getValue()
+                        "Message To Decipher: ",
+                        this.currentlyDecipheringProperty
                 )
         );
         this.initializeContestTableView();
@@ -221,31 +233,33 @@ public class AlliesContestController {
     @FXML
     void onReady(ActionEvent event) {
         try {
-            BigInteger assignmentSize = new BigInteger(this.textFieldAssignmentSize.getText());
-            if(assignmentSize.equals(BigInteger.ZERO)){
+            if(this.textFieldAssignmentSize.getText().isEmpty()){
                 throw new NumberFormatException();
             }
-            else if (this.maxAssignmentSizeValue.compareTo(new BigDecimal(assignmentSize.toString())) > 0){
-                throw new NumberFormatException();
-            }
-            else{
-                String competition = this.tableColumnBattleField.getCellData(0);
-                int numOfAgents = 0;
-                for(AlliesInfo info : this.tableViewContestants.getItems()){
-                    if(info.getName().equals(this.userName)){
-                        numOfAgents = info.getNumOfAgents();
+            else {
+                BigInteger assignmentSize = new BigInteger(this.textFieldAssignmentSize.getText());
+                if (assignmentSize.equals(BigInteger.ZERO)) {
+                    throw new NumberFormatException();
+                } else if (this.maxAssignmentSizeValue.compareTo(new BigDecimal(assignmentSize.toString())) > 0) {
+                    throw new NumberFormatException();
+                } else {
+                    if(this.numberOfAgents == 0){
+                        showErrors("Wait for agents to join your team");
                     }
-                }
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("About to start competing");
-                alert.setContentText("You are about to enter the " +
-                        competition + " contest" + System.lineSeparator() +
-                        ", with " + numOfAgents + " agents " +
-                        "and " + assignmentSize + " assignment size per agents." +
-                        System.lineSeparator() + " Correct?");
-                Optional<ButtonType> res = alert.showAndWait();
-                if(res.isPresent() && res.get().equals(ButtonType.OK)){
-                    this.alliesAppController.setReadyForContest(assignmentSize);
+                    else {
+                        String competition = this.tableColumnBattleField.getCellData(0);
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle("About to start competing");
+                        alert.setContentText("You are about to enter the " +
+                                competition + " contest" + System.lineSeparator() +
+                                ", with " + this.numberOfAgents + " agents " +
+                                "and " + assignmentSize + " assignment size per agent." +
+                                System.lineSeparator() + " Correct?");
+                        Optional<ButtonType> res = alert.showAndWait();
+                        if (res.isPresent() && res.get().equals(ButtonType.OK)) {
+                            this.alliesAppController.setReadyForContest(assignmentSize);
+                        }
+                    }
                 }
             }
         } catch (NumberFormatException e) {
@@ -257,6 +271,7 @@ public class AlliesContestController {
                             + System.lineSeparator() +
                             "for the size of the assignment."
             );
+            alert.showAndWait();
         }
     }
 
@@ -267,11 +282,12 @@ public class AlliesContestController {
     public void updateSignedUpFor(BattleFieldInfo signedUpFor) {
         this.tableViewContest.getItems().clear();
         this.tableViewContest.getItems().add(signedUpFor);
+        this.totalAssignmentsProperty.set(signedUpFor.getTotalNumberOfAssignment());
         this.currentlyDecipheringProperty.set(signedUpFor.getMessageToDecipher());
-        this.maxAssignmentSizeValue = this.maxAssignmentSizeValue.add(new BigDecimal(signedUpFor.getTotalNumberOfAssignment()));
+        this.startRefreshers();
     }
 
-    public void startRefreshers() {
+    private void startRefreshers() {
         this.candidatesRefresher = new CandidatesRefresher(
                 this.userName,
                 this::updateCandidates
@@ -298,6 +314,9 @@ public class AlliesContestController {
 
     private void updateTeamsProgress(AgentsDTO agentsDTO) {
         Platform.runLater(() -> {
+            if(this.numberOfAgents != agentsDTO.getAgents().size()){
+                this.numberOfAgents = agentsDTO.getAgents().size();
+            }
             this.tableViewAgentsProgress.getItems().clear();
 
             for(AgentsInfo agentsInfo : agentsDTO.getAgents()){

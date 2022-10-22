@@ -17,19 +17,19 @@ public class AlliesManager {
         this.allies = new HashMap<>();
     }
 
-    public void addAlly(String allyName){
-        this.allies.put(allyName, new Ally());
+    public synchronized void addAlly(String allyName){
+        this.allies.put(allyName, new Ally(allyName));
     }
 
-    public void updateAllyInfo(AlliesInfo info){
-        this.allies.get(info.getName()).updateAlly(info);
+    public synchronized void updateAllyInfo(String allyName, String battleName){
+        this.allies.get(allyName).updateAlly(battleName);
     }
 
-    public void clearInfo(){
+    public synchronized void clearInfo(){
         this.allies.clear();
     }
 
-    public AlliesDTO refreshAllAllies(String battleName) {
+    public synchronized AlliesDTO refreshBattleAllies(String battleName) {
         AlliesDTO alliesDTO = new AlliesDTO();
 
         for(Ally ally : this.allies.values()){
@@ -41,15 +41,15 @@ public class AlliesManager {
         return alliesDTO;
     }
 
-    public  void addAgent (AgentsInfo agent) {
+    public synchronized   void addAgent (AgentsInfo agent) {
         this.allies.get(agent.getAlliesTeam()).addAgent(agent);
     }
 
-    public void setAllyReadyForContest(String allyName, String assignmentSize) {
+    public synchronized void setAllyReadyForContest(String allyName, String assignmentSize) {
         this.allies.get(allyName).setReady(assignmentSize);
     }
 
-    public List<CandidatesDTO> refreshAllCandidates(String battleFieldName) {
+    public synchronized List<CandidatesDTO> refreshBattleCandidates(String battleFieldName) {
         List<CandidatesDTO> candidatesDTOs = new ArrayList<>();
         for(Ally ally :  this.allies.values()){
             if(ally.getBattleName().equals(battleFieldName)){
@@ -60,21 +60,21 @@ public class AlliesManager {
         return candidatesDTOs;
     }
 
-    public CandidatesDTO refreshCandidates(String allyName) {
+    public synchronized CandidatesDTO refreshAllyCandidates(String allyName) {
         Ally ally = this.allies.get(allyName);
         CandidatesDTO candidatesDTOs = ally.refreshCandidates();
 
         return candidatesDTOs;
     }
 
-    public AlliesInfo refreshAlly(String allyName) {
+    public synchronized AlliesInfo refreshAlly(String allyName) {
         Ally ally = this.allies.get(allyName);
         AlliesInfo alliesInfo = ally.getInfo();
 
         return alliesInfo;
     }
 
-    public AgentsDTO refreshAgents(String allyName) {
+    public synchronized AgentsDTO refreshAgents(String allyName) {
         AgentsDTO agentsDTO = new AgentsDTO();
 
         for(AgentsInfo agent : this.allies.get(allyName).getAgents()){
@@ -82,5 +82,23 @@ public class AlliesManager {
         }
 
         return agentsDTO;
+    }
+
+    public synchronized AlliesDTO refreshAllAllies() {
+        AlliesDTO allAllies = new AlliesDTO();
+
+        for(Ally ally : this.allies.values()){
+            if(!ally.isReady()){
+                allAllies.addInfo(ally.getInfo());
+
+            }
+        }
+
+        return allAllies;
+    }
+
+    public synchronized Ally getAlly(String allyName) {
+
+        return this.allies.get(allyName);
     }
 }

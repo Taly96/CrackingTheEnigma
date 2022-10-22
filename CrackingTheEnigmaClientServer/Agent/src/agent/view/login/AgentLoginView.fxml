@@ -11,14 +11,14 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox alignment="TOP_CENTER" minWidth="-Infinity" prefWidth="400.0" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="agent.view.login.LoginController">
+<VBox alignment="TOP_CENTER" minWidth="-Infinity" prefWidth="400.0" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="agent.view.login.AgentLoginController">
    <children>
       <Label text="Welcome!" textAlignment="CENTER">
          <font>
             <Font name="Bauhaus 93" size="25.0" />
          </font>
       </Label>
-      <HBox alignment="TOP_CENTER" fillHeight="false" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="400.0" spacing="20.0">
+      <HBox alignment="TOP_CENTER" fillHeight="false" minHeight="-Infinity" minWidth="-Infinity" prefHeight="33.0" prefWidth="400.0" spacing="20.0">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="User Name:" textAlignment="CENTER">
                <font>
@@ -28,6 +28,11 @@
             <TextField fx:id="textFieldUserName" promptText="Please enter a valid user name." HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
+      <Label fx:id="labelUserNameGreet" text="A girl has no name?" textAlignment="CENTER">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Label>
       <HBox fillHeight="false" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="400.0" spacing="20.0">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Allies Team:" textAlignment="CENTER">
@@ -35,7 +40,7 @@
                   <Font size="15.0" />
                </font>
             </Text>
-            <TextField fx:id="testFieldAlliesName" editable="false" promptText="Please choose a team from the options bellow." HBox.hgrow="ALWAYS" />
+            <TextField fx:id="textFieldAlliesName" editable="false" promptText="Please choose a team from the options bellow." HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
       <Label text="Allies" textAlignment="CENTER">
@@ -43,9 +48,9 @@
             <Font name="Bauhaus 93" size="25.0" />
          </font>
       </Label>
-      <TableView fx:id="tableViewAllies" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="400.0" VBox.vgrow="ALWAYS">
+      <TableView fx:id="tableViewAllies" minHeight="-Infinity" minWidth="-Infinity" prefHeight="119.0" prefWidth="400.0" VBox.vgrow="ALWAYS">
         <columns>
-          <TableColumn fx:id="tableColumnName" editable="false" prefWidth="75.0" sortable="false" text="Allieas Name" />
+          <TableColumn fx:id="tableColumnName" editable="false" prefWidth="75.0" sortable="false" text="Ally" />
           <TableColumn fx:id="tableColumnRegistered" editable="false" prefWidth="75.0" sortable="false" text="Agents Registered" />
         </columns>
          <columnResizePolicy>
@@ -82,9 +87,9 @@
             </VBox>
          </children>
       </HBox>
-      <HBox alignment="CENTER" prefHeight="50.0" prefWidth="600.0" spacing="50.0">
+      <HBox alignment="TOP_CENTER" prefHeight="32.0" prefWidth="400.0" spacing="50.0">
          <children>
-            <Button mnemonicParsing="false" onAction="#onLogin" text="Login" textAlignment="CENTER" />
+            <Button fx:id="buttonLogin" mnemonicParsing="false" onAction="#onLogin" text="Login" textAlignment="CENTER" />
             <Button mnemonicParsing="false" onAction="#onQuit" text="Quit" />
          </children>
       </HBox>

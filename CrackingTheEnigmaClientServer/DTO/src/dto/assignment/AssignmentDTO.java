@@ -8,7 +8,6 @@ public class AssignmentDTO {
 
     private byte[] knownComponents = null;
 
-
     private Integer numOfRotors = 0;
 
     public AssignmentDTO(

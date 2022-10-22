@@ -122,19 +122,12 @@ public class MainAlliesAppController {
     }
 
     public void signUpContest(String contestName) {
-        AlliesInfo me = new AlliesInfo(
-                this.currentUserProperty.get(),
-                0,
-                "0",
-                contestName
-        );
-
         String finalURL = HttpUrl
                 .parse(READY)
                 .newBuilder()
                 .build()
                 .toString();
-        String json = "ally=" + GSON_INSTANCE.toJson(me);
+        String json = "battle=" + GSON_INSTANCE.toJson(contestName);
         Request request = new Request.Builder()
                 .url(finalURL)
                 .addHeader("Content-type", "application/json")
@@ -179,8 +172,7 @@ public class MainAlliesAppController {
 
     public void loggedIn(String userName) {
         this.updateUserName(userName);
-        this.dashBoardController.startRefreshers();
-        this.dashBoardController.startRefreshers();
+        this.dashBoardController.startBattleRefresher();
         this.contestController.updateUserName(userName);
         this.switchToDashBoardView();
     }
@@ -211,7 +203,6 @@ public class MainAlliesAppController {
                 }
                 else{
                     Platform.runLater(() ->{
-                        contestController.startRefreshers();
                         switchToContestView();
                     });
                 }

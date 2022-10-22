@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BattleField {
+
+    //Map<AllyName, DM>
     private BattleFieldInfo battleFieldInfo = null;
 
     private MachineManager machineManager= null;
@@ -32,11 +34,11 @@ public class BattleField {
 
     public synchronized BattleFieldInfo getBattleFieldInfo(){ return this.battleFieldInfo; }
 
-    public void assembleContest(String messageToEncrypt) {
+    public synchronized void assembleContest(String messageToEncrypt) {
         this.battleFieldInfo.setStatus("Waiting");
         this.battleFieldInfo.setMessageToDecipher(messageToEncrypt);
     }
-    public boolean setAllyReadyForContest(String allyName, String assignmentSize) {
+    public synchronized boolean setAllyReadyForContest(String allyName, String assignmentSize) {
         if(!this.battleFieldInfo.getStatus().equals("full")) {
             this.contest.put(allyName, new DecipherManager(
                     this.battleFieldInfo.getLevel(),
@@ -55,22 +57,22 @@ public class BattleField {
         return false;
     }
 
-    public String processMessage(String messageToProcess) {
+    public synchronized String processMessage(String messageToProcess) {
 
         return this.machineManager.processMessage(messageToProcess);
     }
 
-    public CodeConfigInfo setCodeConfig(CodeConfigInfo inputConfig) {
+    public synchronized CodeConfigInfo setCodeConfig(CodeConfigInfo inputConfig) {
 
         return this.machineManager.setCodeConfig(inputConfig);
     }
 
-    public CodeConfigInfo generateCodeConfig() {
+    public synchronized CodeConfigInfo generateCodeConfig() {
 
         return this.machineManager.generateCodeConfig();
     }
 
-    private void startContest(){
+    private synchronized void startContest(){
         for(DecipherManager dm : this.contest.values()){
             dm.startProducingAssignments();
         }

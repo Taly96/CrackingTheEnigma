@@ -198,6 +198,8 @@ public class MainUBoatAppController {
                     response.close();
                     Platform.runLater(() -> {
                         filePathProperty.set(f.getAbsolutePath());
+                        isFileLoadedProperty.set(true);
+                        isLoggedInProperty.set(false);
                         currentBattleFieldNameProperty.set(loadedMachineDTO.getBattleFieldInfo().getBattleFieldName());
                         centerController.fileLoaded(loadedMachineDTO);
                         switchToAppView();
@@ -385,6 +387,7 @@ public class MainUBoatAppController {
                         alert.setTitle("Contest Created.");
                         alert.setContentText("Successfully created " + currentBattleFieldNameProperty.get() + " contest.");
                         alert.showAndWait();
+                        centerController.contestStarted();
                     });
                 }
                 response.close();

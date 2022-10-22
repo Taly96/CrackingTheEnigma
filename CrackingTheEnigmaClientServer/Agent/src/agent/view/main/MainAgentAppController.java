@@ -1,7 +1,7 @@
 package agent.view.main;
 
 import dto.agents.AgentsInfo;
-import dto.battlefield.BattleFieldInfo;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,15 +10,15 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import agent.view.constants.Constants;
 import agent.view.contest.AgentContestController;
-import agent.view.login.LoginController;
+import agent.view.login.AgentLoginController;
 
 import java.net.URL;
 
 public class MainAgentAppController {
     @FXML
-    private BorderPane borderPainMainComponent;
+    private BorderPane borderPaneMainComponent;
 
-    private LoginController loginController = null;
+    private AgentLoginController loginController = null;
 
     private AgentContestController contestController = null;
 
@@ -28,9 +28,12 @@ public class MainAgentAppController {
 
     private AgentsInfo agentInfo = null;
 
+    private StringProperty userNameProperty = null;
+
 
     @FXML
     public void initialize(){
+        this.userNameProperty = new SimpleStringProperty();
         this.loadContest();
         this.loadLogin();
     }
@@ -44,6 +47,7 @@ public class MainAgentAppController {
             this.loginComponent = fxmlLoader.load();
             this.loginController = fxmlLoader.getController();
             this.loginController.setMainAppController(this);
+            this.loginController.startRefresher();
             this.setMainPanelTo(this.loginComponent);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -64,15 +68,14 @@ public class MainAgentAppController {
         }
     }
 
-    private StringProperty userNameProperty = null;
-    public void loggedIn(BattleFieldInfo registeredTo, AgentsInfo newAgent) {
+    public void loggedIn(AgentsInfo newAgent) {
         this.agentInfo = newAgent;
         this.userNameProperty.set(newAgent.getName());
-        this.contestController.loggedIn(newAgent, registeredTo);
+        this.contestController.loggedIn(newAgent);
         this.setMainPanelTo(this.contestComponent);
     }
 
     private void setMainPanelTo(Parent pane) {
-        this.borderPainMainComponent.setCenter(pane);
+        this.borderPaneMainComponent.setCenter(pane);
     }
 }

@@ -83,11 +83,13 @@ public class LoginServlet extends HttpServlet {
                     alliesManager.addAgent(agent);
                     request.getSession(true).setAttribute(USERNAME, usernameFromParameter);
                     request.getSession(false).setAttribute(ALLY_NAME, agent.getAlliesTeam());
-                    request.getSession(false).setAttribute("type", typeFromParameter);
+                    request.getSession(false).setAttribute(TYPE, typeFromParameter);
                     response.setStatus(HttpServletResponse.SC_OK);
                 }
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getOutputStream().print("Agent is null.");
+                else{
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getOutputStream().print("Agent is null.");
+                }
             }
         }
     }
@@ -122,7 +124,7 @@ public class LoginServlet extends HttpServlet {
                 userManager.addUser(usernameFromParameter);
                 alliesManager.addAlly(usernameFromParameter);
                 request.getSession(true).setAttribute(USERNAME, usernameFromParameter);
-                request.getSession(false).setAttribute("type", typeFromParameter);
+                request.getSession(false).setAttribute(TYPE, typeFromParameter);
                 response.setStatus(HttpServletResponse.SC_OK);
             }
         }
