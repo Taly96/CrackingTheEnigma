@@ -1,6 +1,5 @@
 package server.servlets.codeconfig;
 
-import com.google.gson.Gson;
 import dto.codeconfig.CodeConfigInfo;
 import engine.managers.BattleFieldManager;
 import jakarta.servlet.ServletException;
@@ -12,11 +11,10 @@ import server.utils.ServletUtils;
 import server.utils.SessionUtils;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Properties;
 
-import static server.utils.Constants.BATTLE_FIELD;
 import static server.utils.ServletUtils.GSON_INSTANCE;
+import static server.utils.ServletUtils.getBattleFieldManager;
 
 @WebServlet("/code")
 public class CodeConfigServlet extends HttpServlet {
@@ -68,6 +66,38 @@ public class CodeConfigServlet extends HttpServlet {
             }
             resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_OK);
+        }
+        resp.flushBuffer();
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String battleName =
+                SessionUtils.getBattleFieldName(req);
+        if(battleName != null && !battleName.isEmpty()){
+            BattleFieldManager battleFieldManager =
+                    getBattleFieldManager(getServletContext());
+            synchronized (this) {
+                CodeConfigInfo currenCode =
+                        battleFieldManager.resetCodeConfig(battleName);
+                if(currenCode != null){
+                    String json =
+                            GSON_INSTANCE.toJson(currenCode);
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                    resp.setContentType("json/application");
+                    resp.getOutputStream().print(json);
+                }
+                else{
+                    resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                    resp.setContentType("text/plain");
+                    resp.getOutputStream().print("Couldn't reset code. Code configuration is null.");
+                }
+            }
+        }
+        else {
+            resp.setStatus(HttpServletResponse.SC_CONFLICT);
+            resp.setContentType("text/plain");
+            resp.getOutputStream().print("Couldn't reset code. BattleField name is null");
         }
         resp.flushBuffer();
     }

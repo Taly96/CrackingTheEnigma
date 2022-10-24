@@ -12,6 +12,8 @@ public class BattleFieldInfo implements Serializable {
 
     private String level = null;
 
+    private String winner = null;
+
     private String totalNumberOfAssignment = null;
 
     private Integer neededNumOfAllies = null;
@@ -32,8 +34,7 @@ public class BattleFieldInfo implements Serializable {
         this.registeredAllies = 0;
     }
 
-    public BattleFieldInfo() {
-    }
+    public BattleFieldInfo() {}
 
     public synchronized String getBattleFieldName() {
         return battleFieldName;
@@ -71,7 +72,19 @@ public class BattleFieldInfo implements Serializable {
         this.uBoat = uBoat;
     }
 
-    public synchronized void incrementAllies() {this.registeredAllies++;}
+    public synchronized boolean incrementAllies() {
+        if (this.status.equals("Full")) {
+
+            return false;
+        } else {
+            this.registeredAllies++;
+            if (this.registeredAllies == this.neededNumOfAllies) {
+                this.setStatus("Full");
+            }
+
+            return true;
+        }
+    }
 
     public synchronized void setTotalNumberOfAssignment(String totalNumberOfAssignment) {
         this.totalNumberOfAssignment = totalNumberOfAssignment;
@@ -83,6 +96,14 @@ public class BattleFieldInfo implements Serializable {
 
     public synchronized void setMessageToDecipher(String messageToDecipher) {
         this.messageToDecipher = messageToDecipher;
+    }
+
+    public synchronized String getWinner() {
+        return winner;
+    }
+
+    public synchronized void setWinner(String winner) {
+        this.winner = winner;
     }
 
     public synchronized String getMessageToDecipher() {

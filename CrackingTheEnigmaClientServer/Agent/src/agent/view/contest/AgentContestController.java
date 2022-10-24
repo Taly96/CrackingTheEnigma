@@ -1,10 +1,14 @@
 package agent.view.contest;
 
+import agent.decipher.DecipherTask;
 import agent.view.contest.refreshers.ContestRefresher;
 import agent.view.main.MainAgentAppController;
 import dto.agents.AgentsInfo;
 import dto.battlefield.BattleFieldInfo;
+import dto.candidates.CandidatesDTO;
 import dto.candidates.CandidatesInfo;
+import dto.staticinfo.StaticMachineDTO;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 
@@ -12,10 +16,17 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.Timer;
 
-import static httpcommon.constants.Constants.REFRESH_RATE;
+import static agent.http.Configuration.MACHINE_INVENTORY;
+import static httpcommon.constants.Constants.*;
+import static httpcommon.utils.HttpClientUtil.GSON_INSTANCE;
+import static httpcommon.utils.HttpClientUtil.runAsync;
+import static httpcommon.utils.Utils.showErrors;
 
 public class AgentContestController {
 
@@ -81,6 +92,14 @@ public class AgentContestController {
 
     private boolean isDeciphering = false;
 
+    private DecipherTask decipherTask;
+
+    private Thread decipherThread = null;
+
+    private AgentsInfo me = null;
+
+    private String messageToProcess = null;
+
     @FXML
     public void initialize(){
         this.allyNameProperty = new SimpleStringProperty("Hasn't Joined Yet.");
@@ -145,6 +164,7 @@ public class AgentContestController {
 
     public void loggedIn(AgentsInfo newAgent) {
         this.allyNameProperty.set(newAgent.getAlliesTeam());
+        this.me = newAgent;
         this.startBattleRefresher();
     }
 
@@ -162,7 +182,10 @@ public class AgentContestController {
             if(battleFieldInfo.getStatus().equals("Active")){
                 if(!this.isDeciphering){
                     this.isDeciphering = true;
-                    this.decipher();
+                    if(this.messageToProcess == null){
+                        this.messageToProcess = battleFieldInfo.getMessageToDecipher();
+                    }
+                    this.requestInventory();
                 }
             } else if (battleFieldInfo.getStatus().equals("Ended")) {
                 this.isDeciphering = false;
@@ -173,13 +196,77 @@ public class AgentContestController {
         }
     }
 
+    private void requestInventory() {
+        System.out.println("requesting Inventory");
+
+        String finalUrl = HttpUrl
+                .parse(REFRESH_DATA)
+                .newBuilder()
+                .addQueryParameter(DATA, MACHINE_INVENTORY)
+                .build()
+                .toString();
+
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .build();
+
+        runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> showErrors(e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String body = response.body().string();
+                if (response.code() != SC_OK) {
+                    Platform.runLater(() -> showErrors(body));
+                }
+                else{
+                    byte[] staticMachineInventory =
+                            GSON_INSTANCE.fromJson(
+                                    body,
+                                    byte[].class
+                            );
+                    decipher(staticMachineInventory);
+                }
+                response.close();
+            }
+        });
+    }
+
     private void stopRefreshers() {
         this.contestRefresher.cancel();
         this.timer.cancel();
     }
 
-    private void decipher(){
-        System.out.println("String Deciphering");
-        //todo - start deciphering task
+    private void decipher(byte[] staticMachineInventory){
+
+        this.decipherTask = new DecipherTask(
+                this.me,
+                this.messageToProcess,
+                staticMachineInventory,
+                this::updateCandidates
+        );
+        this.decipherTask.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    decipherTask.cancel();
+                    try {
+                        decipherThread.join();
+                    } catch (InterruptedException ignored) {}
+                }
+        );
+        this.decipherThread = new Thread(this.decipherTask, "Decipher Task");
+        this.decipherThread.start();
+        System.out.println("Created decipher task");
+    }
+
+    private void updateCandidates(CandidatesDTO candidatesDTO) {
+        Platform.runLater(() -> {
+            this.tableViewCandidates.getItems().clear();
+
+            for(CandidatesInfo info: candidatesDTO.getCandidates()){
+                this.tableViewCandidates.getItems().add(info);
+            }
+        });
     }
 }

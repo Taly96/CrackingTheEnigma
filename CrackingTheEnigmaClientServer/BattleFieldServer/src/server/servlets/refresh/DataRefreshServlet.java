@@ -3,6 +3,7 @@ package server.servlets.refresh;
 import dto.activeteams.AlliesDTO;
 import dto.activeteams.AlliesInfo;
 import dto.agents.AgentsDTO;
+import dto.assignment.AssignmentDTOList;
 import dto.battlefield.BattleFieldDTO;
 import dto.battlefield.BattleFieldInfo;
 import dto.candidates.CandidatesDTO;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import static server.utils.Constants.*;
 import static server.utils.Constants.ALLY;
 import static server.utils.ServletUtils.*;
+import static server.utils.SessionUtils.TYPE;
 
 @WebServlet("/refresh")
 public class DataRefreshServlet extends HttpServlet {
@@ -39,13 +41,13 @@ public class DataRefreshServlet extends HttpServlet {
 
             }else{
                 resp.setStatus(HttpServletResponse.SC_CONFLICT);
-                resp.getOutputStream().print("Couldn't refresh data.");
+                resp.getOutputStream().print("Couldn't refresh " + dataType + ".");
                 resp.setContentType("text/plain");
             }
         }
         else{
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
-            resp.getOutputStream().print("Couldn't refresh data.");
+            resp.getOutputStream().print("Couldn't refresh data, no data type found.");
             resp.setContentType("text/plain");
         }
         resp.flushBuffer();
@@ -79,12 +81,68 @@ public class DataRefreshServlet extends HttpServlet {
                 res = this.refreshAgents(req);
                 break;
             }
+            case ASSIGNMENTS: {
+                res = this.refreshAssignments(req);
+                break;
+            }
+            case MACHINE_INVENTORY:{
+                res = refreshInventory(req);
+                break;
+            }
             default:{
                 break;
             }
         }
 
         return res;
+    }
+
+    private String refreshInventory(HttpServletRequest req) {
+        String battleFiledName =
+                SessionUtils.getBattleFieldName(req);
+        String json = null;
+        if(battleFiledName != null && !battleFiledName.isEmpty()){
+            BattleFieldManager battleFieldManager =
+                    getBattleFieldManager(getServletContext());
+            synchronized (this){
+                byte[] inventory =
+                        battleFieldManager.getSerMachineInventory(battleFiledName);
+
+                if(inventory != null){
+                    json = GSON_INSTANCE.toJson(inventory);
+                }
+            }
+
+        }
+
+        return json;
+    }
+
+    private String refreshAssignments(HttpServletRequest req) {
+        System.out.println("Refreshing assignments");
+        String allyName =
+                SessionUtils.getAllyName(req);
+        String json = null;
+        if(allyName != null && !allyName.isEmpty()){
+            String battleName =
+                    SessionUtils.getBattleFieldName(req);
+            if(battleName != null && !battleName.isEmpty()) {
+                synchronized (this) {
+                    Integer numOfAssignmentsPerDraw =
+                            SessionUtils.getNumOfAssignmentsPerDraw(req);
+                    if (numOfAssignmentsPerDraw != null && numOfAssignmentsPerDraw != 0) {
+                        BattleFieldManager battleFieldManager =
+                                getBattleFieldManager(getServletContext());
+                        AssignmentDTOList assignmentDTOList =
+                                battleFieldManager.getAssignments(battleName, allyName, numOfAssignmentsPerDraw);
+                        json = GSON_INSTANCE.toJson(assignmentDTOList);
+                        System.out.println("Refreshed assignments");
+                    }
+                }
+            }
+        }
+
+        return json;
     }
 
     private String refreshAgents(HttpServletRequest req) {
@@ -141,6 +199,7 @@ public class DataRefreshServlet extends HttpServlet {
                 if(userType.equals(AGENT)){
                     String allyName =
                             SessionUtils.getAllyName(req);
+                    System.out.println(allyName);
                     synchronized (this) {
                         Ally ally =
                                 alliesManager.getAlly(allyName);

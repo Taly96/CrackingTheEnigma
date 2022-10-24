@@ -10,17 +10,7 @@ public class AlliesInfo {
 
     private String assignmentSize = "0";
 
-    public AlliesInfo(
-            String name,
-            Integer numOfAgents,
-            String assignmentSize,
-            String battleName
-    ){
-        this.name = name;
-        this.assignmentSize= assignmentSize;
-        this.numOfAgents = numOfAgents;
-        this.battleName = battleName;
-    }
+    private String createdAssignments = "0";
 
     public AlliesInfo(String userName) {
         this.name = userName;
@@ -48,6 +38,15 @@ public class AlliesInfo {
 
     public synchronized void setAssignmentSize(String assignmentSize) {
         this.assignmentSize = assignmentSize;
+    }
+
+
+    public synchronized String getCreatedAssignments() {
+        return createdAssignments;
+    }
+
+    public synchronized void setCreatedAssignments(String createdAssignments) {
+        this.createdAssignments = createdAssignments;
     }
 
     public synchronized String getBattleName() {

@@ -21,4 +21,10 @@ public class CandidatesManager {
     public synchronized void clearInfo(){
         this.candidates.getCandidates().clear();
     }
+
+    public void addCandidates(CandidatesDTO candidatesDTO) {
+        for(CandidatesInfo candidatesInfo : candidatesDTO.getCandidates()){
+            this.candidates.addInfo(candidatesInfo);
+        }
+    }
 }

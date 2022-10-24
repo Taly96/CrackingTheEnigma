@@ -145,12 +145,6 @@ public class AlliesContestController {
         this.totalAssignmentsProperty = new SimpleStringProperty("0");
         this.createdAssignmentsProperty = new SimpleStringProperty("0");
         this.isContestOngoing = new SimpleBooleanProperty(false);
-        this.isContestOngoing.addListener((observable, oldValue, newValue) -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Contest information");
-            alert.setContentText("The contest is has " + (newValue ? "started." : "ended."));
-            alert.showAndWait();
-        });
         this.currentlyDecipheringProperty = new SimpleStringProperty("None");
         this.maxAssignmentSizeValue = new BigDecimal(0);
         this.createdAssignments = new BigDecimal(0);
@@ -244,7 +238,7 @@ public class AlliesContestController {
                     throw new NumberFormatException();
                 } else {
                     if(this.numberOfAgents == 0){
-                        showErrors("Wait for agents to join your team");
+                        showErrors("Wait for agents to join your team.");
                     }
                     else {
                         String competition = this.tableColumnBattleField.getCellData(0);
@@ -321,12 +315,31 @@ public class AlliesContestController {
 
             for(AgentsInfo agentsInfo : agentsDTO.getAgents()){
                 this.tableViewAgentsProgress.getItems().add(agentsInfo);
+                this.completedAssignments = this.completedAssignments.add(new BigDecimal(agentsInfo.getAssignmentsCompleted()));
             }
+
+            this.completedAssignmentsProperty.set(this.completedAssignments.toString());
         });
     }
 
     private void updateBattle(BattleFieldInfo battleFieldInfo) {
         Platform.runLater(() -> {
+            if(battleFieldInfo.getStatus().equals("Active")){
+                if(!this.isContestOngoing.get()){
+                    this.isContestOngoing.set(true);
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Contest has started");
+                    alert.setContentText("All teams are ready, the contest has started.");
+                    alert.showAndWait();
+                }
+            } else if (battleFieldInfo.getStatus().equals("Ended")) {
+                this.stopRefreshers();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Contest has ended");
+                alert.setContentText("The contest has ended. The winner is " + battleFieldInfo.getWinner());
+                alert.showAndWait();
+                //todo-back to log in?
+            }
             this.tableViewContest.getItems().clear();
             this.tableViewContest.getItems().add(battleFieldInfo);
         });
@@ -337,6 +350,9 @@ public class AlliesContestController {
             this.tableViewContestants.getItems().clear();
 
             for(AlliesInfo alliesInfo : alliesDTO.getAllies()){
+                if(alliesInfo.getName().equals(this.userName)){
+                    this.createdAssignmentsProperty.set(alliesInfo.getCreatedAssignments());
+                }
                 this.tableViewContestants.getItems().add(alliesInfo);
             }
         });
@@ -345,7 +361,6 @@ public class AlliesContestController {
     private void updateCandidates(CandidatesDTO candidatesDTO) {
         Platform.runLater(() -> {
             this.tableViewCandidates.getItems().clear();
-            //todo - check option: if battleInfo equals "Ended"  stop all
             for(CandidatesInfo candidatesInfo : candidatesDTO.getCandidates()){
                 this.tableViewCandidates.getItems().add(candidatesInfo);
             }
@@ -362,5 +377,9 @@ public class AlliesContestController {
         this.currentBattleRefresher.cancel();
         this.candidatesRefresher.cancel();
         this.timer.cancel();
+    }
+
+    public void setReady() {
+        this.buttonReady.setDisable(true);
     }
 }

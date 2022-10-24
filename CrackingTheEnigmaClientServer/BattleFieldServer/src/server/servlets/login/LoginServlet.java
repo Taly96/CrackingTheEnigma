@@ -17,8 +17,7 @@ import java.util.Properties;
 
 import static server.utils.Constants.*;
 import static server.utils.ServletUtils.GSON_INSTANCE;
-import static server.utils.SessionUtils.ALLY_NAME;
-import static server.utils.SessionUtils.USERNAME;
+import static server.utils.SessionUtils.*;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -84,6 +83,7 @@ public class LoginServlet extends HttpServlet {
                     request.getSession(true).setAttribute(USERNAME, usernameFromParameter);
                     request.getSession(false).setAttribute(ALLY_NAME, agent.getAlliesTeam());
                     request.getSession(false).setAttribute(TYPE, typeFromParameter);
+                    request.getSession(false).setAttribute(DRAW, agent.getAssignmentsPerDraw());
                     response.setStatus(HttpServletResponse.SC_OK);
                 }
                 else{

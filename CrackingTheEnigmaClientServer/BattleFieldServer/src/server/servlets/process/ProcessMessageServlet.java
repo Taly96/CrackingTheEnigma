@@ -1,5 +1,6 @@
 package server.servlets.process;
 
+import dto.process.MessageProcessDTO;
 import engine.managers.BattleFieldManager;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -41,10 +42,11 @@ public class ProcessMessageServlet extends HttpServlet {
             else{
                 BattleFieldManager battleFieldManager = ServletUtils.getBattleFieldManager(getServletContext());
                 synchronized (this){
-                    String processedMessage =
-                            battleFieldManager.processMessage(battleName, messageToProcess);
+                    MessageProcessDTO processedMessageInfo =
+                            battleFieldManager.
+                                    processMessage(battleName, messageToProcess);
                     resp.getOutputStream().print(
-                            GSON_INSTANCE.toJson(processedMessage)
+                            GSON_INSTANCE.toJson(processedMessageInfo)
                     );
                 }
                 resp.setStatus(HttpServletResponse.SC_OK);

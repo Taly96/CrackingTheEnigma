@@ -21,15 +21,15 @@ public class StaticMachineDTO implements Serializable {
         this.wordsToExclude = wordsToExclude;
     }
 
-    public Set<String> getWords() {
+    public synchronized Set<String> getWords() {
         return this.words;
     }
 
-    public String getAbc() {
+    public synchronized String getAbc() {
         return this.abc;
     }
 
-    public String getWordsToExclude() {
+    public synchronized String getWordsToExclude() {
         return this.wordsToExclude;
     }
 }

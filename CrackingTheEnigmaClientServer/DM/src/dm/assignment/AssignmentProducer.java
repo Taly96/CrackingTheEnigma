@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class AssignmentProducer implements Runnable {
     private BlockingQueue<AssignmentDTO> assignments = null;
@@ -37,15 +38,19 @@ public class AssignmentProducer implements Runnable {
 
     private int[] startingPos = null;
 
-    private String messageToProcess = null;
+    private AtomicReference<BigDecimal> createdAssignments = null;
+
+    private Object queueLock = null;
 
     public AssignmentProducer(
+            AtomicReference<BigDecimal> createdAssignments,
             BlockingQueue<AssignmentDTO> assignmentsQueue,
             String level,
             BigDecimal assignmentSize,
             DecipherDTO info,
-            AtomicBoolean hasMoreAssignments
-    ){
+            AtomicBoolean hasMoreAssignments,
+            Object queueLock){
+        this.createdAssignments = createdAssignments;
         this.assignments = assignmentsQueue;
         this.level = level;
         this.assignmentSize = assignmentSize;
@@ -59,7 +64,7 @@ public class AssignmentProducer implements Runnable {
         this.maxValue = BigDecimal.valueOf(Math.pow(this.inventory.getStaticMachineInfo().getAbc().length(),
                 this.inventory.getRotorsCount()
         ));
-        this.messageToProcess = messageToProcess;
+        this.queueLock = queueLock;
     }
 
     @Override
@@ -87,14 +92,7 @@ public class AssignmentProducer implements Runnable {
                 break;
             }
         }
-
         this.hasMoreAssignments.set(false);
-        System.out.println("going down");
-        try {
-            Thread.currentThread().join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void thisIsSparta() {
@@ -166,9 +164,11 @@ public class AssignmentProducer implements Runnable {
     }
 
     private void addAssignmentToQueue(AssignmentDTO newAssignment) {
-        synchronized (this) {
+        synchronized (queueLock) {
             try {
                 this.assignments.put(newAssignment);
+                this.createdAssignments.set(this.createdAssignments.get().add(BigDecimal.ONE));
+                System.out.println("Added assignment : " + newAssignment .getStartingPoint() + " " + newAssignment.getFinishPoint());
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

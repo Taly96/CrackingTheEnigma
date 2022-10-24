@@ -1,9 +1,13 @@
 package engine.managers;
 
+import dto.assignment.AssignmentDTOList;
 import dto.battlefield.BattleFieldDTO;
 import dto.battlefield.BattleFieldInfo;
+import dto.candidates.CandidatesDTO;
 import dto.codeconfig.CodeConfigInfo;
+import dto.decipher.OriginalInformation;
 import dto.loadedmachine.LoadedMachineDTO;
+import dto.process.MessageProcessDTO;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,11 +64,11 @@ public class BattleFieldManager {
                         .setAllyReadyForContest(allyName, assignmentSize);
     }
 
-    public synchronized void assembleContest(String battleName, String toEncrypt) {
-        this.battleFields.get(battleName).assembleContest(toEncrypt);
+    public synchronized void assembleContest(String battleName, OriginalInformation originalInformation) {
+        this.battleFields.get(battleName).assembleContest(originalInformation);
     }
 
-    public synchronized String processMessage(String battleName, String messageToProcess) {
+    public synchronized MessageProcessDTO processMessage(String battleName, String messageToProcess) {
 
         return this.battleFields.get(battleName).processMessage(messageToProcess);
     }
@@ -77,6 +81,30 @@ public class BattleFieldManager {
     public synchronized CodeConfigInfo generateCodeConfig(String battleName) {
 
         return this.battleFields.get(battleName).generateCodeConfig();
+    }
+
+    public synchronized void checkForWinner(String battleName, CandidatesDTO candidatesDTO) {
+        this.battleFields.get(battleName).checkForWinner(candidatesDTO);
+    }
+
+    public synchronized String getBattleStatus(String battleName) {
+
+        return this.battleFields.get(battleName).getBattleFieldInfo().getStatus();
+    }
+
+    public synchronized AssignmentDTOList getAssignments(String battleName, String allyName, Integer numOfAssignmentsPerDraw) {
+
+        return this.battleFields.get(battleName).getAssignments(allyName, numOfAssignmentsPerDraw);
+    }
+
+    public synchronized byte[] getSerMachineInventory(String battleFiledName) {
+
+        return this.battleFields.get(battleFiledName).getSerMachineInventory();
+    }
+
+    public synchronized CodeConfigInfo resetCodeConfig(String battleName) {
+
+        return this.battleFields.get(battleName).resetCode();
     }
 }
 

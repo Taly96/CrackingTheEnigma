@@ -1,6 +1,7 @@
 package uboat.view.bottom;
 
 import dto.codeconfig.CodeConfigInfo;
+import javafx.beans.property.BooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -53,5 +54,9 @@ public class UBoatBottomController {
 
     public void setMainAppController(MainUBoatAppController mainUBoatAppController) {
         this.uBoatMainController = mainUBoatAppController;
+    }
+
+    public void bind(BooleanProperty contestStartedProperty){
+        this.buttonResetCode.disableProperty().bind(contestStartedProperty);
     }
 }

@@ -5,9 +5,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dto.codeconfig.CodeConfigDTO;
 import dto.codeconfig.CodeConfigInfo;
 import machine.codeconfiguration.CodeConfiguration;
+import machine.history.MachineHistory;
 import machine.rotor.Rotor;
 import machine.reflector.Reflector;
 
@@ -19,8 +19,7 @@ public class EnigmaMachine implements Serializable {
 
     private Reflector reflector = null;
 
-
-    //private MachineHistory currentMachineHistory = null;
+    private MachineHistory currentMachineHistory = null;
 
     private boolean isPlugBoardUsed = false;
 
@@ -29,6 +28,8 @@ public class EnigmaMachine implements Serializable {
     private int numOfProcessedMessages = 0;
 
     private int rotorsCount = 0;
+
+    public EnigmaMachine(){this.currentMachineHistory = new MachineHistory();}
 
     public void setRotorsCount(int rotorsCount) {
         this.rotorsCount = rotorsCount;
@@ -87,10 +88,6 @@ public class EnigmaMachine implements Serializable {
 
     public void addReflector(Reflector inputReflector) {
         this.reflector = inputReflector;
-    }
-
-    public int getNumOfProcessedMessages() {
-        return this.numOfProcessedMessages;
     }
 
     public boolean setRotorsStartingPosition(int rotorIndex, String startingPos) {
@@ -153,5 +150,35 @@ public class EnigmaMachine implements Serializable {
                 reflectorID,
                 rotorsNotchPosFromWindow
         );
+    }
+
+    public void addCodeConfigToCurrentHistory(CodeConfigInfo setCodeConfig) {
+        this.currentMachineHistory.addNewCodeConfig(setCodeConfig);
+    }
+
+    public List<CodeConfigInfo> getCurrentMachineHistory() {
+
+        return this.currentMachineHistory.getCodeConfigStats();
+    }
+
+    public CodeConfigInfo getCurrentCodeConfig() {
+        List<Integer> rotorsOrder = new ArrayList<>();
+        List<Integer> rotorsNotchPos = new ArrayList<>();
+        String rotorsPos = "";
+        String reflector = this.reflector.getID();
+
+        for(Rotor rotor : this.rotors){
+            rotorsOrder.add(rotor.getID());
+            rotorsNotchPos.add(rotor.getNotchPosFromWindow());
+            rotorsPos += rotor.getWindowPos();
+        }
+
+        return
+                new CodeConfigInfo(
+                        rotorsOrder,
+                        rotorsPos,
+                        reflector,
+                        rotorsNotchPos
+                );
     }
 }

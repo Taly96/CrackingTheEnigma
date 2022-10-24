@@ -1,5 +1,7 @@
 package uboat.view.main;
 
+import dto.process.MessageProcessDTO;
+import dto.decipher.OriginalInformation;
 import uboat.view.body.UBoatCenterController;
 import uboat.view.bottom.UBoatBottomController;
 import uboat.view.header.UBoatHeaderController;
@@ -76,8 +78,11 @@ public class MainUBoatAppController {
 
     private BooleanProperty isMachineConfiguredProperty = null;
 
+    private BooleanProperty isContestStartedProperty = null;
+
     @FXML
     public void initialize(){
+        this.isContestStartedProperty = new SimpleBooleanProperty(false);
         this.isFileLoadedProperty = new SimpleBooleanProperty(false);
         this.currentUserProperty = new SimpleStringProperty(Constants.NO_NAME);
         this.messageToUserProperty = new SimpleStringProperty(this.currentUserProperty.get());
@@ -99,6 +104,7 @@ public class MainUBoatAppController {
             this.vBoxBottomComponent = fxmlLoader.load();
             this.bottomController = fxmlLoader.getController();
             this.bottomController.setMainAppController(this);
+            this.bottomController.bind(this.isContestStartedProperty);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -113,7 +119,10 @@ public class MainUBoatAppController {
             this.tabPaneCenterComponent = fxmlLoader.load();
             this.centerController = fxmlLoader.getController();
             this.centerController.setMainAppController(this);
-            this.centerController.bind(this.isMachineConfiguredProperty);
+            this.centerController.bind(
+                    this.isMachineConfiguredProperty,
+                    this.isContestStartedProperty
+            );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -189,13 +198,14 @@ public class MainUBoatAppController {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String body = response.body().string();
                 if(response.code() == SC_OK) {
                     LoadedMachineDTO loadedMachineDTO =
                             GSON_INSTANCE.fromJson(
-                                    response.body().string(),
+                                    body,
                                     LoadedMachineDTO.class
                             );
-                    response.close();
+
                     Platform.runLater(() -> {
                         filePathProperty.set(f.getAbsolutePath());
                         isFileLoadedProperty.set(true);
@@ -205,16 +215,16 @@ public class MainUBoatAppController {
                         switchToAppView();
                     });
                 }else {
-                    String error = response.body().string();
-                    response.close();
+
                     Platform.runLater(() -> {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("File Errors");
-                        alert.setContentText(error);
+                        alert.setContentText(body);
                         filePathProperty.set("An invalid file was chosen.");
                         alert.showAndWait();
                     });
                 }
+                response.close();
             }
         });
     }
@@ -311,12 +321,15 @@ public class MainUBoatAppController {
                     Platform.runLater(() -> showErrors(res));
                 }
                 else{
-                    String processedMessage =
+                    MessageProcessDTO processedMessageInfo =
                             GSON_INSTANCE.fromJson(
                                     res,
-                                    String.class
+                                    MessageProcessDTO.class
                             );
-                    Platform.runLater(() -> centerController.messageProcessed(processedMessage));
+                    Platform.runLater(() -> {
+                        centerController.messageProcessed(processedMessageInfo.getProcessedMessage());
+                        bottomController.codeSet(processedMessageInfo.getCurrentCode());
+                    });
 
                 }
                 response.close();
@@ -342,9 +355,11 @@ public class MainUBoatAppController {
     }
 
     public void switchToAppView() {
-        this.setMainPanelTo(this.tabPaneCenterComponent);
-        this.borderPaneApp.setBottom(this.vBoxBottomComponent);
-        this.borderPaneApp.setTop(this.hBoxHeaderComponent);
+        Platform.runLater(() -> {
+            this.setMainPanelTo(this.tabPaneCenterComponent);
+            this.borderPaneApp.setBottom(this.vBoxBottomComponent);
+            this.borderPaneApp.setTop(this.hBoxHeaderComponent);
+        });
     }
 
     public void clearUserName() {
@@ -356,13 +371,13 @@ public class MainUBoatAppController {
         return this.currentBattleFieldNameProperty.get();
     }
 
-    public void startContest(String messageToEncrypt) {
+    public void startContest(OriginalInformation originalInformation) {
         String finalUrl = HttpUrl
                 .parse(READY)
                 .newBuilder()
                 .build()
                 .toString();
-        String json ="encrypt=" + GSON_INSTANCE.toJson(messageToEncrypt);
+        String json ="original=" + GSON_INSTANCE.toJson(originalInformation);
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .addHeader("Content-type","application/json")
@@ -387,6 +402,7 @@ public class MainUBoatAppController {
                         alert.setTitle("Contest Created.");
                         alert.setContentText("Successfully created " + currentBattleFieldNameProperty.get() + " contest.");
                         alert.showAndWait();
+                        isContestStartedProperty.set(true);
                         centerController.contestStarted();
                     });
                 }
@@ -395,6 +411,44 @@ public class MainUBoatAppController {
         });
     }
 
-    public void resetCode() {//todo
+    public void resetCode() {
+
+        String finalUrl = HttpUrl
+                .parse(CODE)
+                .newBuilder()
+                .build()
+                .toString();
+
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .addHeader("Content-type","text/plain")
+                .put(RequestBody.create("None".getBytes()))
+                .build();
+
+        runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> showErrors(e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String body = response.body().string();
+                if(response.code() != SC_OK){
+                    Platform.runLater(() -> showErrors(body));
+                }
+                else{
+                    Platform.runLater(() -> {
+                        CodeConfigInfo currentCode =
+                                GSON_INSTANCE.fromJson(
+                                        body,
+                                        CodeConfigInfo.class
+                                );
+                        bottomController.codeSet(currentCode);
+                    });
+                }
+                response.close();
+            }
+        });
     }
 }

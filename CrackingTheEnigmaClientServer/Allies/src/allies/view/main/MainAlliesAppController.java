@@ -199,11 +199,9 @@ public class MainAlliesAppController {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String body = response.body().string();
                 if(response.code() != SC_OK){
-                    Platform.runLater(() -> showErrors(body));
-                }
-                else{
-                    Platform.runLater(() ->{
-                        switchToContestView();
+                    Platform.runLater(() -> {
+                        showErrors(body);
+                        contestController.setReady();
                     });
                 }
                 response.close();

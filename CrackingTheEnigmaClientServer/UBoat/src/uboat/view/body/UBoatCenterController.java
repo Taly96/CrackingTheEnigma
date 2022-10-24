@@ -1,5 +1,6 @@
 package uboat.view.body;
 
+import dto.decipher.OriginalInformation;
 import uboat.view.body.contest.UBoatContestController;
 import uboat.view.body.config.UBoatMachineController;
 import dto.codeconfig.CodeConfigInfo;
@@ -46,7 +47,9 @@ public class UBoatCenterController {
         this.gridPaneContestTabComponentController.fileLoaded(loadedMachineDTO.getStaticMachineDTO());
     }
 
-    public void bind(BooleanProperty isMachineConfiguredProperty){
+    public void bind(BooleanProperty isMachineConfiguredProperty, BooleanProperty isContestStartedProperty){
+        this.tabMachine.disableProperty().bind(isContestStartedProperty);
+        this.gridPaneContestTabComponentController.bind(isContestStartedProperty);
         this.tabContest.disableProperty().bind(isMachineConfiguredProperty.not());
     }
 
@@ -74,16 +77,15 @@ public class UBoatCenterController {
         return this.uBoatMainController.getBattleFieldName();
     }
 
-    public void startContest(String messageToEncrypt) {
-        this.uBoatMainController.startContest(messageToEncrypt);
-    }
-
-    public void contestStarted(){
-        this.tabMachine.setDisable(true);
-        this.gridPaneContestTabComponentController.contestStarted();
+    public void startContest(OriginalInformation originalInformation) {
+        this.uBoatMainController.startContest(originalInformation);
     }
 
     public void contestEnded(){
-        this.tabMachine.setDisable(false);
+
+    }
+
+    public void contestStarted() {
+        this.gridPaneContestTabComponentController.startRefreshers();
     }
 }

@@ -24,47 +24,47 @@ public class MachineInventory implements Serializable {
         this.rotorsCount = rotorsCount;
     }
 
-    public int getRotorsCount() {
+    public synchronized int getRotorsCount() {
         return this.rotorsCount;
     }
 
-    public void setRotorsCount(int rotorsCount) {
+    public synchronized void setRotorsCount(int rotorsCount) {
         this.rotorsCount = rotorsCount;
     }
 
-    public List<Rotor> getAvailableRotors() {
+    public synchronized List<Rotor> getAvailableRotors() {
         return this.availableRotors;
     }
 
-    public void setAvailableRotors(List<Rotor> availableRotors) {
+    public synchronized void setAvailableRotors(List<Rotor> availableRotors) {
         this.availableRotors = availableRotors;
     }
 
-    public List<Reflector> getAvailableReflectors() {
+    public synchronized List<Reflector> getAvailableReflectors() {
         return this.availableReflectors;
     }
 
-    public void setAvailableReflectors(List<Reflector> availableReflectors) {
+    public synchronized void setAvailableReflectors(List<Reflector> availableReflectors) {
         this.availableReflectors = availableReflectors;
     }
 
-    public StaticMachineDTO getStaticMachineInfo() {
+    public synchronized StaticMachineDTO getStaticMachineInfo() {
         return this.staticMachineInfo;
     }
 
-    public void setStaticMachineInfo(StaticMachineDTO staticMachineInfo) {
+    public synchronized void setStaticMachineInfo(StaticMachineDTO staticMachineInfo) {
         this.staticMachineInfo = staticMachineInfo;
     }
 
-    public BattleFieldInfo getBattleFieldInfo() {
+    public synchronized BattleFieldInfo getBattleFieldInfo() {
         return this.battleFieldInfo;
     }
 
-    public void setBattleFieldInfo(BattleFieldInfo battleFieldInfo) {
+    public synchronized void setBattleFieldInfo(BattleFieldInfo battleFieldInfo) {
         this.battleFieldInfo = battleFieldInfo;
     }
 
-    public Reflector getReflector(String reflectorID) {
+    public synchronized Reflector getReflector(String reflectorID) {
 
         for(Reflector reflector : this.availableReflectors){
             if(reflector.getID().equals(reflectorID)){
@@ -75,7 +75,7 @@ public class MachineInventory implements Serializable {
         return null;
     }
 
-    public Rotor getRotor(Integer rotorID) {
+    public synchronized Rotor getRotor(Integer rotorID) {
 
         for(Rotor rotor : this.availableRotors){
             if(rotor.getID() == rotorID){

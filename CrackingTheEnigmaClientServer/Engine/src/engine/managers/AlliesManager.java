@@ -101,4 +101,8 @@ public class AlliesManager {
 
         return this.allies.get(allyName);
     }
+
+    public synchronized void updateCandidates(String allyName, String agentName, CandidatesDTO candidatesDTO) {
+        this.allies.get(allyName).updateCandidates(candidatesDTO);
+    }
 }

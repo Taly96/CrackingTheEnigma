@@ -3,6 +3,7 @@ package engine.managers;
 import dto.codeconfig.CodeConfigInfo;
 import dto.decipher.DecipherDTO;
 import dto.loadedmachine.LoadedMachineDTO;
+import dto.process.MessageProcessDTO;
 import machine.EnigmaMachine;
 import machine.codeconfiguration.CodeConfiguration;
 import machine.rotor.Rotor;
@@ -12,6 +13,9 @@ import dm.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import static dm.utils.Utils.createStringCodeConfig;
+import static dm.utils.Utils.fromObjectToByteArray;
 
 public class MachineManager {
 
@@ -33,7 +37,7 @@ public class MachineManager {
         return currentLoadedMachineDTO;
     }
 
-    public synchronized CodeConfigInfo setCodeConfig(CodeConfigInfo inputConfig) {
+    public synchronized CodeConfigInfo setCodeConfig(CodeConfigInfo inputConfig, boolean isReset) {
         this.theEnigma.clearCodeConfig();
         this.setReflectorConfig(inputConfig.getReflectorID());
         List<Integer> rotorsPosFromNotch = this.setRotors(
@@ -48,9 +52,9 @@ public class MachineManager {
         );
 
         this.theEnigma.setIsConfigured(true);
-//        if(!isReset){
-//            this.machine.addCodeConfigToCurrentHistory(setCodeConfig);
-//        }
+        if(!isReset){
+            this.theEnigma.addCodeConfigToCurrentHistory(setCodeConfig);
+        }
 
         return setCodeConfig;
     }
@@ -96,10 +100,11 @@ public class MachineManager {
                         rotorsOrder,
                         rotorsStartingPoints,
                         reflectorID
-                )
+                ),
+                false
         );
 
-        return this.setCodeConfig(setCodeConfig);
+        return setCodeConfig;
     }
 
     private synchronized String generateReflector() {
@@ -139,19 +144,19 @@ public class MachineManager {
         return rotorsIDOrder;
     }
 
-    public synchronized String processMessage(String messageToProcess) {
+    public synchronized MessageProcessDTO processMessage(String messageToProcess) {
 
-        return this.theEnigma.process(messageToProcess);
-    }
+        String processed = this.theEnigma.process(messageToProcess);
+        CodeConfigInfo currentCode = theEnigma.getCurrentCodeConfig();
 
-    public synchronized InventoryManager getMachineInventoryManager() {
-        return machineInventory;
+        return
+                new MessageProcessDTO(currentCode, processed);
     }
 
     public synchronized DecipherDTO getDecipherDTO() {
         boolean isValid = true;
         byte[] serInventory =
-                Utils.fromObjectToByteArray(
+                fromObjectToByteArray(
                         this.machineInventory.getTheEnigmaInventory()
                 );
         CodeConfiguration knownComponents =
@@ -182,7 +187,7 @@ public class MachineManager {
 
         if(isValid){
             byte[] serKnownComponents =
-                    Utils.fromObjectToByteArray(
+                    fromObjectToByteArray(
                             knownComponents
                     );
             return new DecipherDTO(
@@ -192,5 +197,22 @@ public class MachineManager {
         }
 
         return null;
+    }
+
+    public synchronized String getCurrentCodeConfig() {
+        return createStringCodeConfig(
+                this.theEnigma.getCurrentMachineHistory().get(0)
+        );
+    }
+
+    public synchronized byte[] getSerMachineInventory() {
+
+        return
+                fromObjectToByteArray(this.machineInventory.getTheEnigmaInventory().getStaticMachineInfo());
+    }
+
+    public synchronized CodeConfigInfo resetMachine() {
+
+        return this.setCodeConfig(this.theEnigma.getCurrentMachineHistory().get(0), true);
     }
 }

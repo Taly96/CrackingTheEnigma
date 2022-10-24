@@ -2,11 +2,14 @@ package uboat.view.body.contest;
 
 import dto.activeteams.AlliesInfo;
 import dto.activeteams.AlliesDTO;
+import dto.battlefield.BattleFieldInfo;
 import dto.candidates.CandidatesDTO;
 import dto.candidates.CandidatesDTOList;
 import dto.candidates.CandidatesInfo;
+import dto.decipher.OriginalInformation;
 import dto.staticinfo.StaticMachineDTO;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -19,6 +22,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import uboat.view.body.UBoatCenterController;
 import uboat.view.body.contest.refreshers.ActiveTeamsRefresher;
+import uboat.view.body.contest.refreshers.BattleStatusRefresher;
 import uboat.view.body.contest.refreshers.CandidatesRefresher;
 
 import java.util.Optional;
@@ -85,6 +89,10 @@ public class UBoatContestController {
 
     private CandidatesRefresher candidatesRefresher = null;
 
+    private BattleStatusRefresher battleStatusRefresher = null;
+
+    private boolean isOngoingContest = false;
+
     private Timer timer = null;
 
     @FXML
@@ -95,29 +103,6 @@ public class UBoatContestController {
         this.listViewDictionary.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         this.initializeActiveTeamsTableView();
         this.initializeCandidatesTableView();
-    }
-
-    private void initializeCandidatesTableView() {
-        this.tableColumnCandidates.setCellValueFactory(
-                cellData -> new SimpleStringProperty(cellData.getValue().getCandidate())
-        );
-        this.tableColumnFoundBy.setCellValueFactory(
-                cellData -> new SimpleStringProperty(cellData.getValue().getFoundBy())
-        );
-        this.tableColumnCodeConfig.setCellValueFactory(
-                cellData -> new SimpleStringProperty(cellData.getValue().getCodeConfig())
-        );
-    }
-
-    private void initializeActiveTeamsTableView() {
-        this.tableColumnAllies.setCellValueFactory(
-                cellData -> new SimpleStringProperty(cellData.getValue().getName()));
-        this.tableColumnAgents.setCellValueFactory(
-                cellData -> new SimpleIntegerProperty(cellData.getValue().getNumOfAgents()).asObject()
-        );
-        this.tableColumnAssignmentSize.setCellValueFactory(
-                cellData -> new SimpleStringProperty(cellData.getValue().getAssignmentSize())
-        );
     }
 
     @FXML
@@ -143,17 +128,40 @@ public class UBoatContestController {
                 "Correct?");
         Optional<ButtonType> res = alert.showAndWait();
         if(res.isPresent() && res.get().equals(ButtonType.OK)) {
-            this.uBoatCenterController.startContest(this.textFieldProcessedMessage.getText());
-            this.starRefreshers();
+            OriginalInformation originalInformation =
+                    new OriginalInformation(
+                            this.messageToProcessProperty.get(),
+                            this.textFieldProcessedMessage.getText()
+                    );
+            this.uBoatCenterController.startContest(originalInformation);
         }
     }
 
-    public void contestStarted(){
-        this.vBoxProcess.setDisable(true);
-        this.hBoxButtons.setDisable(true);
+
+    private void initializeCandidatesTableView() {
+        this.tableColumnCandidates.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getCandidate())
+        );
+        this.tableColumnFoundBy.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getFoundBy())
+        );
+        this.tableColumnCodeConfig.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getCodeConfig())
+        );
     }
 
-    private void starRefreshers() {
+    private void initializeActiveTeamsTableView() {
+        this.tableColumnAllies.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getName()));
+        this.tableColumnAgents.setCellValueFactory(
+                cellData -> new SimpleIntegerProperty(cellData.getValue().getNumOfAgents()).asObject()
+        );
+        this.tableColumnAssignmentSize.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getAssignmentSize())
+        );
+    }
+
+    public void startRefreshers() {
         this.candidatesRefresher = new CandidatesRefresher(
                 this::updateCandidates,
                 this.uBoatCenterController.getBattleFieldName()
@@ -162,9 +170,42 @@ public class UBoatContestController {
                 this::updateActiveTeams,
                 this.uBoatCenterController.getBattleFieldName()
         );
+        this.battleStatusRefresher = new BattleStatusRefresher(
+                this::updateStatus
+        );
         this.timer = new Timer();
+        this.timer.schedule(this.battleStatusRefresher, REFRESH_RATE, REFRESH_RATE);
         this.timer.schedule(this.activeTeamsRefresher, REFRESH_RATE, REFRESH_RATE);
         this.timer.schedule(this.candidatesRefresher, REFRESH_RATE,REFRESH_RATE);
+    }
+
+    private void updateStatus(BattleFieldInfo battleFieldInfo) {
+        Platform.runLater(() -> {
+            if(battleFieldInfo.getStatus().equals("Active")){
+                if(!this.isOngoingContest){
+                    this.isOngoingContest = true;
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("All teams are ready");
+                    alert.setContentText("All allies are ready, the contest has started.");
+                    alert.showAndWait();
+                }
+            } else if (battleFieldInfo.getStatus().equals("Ended")) {
+                this.isOngoingContest = false;
+                this.stopRefreshers();
+                // todo-back to log in maybe? or setting another contest?
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("The contest ended");
+                alert.setContentText("The contest has ended, the winner is " + battleFieldInfo.getWinner());
+                alert.showAndWait();
+            }
+        });
+
+    }
+
+    private void stopRefreshers() {
+        this.battleStatusRefresher.cancel();
+        this.activeTeamsRefresher.cancel();
+        this.candidatesRefresher.cancel();
     }
 
     public void setCenterController(UBoatCenterController uBoatCenterController) {
@@ -205,5 +246,10 @@ public class UBoatContestController {
                 this.tableViewActiveTeams.getItems().add(info);
             }
         });
+    }
+
+    public void bind(BooleanProperty isContestStartedProperty) {
+        this.vBoxProcess.disableProperty().bind(isContestStartedProperty);
+        this.hBoxButtons.disableProperty().bind(isContestStartedProperty);
     }
 }

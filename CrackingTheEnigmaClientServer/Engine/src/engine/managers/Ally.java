@@ -74,4 +74,8 @@ public class Ally {
     public synchronized void setReady(boolean ready) {
         isReady = ready;
     }
+
+    public synchronized void updateCandidates(CandidatesDTO candidatesDTO) {
+        this.candidatesManager.addCandidates(candidatesDTO);
+    }
 }

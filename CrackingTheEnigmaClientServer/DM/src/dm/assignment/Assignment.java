@@ -9,6 +9,7 @@ import machine.codeconfiguration.CodeConfiguration;
 
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 import static dm.utils.Utils.createStringCodeConfig;
 import static dm.utils.Utils.fromBytesArrayToObject;
@@ -26,35 +27,43 @@ public class Assignment implements Runnable {
     private String messageToProcess = null;
 
     private Integer[] indexInAbc = null;
+
+    private CountDownLatch countDownLatch = null;
     public Assignment(
+            StaticMachineDTO staticMachineInventory,
             AssignmentDTO assignmentInfo,
             BlockingQueue<CandidatesInfo> candidates,
+            String messageToProcess,
             byte[] serMachine,
-            StaticMachineDTO staticInventory,
-            String messageToProcess
+            CountDownLatch countDownLatch
     ) {
         this.assignments = assignmentInfo;
         this.candidatesInfo = candidates;
         this.machine = (EnigmaMachine) fromBytesArrayToObject(serMachine);
-        this.staticInventory = staticInventory;
-        this.machine.setABC(this.staticInventory.getAbc());
         this.messageToProcess = messageToProcess;
+        this.countDownLatch = countDownLatch;
+        this.staticInventory = staticMachineInventory;
+        System.out.println("Agent created runnable assignment");
     }
 
     @Override
     public void run() {
+        System.out.println(" agent working on assignments");
         boolean isCandidate = true;
         StringBuilder res = new StringBuilder();
         String positions = this.assignments.getStartingPoint();
         Integer numOfRotors = this.assignments.getNumOfRotors();
         this.indexInAbc = new Integer[numOfRotors];
         String  abc = this.staticInventory.getAbc();
+        this.machine.setABC(abc);
         Integer index = 0;
 
         for(Character pos : this.assignments.getStartingPoint().toCharArray()){
             this.indexInAbc[index] = abc.indexOf(pos);
+            index++;
         }
-        while(positions.equals(this.assignments.getFinishPoint())){
+        while(!positions.equals(this.assignments.getFinishPoint())){
+            System.out.println("working on " + positions);
             CodeConfiguration knownComponents =
                     (CodeConfiguration) fromBytesArrayToObject(
                             this.assignments.getKnownComponents()
@@ -84,21 +93,20 @@ public class Assignment implements Runnable {
             res.delete(0, res.length());
             positions = this.getNextPos(abc);
         }
-
-
+        this.countDownLatch.countDown();
     }
 
     private String getNextPos(String abc) {
 
         int carry = 1;
         StringBuilder res = new StringBuilder();
-        for(Integer index: this.indexInAbc){
-            this.indexInAbc[index] += carry;
-            carry =this.indexInAbc[index]/abc.length();
+        for(int i = 0; i < this.indexInAbc.length; i++){
+            this.indexInAbc[i] += carry;
+            carry =this.indexInAbc[i]/abc.length();
             if(carry != 0){
-                this.indexInAbc[index] = this.indexInAbc[index] % abc.length();
+                this.indexInAbc[i] = this.indexInAbc[i] % abc.length();
             }
-            res.append(abc.charAt(index));
+            res.append(abc.charAt(indexInAbc[i]));
         }
 
         return res.toString();

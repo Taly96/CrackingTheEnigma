@@ -8,8 +8,10 @@ public class SessionUtils {
     public static final String BATTLE = "battle";
     public static final String USERNAME = "username";
 
-    public static String ALLY_NAME = "team";
+    public static final String ALLY_NAME = "team";
     public static final String TYPE = "type";
+
+    public static final String DRAW = "draw";
 
     public static String getBattleFieldName(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -37,5 +39,11 @@ public class SessionUtils {
         HttpSession session = req.getSession(false);
         Object sessionAttribute = session != null ? session.getAttribute(ALLY_NAME) : null;
         return sessionAttribute != null ? sessionAttribute.toString() : null;
+    }
+
+    public static Integer getNumOfAssignmentsPerDraw(HttpServletRequest req) {
+        HttpSession session = req.getSession(false);
+        Object sessionAttribute = session != null ? session.getAttribute(DRAW) : null;
+        return sessionAttribute != null ? (Integer)sessionAttribute : null;
     }
 }
