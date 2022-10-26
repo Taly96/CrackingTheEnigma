@@ -17,16 +17,12 @@ import static httpcommon.utils.Utils.showErrors;
 
 public class CandidatesRefresher extends TimerTask {
 
-    private String allyUserName = null;
-
     private Consumer<CandidatesDTO> candidatesConsumer = null;
 
-    public CandidatesRefresher(
-            String allyUserName,
-            Consumer<CandidatesDTO> candidatesConsumer
-    ) {
+    private int version = 0;
+
+    public CandidatesRefresher(Consumer<CandidatesDTO> candidatesConsumer) {
         this.candidatesConsumer = candidatesConsumer;
-        this.allyUserName = allyUserName;
     }
 
     @Override
@@ -57,7 +53,15 @@ public class CandidatesRefresher extends TimerTask {
                                     body,
                                     CandidatesDTO.class
                             );
-                    candidatesConsumer.accept(data);
+                    if(data.getCandidates().size() > version) {
+                        if (version != 0) {
+                            data.changeVersion(version);
+
+                        }
+                        version = data.getCandidates().size();
+                        candidatesConsumer.accept(data);
+
+                    }
                 }
                 else {
                     Platform.runLater(() -> showErrors(body));

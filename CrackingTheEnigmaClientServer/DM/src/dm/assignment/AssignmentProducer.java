@@ -12,6 +12,7 @@ import machine.rotor.Rotor;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -42,6 +43,8 @@ public class AssignmentProducer implements Runnable {
 
     private Object queueLock = null;
 
+    private boolean isOffLimits = true;
+
     public AssignmentProducer(
             AtomicReference<BigDecimal> createdAssignments,
             BlockingQueue<AssignmentDTO> assignmentsQueue,
@@ -68,8 +71,8 @@ public class AssignmentProducer implements Runnable {
     }
 
     @Override
-    public void run() {
-
+    public void run() {//todo - try counting the assignments and running up the limit
+        System.out.println(Thread.currentThread().getName());
         switch (level){
             case "Easy": {
                 this.goEasy();
@@ -92,6 +95,7 @@ public class AssignmentProducer implements Runnable {
                 break;
             }
         }
+        System.out.println("^^^^^^^^^^CREATED " + this.createdAssignments.get() + "TOTAL ASSIGNMENTS");
         this.hasMoreAssignments.set(false);
     }
 
@@ -167,12 +171,14 @@ public class AssignmentProducer implements Runnable {
         synchronized (queueLock) {
             try {
                 this.assignments.put(newAssignment);
-                this.createdAssignments.set(this.createdAssignments.get().add(BigDecimal.ONE));
+                this.createdAssignments.accumulateAndGet(BigDecimal.ONE, BigDecimal::add);
                 System.out.println("Added assignment : " + newAssignment .getStartingPoint() + " " + newAssignment.getFinishPoint());
+                queueLock.notifyAll();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
+
     }
 
     private void goEasy() {
@@ -192,17 +198,18 @@ public class AssignmentProducer implements Runnable {
     private AssignmentDTO createAssignment(Integer numOfRotors) {
         String abc = this.inventory.getStaticMachineInfo().getAbc();
         int abcSize = abc.length();
-
         String [] positions = new String[] {"",""};
+        this.isOffLimits = true;
 
         for(Integer index : this.startingPos){
             positions[0] += abc.charAt(index);
         }
 
         positions[1] = this.getNextPos(numOfRotors, abcSize, this.assignmentSize, abc);
+        this.isOffLimits = true;
         this.getNextPos(numOfRotors, abcSize, BigDecimal.ONE, abc);
-
         System.out.println("Start: " + positions[0] + " End: " + positions[1]);
+
         return new AssignmentDTO(
                 positions[0],
                 positions[1],
@@ -210,41 +217,81 @@ public class AssignmentProducer implements Runnable {
                 numOfRotors
         );
     }
-
-    private String getNextPos(Integer numOfRotors, int abcSize, BigDecimal assignmentSize, String abc) {
-        BigDecimal pos = assignmentSize.add(BigDecimal.valueOf(this.startingPos[0]));
-        Integer nextCarry = pos.divide(BigDecimal.valueOf(abcSize),RoundingMode.FLOOR).intValue();
-        String res = "";
+    private String getNextPos(Integer numOfRotors, int abcSize, BigDecimal assignmentSize, String abc){
+        long pos = assignmentSize.longValue() + this.startingPos[0];
+        long nextCarry = pos / abcSize;
+        StringBuilder res = new StringBuilder();
 
         if(nextCarry != 0){
-            this.startingPos[0] = pos.remainder(BigDecimal.valueOf(abcSize)).intValue();
+            this.startingPos[0] = (int) (pos % abcSize);
         }
         else{
-            this.startingPos[0] = pos.intValue();
+            this.isOffLimits = false;
+            this.startingPos[0] = (int) pos;
         }
+
         for (int i = 1; i < numOfRotors; i++) {
-            pos = BigDecimal.valueOf(this.startingPos[i] + nextCarry);
-            nextCarry = pos.divide(BigDecimal.valueOf(abcSize), RoundingMode.FLOOR).intValue();
+            pos = startingPos[i] + nextCarry;
+            nextCarry = pos / abcSize;
+
+//            if(i == numOfRotors - 1 && nextCarry != 0){
+//                hasMoreStartingPoints = false;
+//                Arrays.fill(this.startingPos, abcSize - 1);
             if(nextCarry != 0){
-                if(i == numOfRotors - 1){
-                    this.hasMoreStartingPoints = false;
-                    this.startingPos = new int[]{abcSize -1, abcSize - 1, abcSize - 1};
-                }
-                else {
-                    this.startingPos[i] = pos.remainder(BigDecimal.valueOf(abcSize)).intValue();
-                }
+                this.startingPos[i] = (int) (pos % abcSize);
             }
             else{
-                this.startingPos[i] = pos.intValue();
+                this.isOffLimits = false;
+                this.startingPos[i] = (int) pos;
             }
-        }
 
+        }
+        if(this.isOffLimits){
+            Arrays.fill(this.startingPos, abcSize - 1);
+            this.hasMoreStartingPoints = false;
+        }
         for(Integer index : this.startingPos){
-            res += abc.charAt(index);
+            res.append(abc.charAt(index));
         }
 
-        return res;
+        if(res.toString().equals("'''")){
+            System.out.println("Should stop");
+        }
+
+        return res.toString();
     }
+//    private String getNextPos(Integer numOfRotors, int abcSize, BigDecimal assignmentSize, String abc) {
+//        BigDecimal pos = assignmentSize.add(BigDecimal.valueOf(this.startingPos[0]));
+//        int nextCarry = pos.divide(BigDecimal.valueOf(abcSize),RoundingMode.FLOOR).intValue();
+//        StringBuilder res = new StringBuilder();
+//
+//        if(nextCarry != 0){
+//            this.startingPos[0] = pos.remainder(BigDecimal.valueOf(abcSize)).intValue();
+//        }
+//        else{
+//            this.startingPos[0] = pos.intValue();
+//        }
+//        for (int i = 1; i < numOfRotors; i++) {
+//            pos = BigDecimal.valueOf(this.startingPos[i] + nextCarry);
+//            nextCarry = pos.divide(BigDecimal.valueOf(abcSize), RoundingMode.FLOOR).intValue();
+//            if(i == numOfRotors - 1 && nextCarry != 0){
+//                this.hasMoreStartingPoints = false;
+//                Arrays.fill(this.startingPos, abcSize - 1);
+//            }
+//            else if (nextCarry != 0){
+//                this.startingPos[i] = pos.remainder(BigDecimal.valueOf(abcSize)).intValue();
+//            }
+//            else{
+//                this.startingPos[i] = pos.intValue();
+//            }
+//        }
+//
+//        for(Integer index : this.startingPos){
+//            res.append(abc.charAt(index));
+//        }
+//
+//        return res.toString();
+//    }
 
     private List<int[]> generateRotorsOrder(int availableRotors, int neededRotors) {
         List<int[]> combinations = new ArrayList<>();

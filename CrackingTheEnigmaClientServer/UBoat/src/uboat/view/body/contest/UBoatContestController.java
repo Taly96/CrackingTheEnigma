@@ -91,6 +91,9 @@ public class UBoatContestController {
 
     private BattleStatusRefresher battleStatusRefresher = null;
 
+
+    String wordsToProcess = "";
+
     private boolean isOngoingContest = false;
 
     private Timer timer = null;
@@ -111,11 +114,12 @@ public class UBoatContestController {
         this.textFieldProcessedMessage.setText("");
         this.buttonProcessMessage.setDisable(true);
         this.buttonReady.setDisable(true);
+        this.wordsToProcess = "";
     }
 
     @FXML
     void onProcessMessage(ActionEvent event) {
-        this.uBoatCenterController.processMessage(this.messageToProcessProperty.get().trim());
+        this.uBoatCenterController.processMessage(wordsToProcess.trim());
         this.buttonReady.setDisable(false);
     }
 
@@ -128,12 +132,7 @@ public class UBoatContestController {
                 "Correct?");
         Optional<ButtonType> res = alert.showAndWait();
         if(res.isPresent() && res.get().equals(ButtonType.OK)) {
-            OriginalInformation originalInformation =
-                    new OriginalInformation(
-                            this.messageToProcessProperty.get(),
-                            this.textFieldProcessedMessage.getText()
-                    );
-            this.uBoatCenterController.startContest(originalInformation);
+            this.uBoatCenterController.startContest(this.textFieldProcessedMessage.getText());
         }
     }
 
@@ -163,8 +162,7 @@ public class UBoatContestController {
 
     public void startRefreshers() {
         this.candidatesRefresher = new CandidatesRefresher(
-                this::updateCandidates,
-                this.uBoatCenterController.getBattleFieldName()
+                this::updateCandidates
         );
         this.activeTeamsRefresher = new ActiveTeamsRefresher(
                 this::updateActiveTeams,
@@ -191,15 +189,33 @@ public class UBoatContestController {
                 }
             } else if (battleFieldInfo.getStatus().equals("Ended")) {
                 this.isOngoingContest = false;
-                this.stopRefreshers();
-                // todo-back to log in maybe? or setting another contest?
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("The contest ended");
                 alert.setContentText("The contest has ended, the winner is " + battleFieldInfo.getWinner());
                 alert.showAndWait();
+                this.contestEnded();
+                this.uBoatCenterController.contestEnded();
+
             }
         });
 
+    }
+
+    private void contestEnded() {
+        this.stopRefreshers();
+        this.clearTableViews();
+        this.clearProperties();
+    }
+
+    private void clearProperties() {
+        this.textFieldProcessedMessage.clear();
+        this.messageToProcessProperty.set("");
+    }
+
+    private void clearTableViews() {
+        this.tableViewActiveTeams.getItems().clear();
+        this.tableViewCandidates.getItems().clear();
+        this.listViewDictionary.getItems().clear();
     }
 
     private void stopRefreshers() {
@@ -220,6 +236,7 @@ public class UBoatContestController {
         this.listViewDictionary.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.buttonProcessMessage.setDisable(false);
             this.messageToProcessProperty.set(this.messageToProcessProperty.get() + newValue + " ");
+            this.wordsToProcess += (newValue + " ");
         });
     }
 
@@ -228,13 +245,11 @@ public class UBoatContestController {
         this.textFieldProcessedMessage.setText(this.textFieldProcessedMessage.getText() + processedMessage);
     }
 
-    private void updateCandidates(CandidatesDTOList candidatesDTOList) {
+    private void updateCandidates(CandidatesDTO candidatesDTO) {
         Platform.runLater(() -> {
-            this.tableViewCandidates.getItems().clear();
-            for (CandidatesDTO DTO : candidatesDTOList.getCandidatesDTOList() ){
-                for(CandidatesInfo info : DTO.getCandidates()){
-                    this.tableViewCandidates.getItems().add(info);
-                }
+
+            for(CandidatesInfo info : candidatesDTO.getCandidates()){
+                this.tableViewCandidates.getItems().add(info);
             }
         });
     }

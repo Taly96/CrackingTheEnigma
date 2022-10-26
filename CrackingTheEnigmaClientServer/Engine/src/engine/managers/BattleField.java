@@ -3,18 +3,12 @@ package engine.managers;
 import dm.decipher.DecipherManager;
 import dto.assignment.AssignmentDTOList;
 import dto.battlefield.BattleFieldInfo;
-import dto.candidates.CandidatesDTO;
-import dto.candidates.CandidatesInfo;
 import dto.codeconfig.CodeConfigInfo;
-import dto.decipher.OriginalInformation;
 import dto.loadedmachine.LoadedMachineDTO;
 import dto.process.MessageProcessDTO;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class BattleField {
 
@@ -24,10 +18,6 @@ public class BattleField {
     private MachineManager machineManager= null;
 
     private Map<String, DecipherManager> contest = null;
-
-    private String originalMessage = null;
-
-    private String originalCodeConfig = null;
 
     public BattleField(LoadedMachineDTO machineDTO, MachineManager machineManager){
         this.battleFieldInfo = machineDTO.getBattleFieldInfo();
@@ -48,29 +38,21 @@ public class BattleField {
 
         return this.battleFieldInfo;
     }
-    public synchronized void assembleContest(OriginalInformation originalInformation) {
+    public synchronized void assembleContest(String processedMessage) {
         this.battleFieldInfo.setStatus("Waiting");
-        this.battleFieldInfo.setMessageToDecipher(originalInformation.getMessageToDecipher());
-        this.originalMessage =originalInformation.getOriginalMessage();
-        this.originalCodeConfig = this.machineManager.getCurrentCodeConfig();
+        this.battleFieldInfo.setMessageToDecipher(processedMessage);
     }
-    public synchronized boolean setAllyReadyForContest(String allyName, String assignmentSize) {
-        if(!this.battleFieldInfo.getStatus().equals("full")) {
-            this.contest.put(allyName, new DecipherManager(
-                    this.battleFieldInfo.getLevel(),
-                    assignmentSize,
-                    this.getBattleFieldInfo().getTotalNumberOfAssignment(),
-                    this.machineManager.getDecipherDTO()
-            ));
-            if (contest.size() == this.battleFieldInfo.getNeededNumOfAllies()) {
-                this.battleFieldInfo.setStatus("full");
-                this.startContest();
-            }
+    public synchronized void setAllyReadyForContest(String allyName, String assignmentSize) {
 
-            return true;
+        this.contest.put(allyName, new DecipherManager(
+                this.battleFieldInfo.getLevel(),
+                assignmentSize,
+                this.getBattleFieldInfo().getTotalNumberOfAssignment(),
+                this.machineManager.getDecipherDTO()
+        ));
+        if (contest.size() == this.battleFieldInfo.getNeededNumOfAllies()) {
+            this.startContest();
         }
-
-        return false;
     }
 
     public synchronized MessageProcessDTO processMessage(String messageToProcess) {
@@ -89,26 +71,12 @@ public class BattleField {
     }
 
     private synchronized void startContest(){
-        this.originalCodeConfig =
-                this.machineManager.getCurrentCodeConfig();
+
         for(DecipherManager dm : this.contest.values()){
             dm.startProducingAssignments();
+            System.out.println("DM started producing");
         }
-
         this.battleFieldInfo.setStatus("Active");
-    }
-
-    public synchronized void checkForWinner(CandidatesDTO candidatesDTO) {
-        for(CandidatesInfo info : candidatesDTO.getCandidates()){
-            if(info.getCandidate().equals(this.originalMessage) && info.getCodeConfig().equals(this.originalCodeConfig)){
-                this.battleFieldInfo.setWinner(info.getFoundBy());
-                System.out.println("Server found winner");
-                this.battleFieldInfo.setStatus("Ended");
-                for(DecipherManager dm : this.contest.values()){
-                    dm.stopProducing();
-                }
-            }
-        }
     }
 
     public synchronized AssignmentDTOList getAssignments(String allyName, Integer numOfAssignmentsPerDraw) {

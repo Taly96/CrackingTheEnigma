@@ -77,12 +77,13 @@ public class UBoatCenterController {
         return this.uBoatMainController.getBattleFieldName();
     }
 
-    public void startContest(OriginalInformation originalInformation) {
-        this.uBoatMainController.startContest(originalInformation);
+    public void startContest(String processedMessage) {
+        this.uBoatMainController.startContest(processedMessage);
     }
 
     public void contestEnded(){
-
+        this.gridPaneMachineTabComponentController.contestEnded();
+        this.uBoatMainController.contestEnded();
     }
 
     public void contestStarted() {

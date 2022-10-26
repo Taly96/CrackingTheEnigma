@@ -10,6 +10,7 @@ import machine.codeconfiguration.CodeConfiguration;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static dm.utils.Utils.createStringCodeConfig;
 import static dm.utils.Utils.fromBytesArrayToObject;
@@ -29,32 +30,39 @@ public class Assignment implements Runnable {
     private Integer[] indexInAbc = null;
 
     private CountDownLatch countDownLatch = null;
+
+    private AtomicLong totalAssignmentsWorkedOn = null;
+
+    private String allyName = null;
+
     public Assignment(
             StaticMachineDTO staticMachineInventory,
             AssignmentDTO assignmentInfo,
             BlockingQueue<CandidatesInfo> candidates,
             String messageToProcess,
             byte[] serMachine,
-            CountDownLatch countDownLatch
-    ) {
+            CountDownLatch countDownLatch,
+            AtomicLong totalAssignmentsWorkedOn,
+            String alliesTeam) {
         this.assignments = assignmentInfo;
         this.candidatesInfo = candidates;
         this.machine = (EnigmaMachine) fromBytesArrayToObject(serMachine);
         this.messageToProcess = messageToProcess;
         this.countDownLatch = countDownLatch;
         this.staticInventory = staticMachineInventory;
-        System.out.println("Agent created runnable assignment");
+        this.totalAssignmentsWorkedOn = totalAssignmentsWorkedOn;
+        this.allyName = alliesTeam;
     }
 
     @Override
     public void run() {
-        System.out.println(" agent working on assignments");
         boolean isCandidate = true;
         StringBuilder res = new StringBuilder();
         String positions = this.assignments.getStartingPoint();
         Integer numOfRotors = this.assignments.getNumOfRotors();
         this.indexInAbc = new Integer[numOfRotors];
         String  abc = this.staticInventory.getAbc();
+        boolean isDone = false;
         this.machine.setABC(abc);
         Integer index = 0;
 
@@ -62,7 +70,8 @@ public class Assignment implements Runnable {
             this.indexInAbc[index] = abc.indexOf(pos);
             index++;
         }
-        while(!positions.equals(this.assignments.getFinishPoint())){
+
+        while(!isDone){
             System.out.println("working on " + positions);
             CodeConfiguration knownComponents =
                     (CodeConfiguration) fromBytesArrayToObject(
@@ -76,6 +85,7 @@ public class Assignment implements Runnable {
 
             String word = "";
             StringTokenizer st = new StringTokenizer(processedWords, " ");
+
             while(st.hasMoreTokens()){
                 word = st.nextToken();
                 if (!this.staticInventory.getWords().contains(word)) {
@@ -89,17 +99,24 @@ public class Assignment implements Runnable {
             if (isCandidate && !res.equals("")) {
                 this.addCandidate(res, configInfo);
             }
+            if(positions.equals(this.assignments.getFinishPoint())) {
+                isDone = true;
+            }
             isCandidate = true;
             res.delete(0, res.length());
-            positions = this.getNextPos(abc);
+            if(!isDone){
+                positions = this.getNextPos(abc);
+            }
+            this.totalAssignmentsWorkedOn.incrementAndGet();
         }
+        System.out.println("///////////");
         this.countDownLatch.countDown();
     }
 
     private String getNextPos(String abc) {
-
         int carry = 1;
         StringBuilder res = new StringBuilder();
+
         for(int i = 0; i < this.indexInAbc.length; i++){
             this.indexInAbc[i] += carry;
             carry =this.indexInAbc[i]/abc.length();
@@ -119,7 +136,7 @@ public class Assignment implements Runnable {
             this.candidatesInfo.put(
                     new CandidatesInfo(
                             res.toString().trim(),
-                            Thread.currentThread().getName(),
+                            this.allyName,
                             codeConfig
                     )
             );

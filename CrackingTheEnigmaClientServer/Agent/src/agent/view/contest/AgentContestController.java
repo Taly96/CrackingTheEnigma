@@ -262,7 +262,6 @@ public class AgentContestController {
 
     private void updateCandidates(CandidatesDTO candidatesDTO) {
         Platform.runLater(() -> {
-            this.tableViewCandidates.getItems().clear();
 
             for(CandidatesInfo info: candidatesDTO.getCandidates()){
                 this.tableViewCandidates.getItems().add(info);

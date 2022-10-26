@@ -293,4 +293,28 @@ public class UBoatMachineController {
         popUpWindow.setScene(scene);
         popUpWindow.showAndWait();
     }
+
+    public void contestEnded() {
+        this.clearViews();
+        this.chosenReflector = "";
+        this.chosenRotors.clear();
+        this.rotorsStartingPoint = "";
+        this.comboBoxReflector.getItems().clear();
+        this.rotorsBank.clear();
+        this.clearProperties();
+    }
+
+    private void clearProperties() {
+        this.isRotorsReadyProperty.set(false);
+        this.isCodeReadyProperty.set(false);
+        this.isReflectorReadyProperty.set(false);
+    }
+
+    private void clearViews() {
+        this.tableViewMachineDetails.getItems().clear();
+        this.tableViewReflector.getItems().clear();
+        this.tableViewRotors.getItems().clear();
+        this.tableViewStartingPos.getItems().clear();
+        this.flowPaneRotorsBank.getChildren().clear();
+    }
 }

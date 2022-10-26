@@ -3,9 +3,7 @@ package engine.managers;
 import dto.assignment.AssignmentDTOList;
 import dto.battlefield.BattleFieldDTO;
 import dto.battlefield.BattleFieldInfo;
-import dto.candidates.CandidatesDTO;
 import dto.codeconfig.CodeConfigInfo;
-import dto.decipher.OriginalInformation;
 import dto.loadedmachine.LoadedMachineDTO;
 import dto.process.MessageProcessDTO;
 
@@ -57,15 +55,13 @@ public class BattleFieldManager {
         return this.battleFields.get(battleName).getBattleFieldInfo();
     }
 
-    public synchronized boolean setAllyReadyForContest(String battleName, String allyName, String assignmentSize) {
-
-        return
-                this.battleFields.get(battleName)
+    public synchronized void setAllyReadyForContest(String battleName, String allyName, String assignmentSize) {
+        this.battleFields.get(battleName)
                         .setAllyReadyForContest(allyName, assignmentSize);
     }
 
-    public synchronized void assembleContest(String battleName, OriginalInformation originalInformation) {
-        this.battleFields.get(battleName).assembleContest(originalInformation);
+    public synchronized void assembleContest(String battleName, String processedMessage) {
+        this.battleFields.get(battleName).assembleContest(processedMessage);
     }
 
     public synchronized MessageProcessDTO processMessage(String battleName, String messageToProcess) {
@@ -81,10 +77,6 @@ public class BattleFieldManager {
     public synchronized CodeConfigInfo generateCodeConfig(String battleName) {
 
         return this.battleFields.get(battleName).generateCodeConfig();
-    }
-
-    public synchronized void checkForWinner(String battleName, CandidatesDTO candidatesDTO) {
-        this.battleFields.get(battleName).checkForWinner(candidatesDTO);
     }
 
     public synchronized String getBattleStatus(String battleName) {

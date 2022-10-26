@@ -7,8 +7,10 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static agent.http.Configuration.UPDATE_CANDIDATES;
@@ -37,13 +39,13 @@ public class CandidatesUpdater implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Candidate updater working");
+        System.out.println("@@@@@@@@@@@@@@@@Candidate updater working");
         while(this.hasMoreAssignments.get()){
             CandidatesDTO candidates = new CandidatesDTO();
             CandidatesInfo candidatesInfo =
                     this.candidates.poll();
             while (candidatesInfo != null){
-                System.out.println("got agents candidates");
+                System.out.println("@@@@@@@@@@@@got agents candidates");
                 candidates.addInfo(candidatesInfo);
                 candidatesInfo =
                         this.candidates.poll();
@@ -54,7 +56,7 @@ public class CandidatesUpdater implements Runnable {
             }
         }
         try {
-            System.out.println("Candidate updater done");
+            System.out.println("@@@@@@@@@@@Candidate updater done");
             Thread.currentThread().join();
         } catch (InterruptedException ignored) {}
     }

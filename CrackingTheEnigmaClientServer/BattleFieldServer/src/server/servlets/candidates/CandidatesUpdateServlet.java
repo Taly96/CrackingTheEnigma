@@ -2,7 +2,6 @@ package server.servlets.candidates;
 
 import dto.candidates.CandidatesDTO;
 import engine.managers.AlliesManager;
-import engine.managers.BattleFieldManager;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -34,19 +33,11 @@ public class CandidatesUpdateServlet extends HttpServlet {
                                     properties.getProperty(CANDIDATES),
                                     CandidatesDTO.class
                             );
-                    BattleFieldManager battleFieldManager =
-                            getBattleFieldManager(getServletContext());
                     AlliesManager alliesManager =
                             getAlliesManager(getServletContext());
                     if (candidatesDTO != null) {
                         synchronized (this) {
                             resp.setStatus(HttpServletResponse.SC_OK);
-                            battleFieldManager.checkForWinner(battleName, candidatesDTO);
-                            resp.getOutputStream().print(
-                                    GSON_INSTANCE.toJson(
-                                            battleFieldManager.getBattleStatus(battleName)
-                                    )
-                            );
                             alliesManager.updateCandidates(allyName, agentName, candidatesDTO);
                         }
                     }

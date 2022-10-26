@@ -5,6 +5,8 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,87 +20,60 @@ public class Main {
     public final static String BASE_URL = "http://localhost:8080/BattleFieldServer_Web_exploded";
 
     public static void main(String[] args) throws InterruptedException {
+        String abc = "ABCD";
+        int abcSize = 4;
+        int numOfRotors = 1;
+        int assignmentSize = 3;
+        int[] pos = {0,0};
+        boolean hasMoreStartingPoints = true;
 
-        doPost();
-        Thread.sleep(2000);
-        doGet();
+        String positionsABC = "";
+        for(Integer inABC : pos){
+            positionsABC += abc.charAt(inABC);
+        }
+        System.out.println(positionsABC);
+        positionsABC = "";
 
-    }
+        while (hasMoreStartingPoints) {
+            int index = pos[0] + assignmentSize;
+            int nextCarry = index / abcSize;
 
-    private static void doGet() {
-        String finalURL = HttpUrl
-                .parse(BASE_URL + "/test")
-                .newBuilder()
-                .build()
-                .toString();
-
-        Request request = new Request.Builder()
-                .url(finalURL)
-                .get()
-                .build();
-        runAsync(request, new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                //Platform.runLater(() -> showErrors(e.getMessage()));
-                System.out.println(e.getMessage());
+            if(nextCarry != 0){
+                pos[0] = index % abcSize;
             }
+            else{
+                pos[0] = index;
+            }
+//            for(Integer inABC : pos){
+//                positionsABC += abc.charAt(inABC);
+//            }
+//            System.out.println(positionsABC);
+//            positionsABC = "";
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                String body = response.body().string();
-                if (response.code() != SC_OK) {
-                    //Platform.runLater(() -> showErrors(body));
-                    System.out.println(body);
+            for (int i = 1; i < numOfRotors; i++) {
+                index = pos[i] + nextCarry;
+                nextCarry = index / abcSize;
+
+                if(i == numOfRotors - 1 && nextCarry != 0){
+                    hasMoreStartingPoints = false;
+                    pos = new int[]{abcSize -1, abcSize - 1};
+                } else if(nextCarry != 0){
+                    pos[i] = index % abcSize;
                 }
                 else{
-                    AgentsDTO agentsDTO = GSON_INSTANCE.fromJson(body, AgentsDTO.class);
-                    for(AgentsInfo agent : agentsDTO.getAgents()){
-                        System.out.println(agent.getName() + " " +
-                                agent.getAlliesTeam() + " " +
-                                agent.getAssignmentsPerDraw() + " " +
-                                agent.getNumberOfThreads());
-                    }
+                    pos[i] = index;
                 }
-                response.code();
-            }
-        });
-    }
 
-    private static void doPost() {
-        AgentsDTO agentsDTO = new AgentsDTO();
-        for(int i = 0; i < 2; i++){
-            agentsDTO.addInfo(new AgentsInfo("avrum- " + i, 3, 3, "mike"));
+                for(Integer inABC : pos){
+                    positionsABC += abc.charAt(inABC);
+                }
+                System.out.println(positionsABC);
+                positionsABC = "";
+            }
         }
-        String json = "agents=" + GSON_INSTANCE.toJson(agentsDTO);
 
-        String finalURL = HttpUrl
-                .parse(BASE_URL + "/test")
-                .newBuilder()
-                .build()
-                .toString();
 
-        Request request = new Request.Builder()
-                .url(finalURL)
-                .addHeader("Content-type", "application/json")
-                .post(RequestBody.create(json.getBytes()))
-                .build();
-        runAsync(request, new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                //Platform.runLater(() -> showErrors(e.getMessage()));
-                System.out.println(e.getMessage());
-            }
 
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if (response.code() != SC_OK) {
-                    String body = response.body().string();
-                    System.out.println(body);
-                    //Platform.runLater(() -> showErrors(body));
-                }
-                response.code();
-            }
-        });
 
     }
 

@@ -14,15 +14,15 @@ public class CandidatesManager {
         return this.candidates;
     }
 
-    public synchronized void addCandidate(CandidatesInfo newInfo){
-        this.candidates.addInfo(newInfo);
-    }
-
     public synchronized void clearInfo(){
         this.candidates.getCandidates().clear();
     }
 
-    public void addCandidates(CandidatesDTO candidatesDTO) {
+    public void addCandidates(CandidatesDTO candidatesDTO, String allyName) {
+        if(this.candidates.getAllyName() == null){
+            this.candidates.setAllyName(allyName);
+        }
+
         for(CandidatesInfo candidatesInfo : candidatesDTO.getCandidates()){
             this.candidates.addInfo(candidatesInfo);
         }

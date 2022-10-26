@@ -371,13 +371,13 @@ public class MainUBoatAppController {
         return this.currentBattleFieldNameProperty.get();
     }
 
-    public void startContest(OriginalInformation originalInformation) {
+    public void startContest(String processedMessage) {
         String finalUrl = HttpUrl
                 .parse(READY)
                 .newBuilder()
                 .build()
                 .toString();
-        String json ="original=" + GSON_INSTANCE.toJson(originalInformation);
+        String json ="processed=" + GSON_INSTANCE.toJson(processedMessage);
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .addHeader("Content-type","application/json")
@@ -450,5 +450,17 @@ public class MainUBoatAppController {
                 response.close();
             }
         });
+    }
+    public void contestEnded() {
+        this.bottomController.contestEnded();
+        this. isContestStartedProperty.set(false);
+        this.isMachineConfiguredProperty.set(false);
+        this.currentBattleFieldNameProperty.set("");
+        this.messageToUserProperty.set(NO_NAME);
+        this.currentUserProperty.set("");
+        this.isFileLoadedProperty.set(false);
+        this.isLoggedInProperty.set(false);
+        this.filePathProperty.set("");
+        this.switchToLogin();
     }
 }

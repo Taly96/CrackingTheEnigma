@@ -65,6 +65,7 @@ public class DecipherManager {
     }
 
     public synchronized void startProducingAssignments(){
+        System.out.println(Thread.currentThread().getName());
         this.assignmentProdThread.start();
     }
 
@@ -86,9 +87,10 @@ public class DecipherManager {
                else{
                    break;
                }
-
            }
+           queueLock.notifyAll();
        }
+
 
         System.out.println("Got assignments");
        return new AssignmentDTOList(assignments, this.hasMoreAssignments.get());

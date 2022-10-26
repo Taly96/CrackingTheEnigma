@@ -62,16 +62,14 @@ public class AlliesManager {
 
     public synchronized CandidatesDTO refreshAllyCandidates(String allyName) {
         Ally ally = this.allies.get(allyName);
-        CandidatesDTO candidatesDTOs = ally.refreshCandidates();
 
-        return candidatesDTOs;
+        return ally.refreshCandidates();
     }
 
     public synchronized AlliesInfo refreshAlly(String allyName) {
         Ally ally = this.allies.get(allyName);
-        AlliesInfo alliesInfo = ally.getInfo();
 
-        return alliesInfo;
+        return ally.getInfo();
     }
 
     public synchronized AgentsDTO refreshAgents(String allyName) {
@@ -103,6 +101,6 @@ public class AlliesManager {
     }
 
     public synchronized void updateCandidates(String allyName, String agentName, CandidatesDTO candidatesDTO) {
-        this.allies.get(allyName).updateCandidates(candidatesDTO);
+        this.allies.get(allyName).updateCandidates(candidatesDTO, allyName);
     }
 }

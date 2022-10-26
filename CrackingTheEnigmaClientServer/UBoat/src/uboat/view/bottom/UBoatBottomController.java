@@ -59,4 +59,8 @@ public class UBoatBottomController {
     public void bind(BooleanProperty contestStartedProperty){
         this.buttonResetCode.disableProperty().bind(contestStartedProperty);
     }
+
+    public void contestEnded() {
+        this.textCodeConfig.setText("<None Yet>");
+    }
 }

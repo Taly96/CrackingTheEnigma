@@ -7,7 +7,8 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 
@@ -18,16 +19,13 @@ import static httpcommon.utils.Utils.showErrors;
 
 public class CandidatesRefresher extends TimerTask {
 
-    private final Consumer<CandidatesDTOList> candidatesConsumer;
+    private final Consumer<CandidatesDTO> candidatesConsumer;
 
-    private String battleFieldName = null;
+    private Map<String, Integer> alliesVersions = null;
 
-    public CandidatesRefresher(
-            Consumer<CandidatesDTOList> activeTeamsDataConsumer,
-            String battleFieldName
-    ){
+    public CandidatesRefresher(Consumer<CandidatesDTO> activeTeamsDataConsumer){
         this.candidatesConsumer = activeTeamsDataConsumer;
-        this.battleFieldName = battleFieldName;
+        this.alliesVersions = new HashMap<>();
     }
     @Override
     public void run() {
@@ -57,7 +55,25 @@ public class CandidatesRefresher extends TimerTask {
                                     body,
                                     CandidatesDTOList.class
                             );
-                    candidatesConsumer.accept(data);
+                    if(data != null) {
+                        for (CandidatesDTO candidatesDTO : data.getCandidatesDTOList()) {
+                            String alyName = candidatesDTO.getAllyName();
+                            if(alyName != null) {
+                                Integer allyVersion = alliesVersions.get(alyName);
+                                if (allyVersion != null) {
+                                    if (allyVersion == 0) {
+                                        alliesVersions.put(alyName, candidatesDTO.getCandidates().size());
+                                    } else {
+                                        candidatesDTO.changeVersion(allyVersion);
+                                        alliesVersions.put(alyName, candidatesDTO.getCandidates().size());
+                                        candidatesConsumer.accept(candidatesDTO);
+                                    }
+                                } else {
+                                    alliesVersions.put(alyName, candidatesDTO.getCandidates().size());
+                                }
+                            }
+                        }
+                    }
                 }
                 else {
                     Platform.runLater(() -> showErrors(body));

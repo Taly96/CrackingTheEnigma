@@ -16,8 +16,11 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static agent.http.Configuration.ASSIGNMENTS;
@@ -53,6 +56,8 @@ public class DecipherTask extends Task<Boolean> {
 
     private Consumer<CandidatesDTO> candidatesDTOConsumer = null;
 
+    private AtomicLong totalAssignmentsWorkedOn = null;
+
     public DecipherTask(
             AgentsInfo agentsInfo,
             String messageToProcess,
@@ -68,11 +73,12 @@ public class DecipherTask extends Task<Boolean> {
         this.assignments = new LinkedBlockingQueue<>();
         this.hasMoreAssignments = new AtomicBoolean(true);
         this.candidates = new LinkedBlockingQueue<>();
+        this.totalAssignmentsWorkedOn = new AtomicLong(0);
         this.staticMachineInventory = (StaticMachineDTO) fromBytesArrayToObject(serStaticMachineInventory);
     }
 
     @Override
-    protected Boolean call() throws InterruptedException {//todo= check this guy
+    protected Boolean call() throws InterruptedException {
         System.out.println("Started deciphering");
         CandidatesUpdater candidatesUpdater =
                 new CandidatesUpdater(
@@ -88,9 +94,9 @@ public class DecipherTask extends Task<Boolean> {
                     this.assignments.take();
             if(this.assignmentInfo.getAssignments().size() != 0) {
                 countDownLatch = new CountDownLatch(assignmentInfo.getAssignments().size());
-                System.out.println("Count down latch created, size: " + assignmentInfo.getAssignments().size());
+               // System.out.println("Count down latch created, size: " + assignmentInfo.getAssignments().size());
                 for (AssignmentDTO assignmentDTO : this.assignmentInfo.getAssignments()) {
-                    System.out.println("Creating runnable assignments");
+                    //System.out.println("Creating runnable assignments");
                     this.threads.execute(
                             new Assignment(
                                     this.staticMachineInventory,
@@ -98,7 +104,9 @@ public class DecipherTask extends Task<Boolean> {
                                     this.candidates,
                                     this.messageToProcess,
                                     this.serMachine,
-                                    this.countDownLatch
+                                    this.countDownLatch,
+                                    this.totalAssignmentsWorkedOn,
+                                    this.agentInfo.getAlliesTeam()
                             )
                     );
                 }
@@ -110,6 +118,7 @@ public class DecipherTask extends Task<Boolean> {
                 }
             }
         }
+        System.out.println("////////////////TOTAL ASSIGNMENTS COUNTED " + this.totalAssignmentsWorkedOn.get());
 
         return Boolean.TRUE;
     }
@@ -118,7 +127,7 @@ public class DecipherTask extends Task<Boolean> {
 
     private void getAssignments() {
 
-        System.out.println("getting more assignments");
+        //System.out.println("getting more assignments");
         String finalUrl = HttpUrl
                 .parse(REFRESH_DATA)
                 .newBuilder()
@@ -148,7 +157,7 @@ public class DecipherTask extends Task<Boolean> {
                                 );
                         if(assignmentDTOList != null) {
                             assignments.put(assignmentDTOList);
-                            System.out.println("Got Assignments " + assignmentDTOList.getAssignments().size());
+                            //System.out.println("Got Assignments " + assignmentDTOList.getAssignments().size());
                         }
 
                     } catch (InterruptedException e) {

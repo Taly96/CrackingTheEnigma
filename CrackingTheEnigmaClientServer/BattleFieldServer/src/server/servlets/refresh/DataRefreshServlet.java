@@ -8,6 +8,7 @@ import dto.battlefield.BattleFieldDTO;
 import dto.battlefield.BattleFieldInfo;
 import dto.candidates.CandidatesDTO;
 import dto.candidates.CandidatesDTOList;
+import dto.versions.AlliesVersions;
 import engine.managers.AlliesManager;
 import engine.managers.Ally;
 import engine.managers.BattleFieldManager;
@@ -19,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import server.utils.SessionUtils;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import static server.utils.Constants.*;
 import static server.utils.Constants.ALLY;
@@ -28,9 +30,8 @@ import static server.utils.SessionUtils.TYPE;
 @WebServlet("/refresh")
 public class DataRefreshServlet extends HttpServlet {
 
-
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String dataType = req.getParameter(DATA);
         if(dataType != null && !dataType.isEmpty()){
             String json = this.processRequest(req, dataType);
@@ -228,11 +229,6 @@ public class DataRefreshServlet extends HttpServlet {
         String userType = SessionUtils.getType(req);
         AlliesManager alliesManager = getAlliesManager(getServletContext());
         if(userType != null && !userType.isEmpty()){
-//            if(userType.equals(AGENT)){
-//                AlliesDTO alliesDTO =
-//                        alliesManager.refreshAllAllies();
-//                json = GSON_INSTANCE.toJson(alliesDTO);
-//            }
             if(userType.equals(ALLY) || userType.equals(UBOAT)){
                 String battleFieldName = SessionUtils.getBattleFieldName(req);
                 if(battleFieldName != null && !battleFieldName.isEmpty()){
@@ -283,7 +279,7 @@ public class DataRefreshServlet extends HttpServlet {
                 AlliesManager alliesManager =
                         getAlliesManager(getServletContext());
                 if(userType.equals(UBOAT)){
-                    synchronized (this){
+                    synchronized (this) {
                         CandidatesDTOList info = new CandidatesDTOList(
                                 alliesManager.refreshBattleCandidates(battleFieldName));
                         json = GSON_INSTANCE.toJson(info);

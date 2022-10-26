@@ -80,20 +80,20 @@ public class UserReadyServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
             resp.getOutputStream().print("No battlefield name found.");
         } else {
-            OriginalInformation originalInformation
+            String processedMessage
                     = GSON_INSTANCE.fromJson(
-                            prop.getProperty("original"),
-                            OriginalInformation.class
+                            prop.getProperty("processed"),
+                            String.class
             );
-            if (originalInformation == null) {
+            if (processedMessage == null) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.setContentType("text/plain;charset=UTF-8");
-                resp.getOutputStream().print("Can't start a contest with empty information.");
+                resp.getOutputStream().print("Can't start a contest without processed message.");
             } else {
                 BattleFieldManager battleFieldManager = getBattleFieldManager(getServletContext());
                 resp.setStatus(HttpServletResponse.SC_OK);
                 synchronized (this) {
-                    battleFieldManager.assembleContest(battleName, originalInformation);
+                    battleFieldManager.assembleContest(battleName, processedMessage);
                 }
             }
         }
@@ -113,11 +113,10 @@ public class UserReadyServlet extends HttpServlet {
                     BattleFieldManager battleFieldManager = getBattleFieldManager(getServletContext());
                     AlliesManager alliesManager = getAlliesManager(getServletContext());
                     synchronized (this) {
-                        if(battleFieldManager.setAllyReadyForContest(battleName, allyName, assignmentSize)){
-                            isValidReq = true;
-                            alliesManager.setAllyReadyForContest(allyName, assignmentSize);
-                            resp.setStatus(HttpServletResponse.SC_OK);
-                        }
+                        battleFieldManager.setAllyReadyForContest(battleName, allyName, assignmentSize);
+                        isValidReq = true;
+                        alliesManager.setAllyReadyForContest(allyName, assignmentSize);
+                        resp.setStatus(HttpServletResponse.SC_OK);
                     }
                 }
             }

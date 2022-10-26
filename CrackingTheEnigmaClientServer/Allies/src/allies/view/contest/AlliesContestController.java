@@ -283,7 +283,6 @@ public class AlliesContestController {
 
     private void startRefreshers() {
         this.candidatesRefresher = new CandidatesRefresher(
-                this.userName,
                 this::updateCandidates
         );
         this.contestantsRefresher = new ContestantsRefresher(
@@ -360,7 +359,6 @@ public class AlliesContestController {
 
     private void updateCandidates(CandidatesDTO candidatesDTO) {
         Platform.runLater(() -> {
-            this.tableViewCandidates.getItems().clear();
             for(CandidatesInfo candidatesInfo : candidatesDTO.getCandidates()){
                 this.tableViewCandidates.getItems().add(candidatesInfo);
             }
