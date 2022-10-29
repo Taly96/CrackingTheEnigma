@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static dm.utils.Utils.createStringCodeConfig;
 import static dm.utils.Utils.fromObjectToByteArray;
 
 public class MachineManager {
@@ -199,12 +198,6 @@ public class MachineManager {
         return null;
     }
 
-    public synchronized String getCurrentCodeConfig() {
-        return createStringCodeConfig(
-                this.theEnigma.getCurrentMachineHistory().get(0)
-        );
-    }
-
     public synchronized byte[] getSerMachineInventory() {
 
         return
@@ -214,5 +207,10 @@ public class MachineManager {
     public synchronized CodeConfigInfo resetMachine() {
 
         return this.setCodeConfig(this.theEnigma.getCurrentMachineHistory().get(0), true);
+    }
+
+    public synchronized void contestEnded() {
+        this.theEnigma.resetMachine();
+        this.machineInventory.resetInventory();
     }
 }

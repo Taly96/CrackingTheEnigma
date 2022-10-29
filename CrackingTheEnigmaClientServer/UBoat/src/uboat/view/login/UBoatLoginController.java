@@ -72,7 +72,6 @@ public class UBoatLoginController {
                     } else {
                         Platform.runLater(() ->{
                             uBoatMainController.updateUserName(userName);
-                            loginButton.setDisable(true);
                         });
                     }
                     response.close();

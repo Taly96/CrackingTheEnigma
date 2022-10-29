@@ -4,8 +4,8 @@ import dto.activeteams.AlliesInfo;
 import dto.activeteams.AlliesDTO;
 import dto.battlefield.BattleFieldInfo;
 import dto.candidates.CandidatesDTO;
-import dto.candidates.CandidatesDTOList;
 import dto.candidates.CandidatesInfo;
+import dto.codeconfig.CodeConfigInfo;
 import dto.decipher.OriginalInformation;
 import dto.staticinfo.StaticMachineDTO;
 import javafx.application.Platform;
@@ -20,15 +20,26 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import uboat.view.body.UBoatCenterController;
 import uboat.view.body.contest.refreshers.ActiveTeamsRefresher;
 import uboat.view.body.contest.refreshers.BattleStatusRefresher;
 import uboat.view.body.contest.refreshers.CandidatesRefresher;
+import uboat.view.body.contest.refreshers.WinnerRefresher;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.Timer;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static httpcommon.constants.Constants.REFRESH_RATE;
+import static httpcommon.constants.Constants.*;
+import static httpcommon.utils.HttpClientUtil.GSON_INSTANCE;
+import static httpcommon.utils.HttpClientUtil.runAsync;
+import static httpcommon.utils.Utils.showErrors;
+import static uboat.http.Configuration.CODE;
 
 
 public class UBoatContestController {
@@ -91,19 +102,33 @@ public class UBoatContestController {
 
     private BattleStatusRefresher battleStatusRefresher = null;
 
+    private String wordsToProcess = "";
 
-    String wordsToProcess = "";
-
-    private boolean isOngoingContest = false;
+    private AtomicBoolean isOngoingContest = null;
 
     private Timer timer = null;
 
+    private Thread winnerCheckThread = null;
+
+    private BlockingQueue<CandidatesDTO> candidatesToCheck = null;
+
+    private WinnerRefresher winnerRefresher = null;
+
+    private OriginalInformation originalInformation = null;
+
+
     @FXML
     public void initialize() {
+        this.isOngoingContest = new AtomicBoolean(false);
         this.messageToProcessProperty = new SimpleStringProperty("");
         this.textFieldMessageToProcess.textProperty().bind(this.messageToProcessProperty);
         this.buttonReady.setDisable(true);
         this.listViewDictionary.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        this.listViewDictionary.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            this.buttonProcessMessage.setDisable(false);
+            this.messageToProcessProperty.set(this.messageToProcessProperty.get() + newValue + " ");
+            this.wordsToProcess += (newValue + " ");
+        });
         this.initializeActiveTeamsTableView();
         this.initializeCandidatesTableView();
     }
@@ -132,7 +157,12 @@ public class UBoatContestController {
                 "Correct?");
         Optional<ButtonType> res = alert.showAndWait();
         if(res.isPresent() && res.get().equals(ButtonType.OK)) {
+            String originalConfig = this.uBoatCenterController.getOriginalCodeConfig();
             this.uBoatCenterController.startContest(this.textFieldProcessedMessage.getText());
+            this.originalInformation = new OriginalInformation(
+                    this.wordsToProcess.trim(),
+                    originalConfig
+            );
         }
     }
 
@@ -161,6 +191,8 @@ public class UBoatContestController {
     }
 
     public void startRefreshers() {
+        this.tableViewActiveTeams.getItems().clear();
+        this.tableViewCandidates.getItems().clear();
         this.candidatesRefresher = new CandidatesRefresher(
                 this::updateCandidates
         );
@@ -180,34 +212,92 @@ public class UBoatContestController {
     private void updateStatus(BattleFieldInfo battleFieldInfo) {
         Platform.runLater(() -> {
             if(battleFieldInfo.getStatus().equals("Active")){
-                if(!this.isOngoingContest){
-                    this.isOngoingContest = true;
+                if(!this.isOngoingContest.get()){
+                    this.isOngoingContest.set(true);
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("All teams are ready");
                     alert.setContentText("All allies are ready, the contest has started.");
-                    alert.showAndWait();
+                    alert.show();
+                    this.candidatesToCheck = new LinkedBlockingQueue<>();
+                    this.winnerRefresher = new WinnerRefresher(
+                            this.candidatesToCheck,
+                            this.isOngoingContest,
+                            this.originalInformation
+                            );
+                    this.winnerCheckThread = new Thread(this.winnerRefresher, "Winner Refresher");
+                    this.winnerCheckThread.start();
                 }
             } else if (battleFieldInfo.getStatus().equals("Ended")) {
-                this.isOngoingContest = false;
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("The contest ended");
-                alert.setContentText("The contest has ended, the winner is " + battleFieldInfo.getWinner());
-                alert.showAndWait();
-                this.contestEnded();
-                this.uBoatCenterController.contestEnded();
-
+                if(isOngoingContest.get()){
+                    this.isOngoingContest.set(false);
+                    ButtonType logout = new ButtonType("Logout", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    ButtonType wait = new ButtonType("Wait", ButtonBar.ButtonData.OK_DONE);
+                    Alert alert = new Alert(
+                            Alert.AlertType.CONFIRMATION,
+                            "The contest has ended, the winner is " + battleFieldInfo.getWinner() + "."
+                                    + System.lineSeparator()
+                                    +" You may logout now and load a new FXML contest, or wait for a new team to assemble.",
+                            logout, wait);
+                    alert.setTitle("The contest ended");
+                    Optional<ButtonType> res = alert.showAndWait();
+                    if(res.isPresent() && res.get().equals(logout)){
+                        this.updateGameStatus("Inactive");
+                        this.contestEnded();
+                    }
+                    else{
+                        this.updateGameStatus("Waiting");
+                        this.tableViewCandidates.getItems().clear();
+                        this.tableViewActiveTeams.getItems().clear();
+                    }
+                }
             }
         });
 
+    }
+
+    private void updateGameStatus(String inactive) {
+        String finalUrl = HttpUrl
+                .parse(UPDATE)
+                .newBuilder()
+                .addQueryParameter(DATA, STATUS)
+                .build()
+                .toString();
+        String json = "status=" + inactive;
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .addHeader("Content-type","json/application")
+                .post(RequestBody.create(json.getBytes()))
+                .build();
+
+        runAsync(request, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> showErrors(e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String body = response.body().string();
+                if(response.code() != SC_OK){
+                    Platform.runLater(() -> showErrors(body));
+                    System.out.println(body);
+
+                }
+                response.close();
+            }
+        });
     }
 
     private void contestEnded() {
         this.stopRefreshers();
         this.clearTableViews();
         this.clearProperties();
+        this.uBoatCenterController.contestEnded();
     }
 
     private void clearProperties() {
+        this.wordsToProcess = "";
+        this.originalInformation = null;
         this.textFieldProcessedMessage.clear();
         this.messageToProcessProperty.set("");
     }
@@ -222,6 +312,7 @@ public class UBoatContestController {
         this.battleStatusRefresher.cancel();
         this.activeTeamsRefresher.cancel();
         this.candidatesRefresher.cancel();
+        this.timer.cancel();
     }
 
     public void setCenterController(UBoatCenterController uBoatCenterController) {
@@ -233,11 +324,6 @@ public class UBoatContestController {
         dictionary.setAll(staticMachineDTO.getWords());
         this.listViewDictionary.getItems().clear();
         this.listViewDictionary.setItems(dictionary);
-        this.listViewDictionary.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            this.buttonProcessMessage.setDisable(false);
-            this.messageToProcessProperty.set(this.messageToProcessProperty.get() + newValue + " ");
-            this.wordsToProcess += (newValue + " ");
-        });
     }
 
     public void messageProcessed(String processedMessage) {
@@ -247,9 +333,11 @@ public class UBoatContestController {
 
     private void updateCandidates(CandidatesDTO candidatesDTO) {
         Platform.runLater(() -> {
-
-            for(CandidatesInfo info : candidatesDTO.getCandidates()){
-                this.tableViewCandidates.getItems().add(info);
+            if(candidatesDTO != null){
+                this.candidatesToCheck.add(candidatesDTO);
+                for(CandidatesInfo info : candidatesDTO.getCandidates()){
+                    this.tableViewCandidates.getItems().add(info);
+                }
             }
         });
     }

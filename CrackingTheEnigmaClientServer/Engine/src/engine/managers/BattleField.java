@@ -30,10 +30,6 @@ public class BattleField {
         )).start();
     }
 
-    public synchronized MachineManager getMachineManager() {
-        return this.machineManager;
-    }
-
     public synchronized BattleFieldInfo getBattleFieldInfo() {
 
         return this.battleFieldInfo;
@@ -43,7 +39,6 @@ public class BattleField {
         this.battleFieldInfo.setMessageToDecipher(processedMessage);
     }
     public synchronized void setAllyReadyForContest(String allyName, String assignmentSize) {
-
         this.contest.put(allyName, new DecipherManager(
                 this.battleFieldInfo.getLevel(),
                 assignmentSize,
@@ -55,17 +50,17 @@ public class BattleField {
         }
     }
 
-    public synchronized MessageProcessDTO processMessage(String messageToProcess) {
+    public MessageProcessDTO processMessage(String messageToProcess) {
 
         return this.machineManager.processMessage(messageToProcess);
     }
 
-    public synchronized CodeConfigInfo setCodeConfig(CodeConfigInfo inputConfig) {
+    public CodeConfigInfo setCodeConfig(CodeConfigInfo inputConfig) {
 
         return this.machineManager.setCodeConfig(inputConfig, false);
     }
 
-    public synchronized CodeConfigInfo generateCodeConfig() {
+    public CodeConfigInfo generateCodeConfig() {
 
         return this.machineManager.generateCodeConfig();
     }
@@ -74,26 +69,53 @@ public class BattleField {
 
         for(DecipherManager dm : this.contest.values()){
             dm.startProducingAssignments();
-            System.out.println("DM started producing");
         }
+
         this.battleFieldInfo.setStatus("Active");
+
     }
 
     public synchronized AssignmentDTOList getAssignments(String allyName, Integer numOfAssignmentsPerDraw) {
+        if(this.battleFieldInfo.getStatus().equals("Active")){
+            AssignmentDTOList assignmentDTOList =
+                    this.contest.get(allyName).getAssignments(numOfAssignmentsPerDraw);
+            return assignmentDTOList;
+        }
 
-        AssignmentDTOList assignmentDTOList =
-                this.contest.get(allyName).getAssignments(numOfAssignmentsPerDraw);
 
-        return assignmentDTOList;
+        return
+                new AssignmentDTOList();
     }
 
-    public synchronized byte[] getSerMachineInventory() {
+    public byte[] getSerMachineInventory() {
 
         return this.machineManager.getSerMachineInventory();
     }
 
-    public synchronized CodeConfigInfo resetCode() {
+    public CodeConfigInfo resetCode() {
 
         return this.machineManager.resetMachine();
+    }
+
+    public synchronized void setWinner(String winner) {
+        this.battleFieldInfo.setWinner(winner);
+        this.battleFieldInfo.setStatus("Ended");
+
+        for(DecipherManager dm : this.contest.values()){
+            dm.stopProducing();
+        }
+    }
+
+    public synchronized void setStatus(String status) {
+        this.battleFieldInfo.setStatus(status);
+    }
+
+    public synchronized void clearContest() {
+        this.battleFieldInfo.setWinner("No one");
+    }
+
+    public synchronized void removeAlly(String allyName) {
+        this.contest.remove(allyName);
+        this.battleFieldInfo.decrementAllies();
     }
 }

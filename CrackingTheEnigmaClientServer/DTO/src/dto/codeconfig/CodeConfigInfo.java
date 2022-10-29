@@ -39,32 +39,16 @@ public class CodeConfigInfo implements Serializable {
         return this.rotorsID;
     }
 
-    public void setRotorsID(List<Integer> rotorsID) {
-        this.rotorsID = rotorsID;
-    }
-
     public String getRotorsPos() {
         return this.rotorsPos;
-    }
-
-    public void setRotorsPos(String rotorsPos) {
-        this.rotorsPos = rotorsPos;
     }
 
     public List<Integer> getRotorsNotchPos() {
         return this.rotorsNotchPos;
     }
 
-    public void setRotorsNotchPos(List<Integer> rotorsNotchPos) {
-        this.rotorsNotchPos = rotorsNotchPos;
-    }
-
     public String getReflectorID() {
         return this.reflectorID;
-    }
-
-    public void setReflectorID(String reflectorID) {
-        this.reflectorID = reflectorID;
     }
 
     public String getRotorsStartingPos() {

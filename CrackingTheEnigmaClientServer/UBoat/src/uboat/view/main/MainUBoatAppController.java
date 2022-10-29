@@ -1,7 +1,6 @@
 package uboat.view.main;
 
 import dto.process.MessageProcessDTO;
-import dto.decipher.OriginalInformation;
 import uboat.view.body.UBoatCenterController;
 import uboat.view.bottom.UBoatBottomController;
 import uboat.view.header.UBoatHeaderController;
@@ -79,6 +78,8 @@ public class MainUBoatAppController {
     private BooleanProperty isMachineConfiguredProperty = null;
 
     private BooleanProperty isContestStartedProperty = null;
+
+    private String originalConfig = null;
 
     @FXML
     public void initialize(){
@@ -289,6 +290,7 @@ public class MainUBoatAppController {
                     Platform.runLater(() -> {
                         bottomController.codeSet(currentCode);
                         isMachineConfiguredProperty.set(true);
+                        originalConfig = bottomController.getCurrentConfig();
                     });
                 }
                 response.close();
@@ -344,10 +346,9 @@ public class MainUBoatAppController {
     }
 
     public void switchToLogin() {
-        Platform.runLater(() -> {
-            this.currentUserProperty.set(Constants.NO_NAME);
-            this.setMainPanelTo(loginComponent);
-        });
+        this.isLoggedInProperty.set(false);
+        this.currentUserProperty.set(Constants.NO_NAME);
+        this.setMainPanelTo(loginComponent);
     }
 
     private void setMainPanelTo(Parent pane) {
@@ -453,14 +454,19 @@ public class MainUBoatAppController {
     }
     public void contestEnded() {
         this.bottomController.contestEnded();
-        this. isContestStartedProperty.set(false);
+        this.isContestStartedProperty.set(false);
         this.isMachineConfiguredProperty.set(false);
         this.currentBattleFieldNameProperty.set("");
         this.messageToUserProperty.set(NO_NAME);
         this.currentUserProperty.set("");
         this.isFileLoadedProperty.set(false);
-        this.isLoggedInProperty.set(false);
         this.filePathProperty.set("");
+        this.borderPaneApp.getChildren().remove(this.vBoxBottomComponent);
         this.switchToLogin();
+    }
+
+    public String getOriginalConfig(){
+
+        return this.originalConfig;
     }
 }

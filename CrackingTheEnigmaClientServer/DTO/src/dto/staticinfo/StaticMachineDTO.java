@@ -9,27 +9,24 @@ public class StaticMachineDTO implements Serializable {
 
     private String abc = null;
 
-    private String wordsToExclude = null;
-
     public StaticMachineDTO(
             String abc,
-            Set<String> words,
-            String wordsToExclude
+            Set<String> words
     ){
         this.abc = abc;
         this.words = words;
-        this.wordsToExclude = wordsToExclude;
     }
 
-    public synchronized Set<String> getWords() {
+    public Set<String> getWords() {
         return this.words;
     }
 
-    public synchronized String getAbc() {
+    public String getAbc() {
         return this.abc;
     }
 
-    public synchronized String getWordsToExclude() {
-        return this.wordsToExclude;
+    public void clear() {
+        this.words.clear();
+        this.abc = "";
     }
 }

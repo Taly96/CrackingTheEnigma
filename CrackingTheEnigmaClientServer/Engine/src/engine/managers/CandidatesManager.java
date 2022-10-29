@@ -10,12 +10,12 @@ public class CandidatesManager {
     public CandidatesManager(){
         this.candidates = new CandidatesDTO();
     }
-    public synchronized CandidatesDTO getCandidates() {
+    public CandidatesDTO getCandidates() {
         return this.candidates;
     }
 
-    public synchronized void clearInfo(){
-        this.candidates.getCandidates().clear();
+    public void clearInfo(){
+        this.candidates.clear();
     }
 
     public void addCandidates(CandidatesDTO candidatesDTO, String allyName) {

@@ -51,11 +51,6 @@ public class TotalAssignmentsCalculator implements Runnable {
         }
         this.totalAssignmentsDelegate.accept(res);
         Thread.currentThread().interrupt();
-//        try {
-//            Thread.currentThread().join();
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
     }
 
     private BigDecimal calcEasy() {

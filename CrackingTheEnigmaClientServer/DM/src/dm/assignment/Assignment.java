@@ -10,6 +10,7 @@ import machine.codeconfiguration.CodeConfiguration;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static dm.utils.Utils.createStringCodeConfig;
@@ -31,9 +32,11 @@ public class Assignment implements Runnable {
 
     private CountDownLatch countDownLatch = null;
 
-    private AtomicLong totalAssignmentsWorkedOn = null;
+    private AtomicInteger totalAssignmentsWorkedOn = null;
 
     private String allyName = null;
+
+    private AtomicLong candidatesFound = null;
 
     public Assignment(
             StaticMachineDTO staticMachineInventory,
@@ -42,8 +45,10 @@ public class Assignment implements Runnable {
             String messageToProcess,
             byte[] serMachine,
             CountDownLatch countDownLatch,
-            AtomicLong totalAssignmentsWorkedOn,
-            String alliesTeam) {
+            AtomicInteger totalAssignmentsWorkedOn,
+            String alliesTeam,
+            AtomicLong candidatesFound
+    ) {
         this.assignments = assignmentInfo;
         this.candidatesInfo = candidates;
         this.machine = (EnigmaMachine) fromBytesArrayToObject(serMachine);
@@ -52,10 +57,12 @@ public class Assignment implements Runnable {
         this.staticInventory = staticMachineInventory;
         this.totalAssignmentsWorkedOn = totalAssignmentsWorkedOn;
         this.allyName = alliesTeam;
+        this.candidatesFound = candidatesFound;
     }
 
     @Override
     public void run() {
+        System.out.println("Working on " + messageToProcess);
         boolean isCandidate = true;
         StringBuilder res = new StringBuilder();
         String positions = this.assignments.getStartingPoint();
@@ -72,7 +79,6 @@ public class Assignment implements Runnable {
         }
 
         while(!isDone){
-            System.out.println("working on " + positions);
             CodeConfiguration knownComponents =
                     (CodeConfiguration) fromBytesArrayToObject(
                             this.assignments.getKnownComponents()
@@ -98,6 +104,7 @@ public class Assignment implements Runnable {
 
             if (isCandidate && !res.equals("")) {
                 this.addCandidate(res, configInfo);
+                this.candidatesFound.incrementAndGet();
             }
             if(positions.equals(this.assignments.getFinishPoint())) {
                 isDone = true;
@@ -107,9 +114,8 @@ public class Assignment implements Runnable {
             if(!isDone){
                 positions = this.getNextPos(abc);
             }
-            this.totalAssignmentsWorkedOn.incrementAndGet();
         }
-        System.out.println("///////////");
+        this.totalAssignmentsWorkedOn.incrementAndGet();
         this.countDownLatch.countDown();
     }
 
@@ -140,6 +146,7 @@ public class Assignment implements Runnable {
                             codeConfig
                     )
             );
+            System.out.println("Added candidate " + res.toString());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

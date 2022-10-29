@@ -1,6 +1,5 @@
 package uboat.view.body;
 
-import dto.decipher.OriginalInformation;
 import uboat.view.body.contest.UBoatContestController;
 import uboat.view.body.config.UBoatMachineController;
 import dto.codeconfig.CodeConfigInfo;
@@ -53,7 +52,7 @@ public class UBoatCenterController {
         this.tabContest.disableProperty().bind(isMachineConfiguredProperty.not());
     }
 
-    public void setCode(CodeConfigInfo codeConfigDTO) throws IOException {
+    public void setCode(CodeConfigInfo codeConfigDTO) {
         this.uBoatMainController.setCodeConfig(codeConfigDTO);
     }
 
@@ -88,5 +87,10 @@ public class UBoatCenterController {
 
     public void contestStarted() {
         this.gridPaneContestTabComponentController.startRefreshers();
+    }
+
+    public String getOriginalCodeConfig() {
+
+        return this.uBoatMainController.getOriginalConfig();
     }
 }

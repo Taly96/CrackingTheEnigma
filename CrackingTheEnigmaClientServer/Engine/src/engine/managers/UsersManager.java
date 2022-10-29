@@ -23,7 +23,7 @@ public class UsersManager {
         return Collections.unmodifiableSet(usersSet);
     }
 
-    public boolean isUserExists(String username) {
+    public synchronized boolean isUserExists(String username) {
         return usersSet.contains(username);
     }
 }

@@ -16,44 +16,41 @@ public class AlliesInfo {
         this.name = userName;
     }
 
-    public synchronized String getName() {
+    public  String getName() {
         return name;
     }
 
-    public synchronized Integer getNumOfAgents() {
+    public  Integer getNumOfAgents() {
         return numOfAgents;
     }
 
-    public synchronized String getAssignmentSize() {
+    public  String getAssignmentSize() {
         return assignmentSize;
     }
 
-    public synchronized void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public synchronized void incrementNumOfAgents() {
+    public  void incrementNumOfAgents() {
         this.numOfAgents++;
     }
 
-    public synchronized void setAssignmentSize(String assignmentSize) {
+    public void setAssignmentSize(String assignmentSize) {
         this.assignmentSize = assignmentSize;
     }
 
-
-    public synchronized String getCreatedAssignments() {
+    public  String getCreatedAssignments() {
         return createdAssignments;
     }
 
-    public synchronized void setCreatedAssignments(String createdAssignments) {
-        this.createdAssignments = createdAssignments;
-    }
-
-    public synchronized String getBattleName() {
-        return battleName;
-    }
-
-    public synchronized void setBattleName(String battleName) {
+    public void setBattleName(String battleName) {
         this.battleName = battleName;
+    }
+
+    public void removeContestInfo() {
+        this.battleName = "Hasn't Joined Yet.";
+        this.assignmentSize = "0";
+        this.createdAssignments = "0";
     }
 }

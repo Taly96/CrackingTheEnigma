@@ -33,10 +33,6 @@ public class AssignmentProducer implements Runnable {
 
     private boolean hasMoreStartingPoints = true;
 
-    private BigDecimal counter = null;
-
-    private BigDecimal maxValue = null;
-
     private int[] startingPos = null;
 
     private AtomicReference<BigDecimal> createdAssignments = null;
@@ -63,16 +59,11 @@ public class AssignmentProducer implements Runnable {
                 (MachineInventory) Utils.fromBytesArrayToObject(
                         this.info.getMachineInventory()
                 );
-        this.counter = new BigDecimal(0);
-        this.maxValue = BigDecimal.valueOf(Math.pow(this.inventory.getStaticMachineInfo().getAbc().length(),
-                this.inventory.getRotorsCount()
-        ));
         this.queueLock = queueLock;
     }
 
     @Override
-    public void run() {//todo - try counting the assignments and running up the limit
-        System.out.println(Thread.currentThread().getName());
+    public void run() {
         switch (level){
             case "Easy": {
                 this.goEasy();
@@ -95,7 +86,6 @@ public class AssignmentProducer implements Runnable {
                 break;
             }
         }
-        System.out.println("^^^^^^^^^^CREATED " + this.createdAssignments.get() + "TOTAL ASSIGNMENTS");
         this.hasMoreAssignments.set(false);
     }
 
@@ -147,7 +137,7 @@ public class AssignmentProducer implements Runnable {
             CodeConfiguration assignment = new CodeConfiguration();
             assignment.setRotorsOrder(rotorsOrderForAssignment);
             this.info.setKnownComponents(Utils.fromObjectToByteArray(assignment));
-            goALittleHarder();
+            this.goALittleHarder();
             permutation = permuter.getNext();
         }
     }
@@ -163,7 +153,6 @@ public class AssignmentProducer implements Runnable {
             this.info.setKnownComponents(Utils.fromObjectToByteArray(assignment));
             this.goEasy();
             this.hasMoreStartingPoints = true;
-            this.counter = BigDecimal.ZERO;
         }
     }
 
@@ -172,7 +161,6 @@ public class AssignmentProducer implements Runnable {
             try {
                 this.assignments.put(newAssignment);
                 this.createdAssignments.accumulateAndGet(BigDecimal.ONE, BigDecimal::add);
-                System.out.println("Added assignment : " + newAssignment .getStartingPoint() + " " + newAssignment.getFinishPoint());
                 queueLock.notifyAll();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -182,17 +170,17 @@ public class AssignmentProducer implements Runnable {
     }
 
     private void goEasy() {
-        System.out.println("Going easy.");
         int numOfRotors = this.inventory.getRotorsCount();
         this.startingPos = new int[numOfRotors];
         for(int i = 0; i < numOfRotors; i++){
             this.startingPos[i] = 0;
         }
         while (this.hasMoreStartingPoints) {
+            if(Thread.currentThread().isInterrupted()){
+                break;
+            }
             this.addAssignmentToQueue(this.createAssignment(numOfRotors));
         }
-
-        System.out.println("Done");
     }
 
     private AssignmentDTO createAssignment(Integer numOfRotors) {
@@ -208,7 +196,6 @@ public class AssignmentProducer implements Runnable {
         positions[1] = this.getNextPos(numOfRotors, abcSize, this.assignmentSize, abc);
         this.isOffLimits = true;
         this.getNextPos(numOfRotors, abcSize, BigDecimal.ONE, abc);
-        System.out.println("Start: " + positions[0] + " End: " + positions[1]);
 
         return new AssignmentDTO(
                 positions[0],
@@ -234,9 +221,6 @@ public class AssignmentProducer implements Runnable {
             pos = startingPos[i] + nextCarry;
             nextCarry = pos / abcSize;
 
-//            if(i == numOfRotors - 1 && nextCarry != 0){
-//                hasMoreStartingPoints = false;
-//                Arrays.fill(this.startingPos, abcSize - 1);
             if(nextCarry != 0){
                 this.startingPos[i] = (int) (pos % abcSize);
             }
@@ -254,44 +238,8 @@ public class AssignmentProducer implements Runnable {
             res.append(abc.charAt(index));
         }
 
-        if(res.toString().equals("'''")){
-            System.out.println("Should stop");
-        }
-
         return res.toString();
     }
-//    private String getNextPos(Integer numOfRotors, int abcSize, BigDecimal assignmentSize, String abc) {
-//        BigDecimal pos = assignmentSize.add(BigDecimal.valueOf(this.startingPos[0]));
-//        int nextCarry = pos.divide(BigDecimal.valueOf(abcSize),RoundingMode.FLOOR).intValue();
-//        StringBuilder res = new StringBuilder();
-//
-//        if(nextCarry != 0){
-//            this.startingPos[0] = pos.remainder(BigDecimal.valueOf(abcSize)).intValue();
-//        }
-//        else{
-//            this.startingPos[0] = pos.intValue();
-//        }
-//        for (int i = 1; i < numOfRotors; i++) {
-//            pos = BigDecimal.valueOf(this.startingPos[i] + nextCarry);
-//            nextCarry = pos.divide(BigDecimal.valueOf(abcSize), RoundingMode.FLOOR).intValue();
-//            if(i == numOfRotors - 1 && nextCarry != 0){
-//                this.hasMoreStartingPoints = false;
-//                Arrays.fill(this.startingPos, abcSize - 1);
-//            }
-//            else if (nextCarry != 0){
-//                this.startingPos[i] = pos.remainder(BigDecimal.valueOf(abcSize)).intValue();
-//            }
-//            else{
-//                this.startingPos[i] = pos.intValue();
-//            }
-//        }
-//
-//        for(Integer index : this.startingPos){
-//            res.append(abc.charAt(index));
-//        }
-//
-//        return res.toString();
-//    }
 
     private List<int[]> generateRotorsOrder(int availableRotors, int neededRotors) {
         List<int[]> combinations = new ArrayList<>();

@@ -11,5 +11,4 @@ public class Configuration {
 
     public final static String MACHINE_INVENTORY = "inventory";
 
-    public final static String UPDATE_CANDIDATES = BASE_URL +  "/update-candidates";
 }

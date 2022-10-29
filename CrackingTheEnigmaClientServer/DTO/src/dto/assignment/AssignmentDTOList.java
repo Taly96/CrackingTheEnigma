@@ -1,5 +1,6 @@
 package dto.assignment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AssignmentDTOList {
@@ -13,6 +14,11 @@ public class AssignmentDTOList {
         this.hasMore = hasMore;
     }
 
+    public AssignmentDTOList() {
+        this.assignments = new ArrayList<>();
+        this.hasMore = false;
+    }
+
     public List<AssignmentDTO> getAssignments() {
         return assignments;
     }
@@ -23,9 +29,5 @@ public class AssignmentDTOList {
 
     public boolean hasMore() {
         return hasMore;
-    }
-
-    public void setHasMore(boolean hasMore) {
-        this.hasMore = hasMore;
     }
 }

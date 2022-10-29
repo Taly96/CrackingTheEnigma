@@ -85,4 +85,11 @@ public class MachineInventory implements Serializable {
 
         return null;
     }
+
+    public synchronized void clear() {
+        this.rotorsCount = 0;
+        this.availableRotors.clear();
+        this.availableReflectors.clear();
+        this.staticMachineInfo.clear();
+    }
 }

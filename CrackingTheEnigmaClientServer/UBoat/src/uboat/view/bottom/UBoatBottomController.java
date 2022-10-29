@@ -20,6 +20,8 @@ public class UBoatBottomController {
 
     private MainUBoatAppController uBoatMainController = null;
 
+    private String originalConfig = null;
+
     @FXML
     void onResetCode(ActionEvent event) {
         this.uBoatMainController.resetCode();
@@ -62,5 +64,11 @@ public class UBoatBottomController {
 
     public void contestEnded() {
         this.textCodeConfig.setText("<None Yet>");
+        this.originalConfig = "";
+    }
+
+    public String getCurrentConfig() {
+
+        return this.textCodeConfig.getText();
     }
 }

@@ -107,7 +107,12 @@ public class UBoatMachineController {
         this.isCodeReadyProperty = new SimpleBooleanProperty(false);
         this.isReflectorReadyProperty = new SimpleBooleanProperty(false);
         this.isRotorsReadyProperty = new SimpleBooleanProperty(false);
-        this.isCodeReadyProperty.bind(Bindings.and(isReflectorReadyProperty, isRotorsReadyProperty));
+        this.isCodeReadyProperty.bind(
+                Bindings.and(
+                        this.isReflectorReadyProperty,
+                        this.isRotorsReadyProperty
+                )
+        );
         this.tableColumnABC.setCellValueFactory(
                 cellData -> cellData.getValue().abcProperty()
         );
@@ -295,10 +300,10 @@ public class UBoatMachineController {
     }
 
     public void contestEnded() {
-        this.clearViews();
-        this.chosenReflector = "";
-        this.chosenRotors.clear();
-        this.rotorsStartingPoint = "";
+       this.clearViews();
+       this.chosenReflector = "";
+       this.chosenRotors.clear();
+       this.rotorsStartingPoint = "";
         this.comboBoxReflector.getItems().clear();
         this.rotorsBank.clear();
         this.clearProperties();
@@ -306,7 +311,6 @@ public class UBoatMachineController {
 
     private void clearProperties() {
         this.isRotorsReadyProperty.set(false);
-        this.isCodeReadyProperty.set(false);
         this.isReflectorReadyProperty.set(false);
     }
 

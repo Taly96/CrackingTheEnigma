@@ -1,22 +1,24 @@
 package agent.view.contest;
 
 import agent.decipher.DecipherTask;
+import agent.view.contest.refreshers.AgentsInfoUpdater;
 import agent.view.contest.refreshers.ContestRefresher;
 import agent.view.main.MainAgentAppController;
 import dto.agents.AgentsInfo;
 import dto.battlefield.BattleFieldInfo;
 import dto.candidates.CandidatesDTO;
 import dto.candidates.CandidatesInfo;
-import dto.staticinfo.StaticMachineDTO;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import okhttp3.*;
+import org.controlsfx.control.NotificationPane;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -100,6 +102,8 @@ public class AgentContestController {
 
     private String messageToProcess = null;
 
+    private AgentsInfoUpdater agentsInfoUpdater = null;
+
     @FXML
     public void initialize(){
         this.allyNameProperty = new SimpleStringProperty("Hasn't Joined Yet.");
@@ -169,36 +173,70 @@ public class AgentContestController {
     }
 
     private void startBattleRefresher(){
+        this.tableViewContest.getItems().clear();
         this.contestRefresher = new ContestRefresher(
                 this::updateContest
         );
         this.timer = new Timer();
         this.timer.schedule(this.contestRefresher, REFRESH_RATE, REFRESH_RATE);
-
     }
 
     private void updateContest(BattleFieldInfo battleFieldInfo) {
         if(battleFieldInfo.getBattleFieldName() != null){
-            if(battleFieldInfo.getStatus().equals("Active")){
-                if(!this.isDeciphering){
-                    this.isDeciphering = true;
-                    if(this.messageToProcess == null){
-                        this.messageToProcess = battleFieldInfo.getMessageToDecipher();
+            Platform.runLater(() -> {
+                if(battleFieldInfo.getStatus().equals("Active")) {
+                    if(!this.isDeciphering){
+                        this.isDeciphering = true;
+                        if(this.messageToProcess == null){
+                            this.messageToProcess = battleFieldInfo.getMessageToDecipher();
+                        }
+                        Alert alert = new Alert(
+                                Alert.AlertType.INFORMATION,
+                                "The contest has started."
+                        );
+                        alert.setTitle("The contest has started.");
+                        this.requestInventory();
+                        alert.show();
                     }
-                    this.requestInventory();
+                    this.tableViewContest.getItems().clear();
+                    this.tableViewContest.getItems().add(battleFieldInfo);
+                } else if (battleFieldInfo.getStatus().equals("Ended")) {
+                    if(isDeciphering){
+                        this.decipherTask.cancel();
+                        this.decipherThread.interrupt();
+                        this.isDeciphering = false;
+                        Alert alert = new Alert(
+                                Alert.AlertType.INFORMATION,
+                                "The contest has ended." +
+                                "The winner is " + battleFieldInfo.getWinner()
+                        );
+                        alert.setTitle("The contest has ended.");
+                        alert.showAndWait();
+                        this.tableViewContest.getItems().clear();
+                        this.clearView();
+                    }
                 }
-            } else if (battleFieldInfo.getStatus().equals("Ended")) {
-                this.isDeciphering = false;
-                this.stopRefreshers();
-            }
-            this.tableViewContest.getItems().clear();
-            this.tableViewContest.getItems().add(battleFieldInfo);
+                else{
+                    this.tableViewContest.getItems().clear();
+                }
+            });
         }
     }
 
-    private void requestInventory() {
-        System.out.println("requesting Inventory");
+    private void clearView() {
+        this.awaitingAssignmentsProperty.unbind();
+        this.totalAssignmentsDrawnProperty.unbind();
+        this.totalCandidatesProperty.unbind();
+        this.totalCompletedAssignmentsProperty.unbind();
+        this.totalCandidatesProperty.set(0);
+        this.totalCompletedAssignmentsProperty.set(0);
+        this.awaitingAssignmentsProperty.set(0);
+        this.totalAssignmentsDrawnProperty.set(0);
+        this.tableViewCandidates.getItems().clear();
+        this.messageToProcess = null;
+    }
 
+    private void requestInventory() {
         String finalUrl = HttpUrl
                 .parse(REFRESH_DATA)
                 .newBuilder()
@@ -221,6 +259,7 @@ public class AgentContestController {
                 String body = response.body().string();
                 if (response.code() != SC_OK) {
                     Platform.runLater(() -> showErrors(body));
+                    System.out.println(body);
                 }
                 else{
                     byte[] staticMachineInventory =
@@ -235,19 +274,19 @@ public class AgentContestController {
         });
     }
 
-    private void stopRefreshers() {
-        this.contestRefresher.cancel();
-        this.timer.cancel();
-    }
-
     private void decipher(byte[] staticMachineInventory){
-
+        this.agentsInfoUpdater = new AgentsInfoUpdater(this.me);
+        this.timer.schedule(agentsInfoUpdater,REFRESH_RATE,REFRESH_RATE);
         this.decipherTask = new DecipherTask(
                 this.me,
                 this.messageToProcess,
                 staticMachineInventory,
                 this::updateCandidates
         );
+        this.totalCompletedAssignmentsProperty.bind(decipherTask.totalCompletedAssignmentsProperty());
+        this.totalCandidatesProperty.bind(decipherTask.totalCandidatesFoundProperty());
+        this.totalAssignmentsDrawnProperty.bind(decipherTask.totalDrawnAssignmentsProperty());
+        this.awaitingAssignmentsProperty.bind(decipherTask.awaitingAssignmentsProperty());
         this.decipherTask.valueProperty().addListener((observable, oldValue, newValue) -> {
                     decipherTask.cancel();
                     try {
@@ -257,14 +296,16 @@ public class AgentContestController {
         );
         this.decipherThread = new Thread(this.decipherTask, "Decipher Task");
         this.decipherThread.start();
-        System.out.println("Created decipher task");
     }
 
     private void updateCandidates(CandidatesDTO candidatesDTO) {
         Platform.runLater(() -> {
+            if (candidatesDTO != null) {
 
-            for(CandidatesInfo info: candidatesDTO.getCandidates()){
-                this.tableViewCandidates.getItems().add(info);
+                for (CandidatesInfo info : candidatesDTO.getCandidates()) {
+                    this.tableViewCandidates.getItems().add(info);
+                }
+
             }
         });
     }

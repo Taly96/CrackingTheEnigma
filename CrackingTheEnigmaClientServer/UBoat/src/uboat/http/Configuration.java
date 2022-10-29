@@ -12,4 +12,7 @@ public class Configuration {
 
     public final static String UBOAT = "uboat";
 
+    public final static String WINNER = "winner";
+
+
 }

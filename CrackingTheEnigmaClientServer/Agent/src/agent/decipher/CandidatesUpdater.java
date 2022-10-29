@@ -7,14 +7,11 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static agent.http.Configuration.UPDATE_CANDIDATES;
-import static httpcommon.constants.Constants.SC_OK;
+import static httpcommon.constants.Constants.*;
 import static httpcommon.utils.HttpClientUtil.GSON_INSTANCE;
 import static httpcommon.utils.HttpClientUtil.runAsync;
 import static httpcommon.utils.Utils.showErrors;
@@ -39,36 +36,38 @@ public class CandidatesUpdater implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("@@@@@@@@@@@@@@@@Candidate updater working");
+        System.out.println("candidates updater in agent running");
         while(this.hasMoreAssignments.get()){
             CandidatesDTO candidates = new CandidatesDTO();
             CandidatesInfo candidatesInfo =
                     this.candidates.poll();
             while (candidatesInfo != null){
-                System.out.println("@@@@@@@@@@@@got agents candidates");
+                System.out.println("candidates updater got candidates");
                 candidates.addInfo(candidatesInfo);
                 candidatesInfo =
                         this.candidates.poll();
             }
             if(candidates.getCandidates().size() !=0 ){
                 this.candidatesDTOConsumer.accept(candidates);
+                System.out.println("accepted candidates updater candidates");
                 this.updateCandidates(candidates);
             }
         }
         try {
-            System.out.println("@@@@@@@@@@@Candidate updater done");
+            System.out.println("candidates updater is going to sleep");
             Thread.currentThread().join();
         } catch (InterruptedException ignored) {}
     }
 
     private void updateCandidates(CandidatesDTO candidates) {
-        System.out.println("Updating candidates");
+        System.out.println("about to send update candidates req to server");
         String json =
                 "candidates=" +
                         GSON_INSTANCE.toJson(candidates);
         String finalUrl = HttpUrl
-                .parse(UPDATE_CANDIDATES)
+                .parse(UPDATE)
                 .newBuilder()
+                .addQueryParameter(DATA, CANDIDATES)
                 .build()
                 .toString();
 
@@ -88,14 +87,7 @@ public class CandidatesUpdater implements Runnable {
                 String body = response.body().string();
                 if (response.code() != SC_OK) {
                     Platform.runLater(() -> showErrors(body));
-                }
-                else{
-                    System.out.println("successfully updated candidates");
-                    String gameStatus =
-                            GSON_INSTANCE.toJson(body, String.class);
-//                    if(gameStatus.equals("Ended")){
-//                        hasMoreAssignments = false;
-//                    }
+                    System.out.println(body);
                 }
                 response.close();
             }

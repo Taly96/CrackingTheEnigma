@@ -27,4 +27,9 @@ public class Constants {
     public final static String TYPE = "type";
 
     public final static String USERNAME = "username";
+    public final static String UPDATE = BASE_URL +  "/update";
+
+    public final static String STATUS = "status";
+
+
 }

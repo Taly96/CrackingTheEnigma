@@ -84,8 +84,7 @@ public class InventoryManager {
 
         return new StaticMachineDTO(
                 abc,
-                filteredWords,
-                cteDecipher.getCTEDictionary().getExcludeChars().toUpperCase().trim()
+                filteredWords
         );
     }
 
@@ -204,5 +203,9 @@ public class InventoryManager {
 
     public synchronized MachineInventory getTheEnigmaInventory() {
         return theEnigmaInventory;
+    }
+
+    public synchronized void resetInventory() {
+        this.theEnigmaInventory.clear();
     }
 }

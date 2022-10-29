@@ -18,12 +18,7 @@ public class AgentsRefresher extends TimerTask {
 
     private Consumer<AgentsDTO> agentsConsumer = null;
 
-    private String userName = null;
-
-    public AgentsRefresher(Consumer<AgentsDTO> agentsConsumer, String userName){
-        this.agentsConsumer = agentsConsumer;
-        this.userName = userName;
-    }
+    public AgentsRefresher(Consumer<AgentsDTO> agentsConsumer){this.agentsConsumer = agentsConsumer;}
     @Override
     public void run() {
         String finalUrl = HttpUrl

@@ -23,12 +23,16 @@ public class CandidatesRefresher extends TimerTask {
 
     private Map<String, Integer> alliesVersions = null;
 
+    private Object updateLock = null;
+
     public CandidatesRefresher(Consumer<CandidatesDTO> activeTeamsDataConsumer){
         this.candidatesConsumer = activeTeamsDataConsumer;
         this.alliesVersions = new HashMap<>();
+        this.updateLock = new Object();
     }
     @Override
     public void run() {
+        System.out.println("about to update candidates from server");
         String finalUrl = HttpUrl
                 .parse(REFRESH_DATA)
                 .newBuilder()
@@ -55,27 +59,36 @@ public class CandidatesRefresher extends TimerTask {
                                     body,
                                     CandidatesDTOList.class
                             );
-                    if(data != null) {
-                        for (CandidatesDTO candidatesDTO : data.getCandidatesDTOList()) {
-                            String alyName = candidatesDTO.getAllyName();
-                            if(alyName != null) {
-                                Integer allyVersion = alliesVersions.get(alyName);
-                                if (allyVersion != null) {
-                                    if (allyVersion == 0) {
-                                        alliesVersions.put(alyName, candidatesDTO.getCandidates().size());
-                                    } else {
-                                        candidatesDTO.changeVersion(allyVersion);
+                    System.out.println("got candidates json");
+                    if (data != null) {
+                        synchronized (updateLock) {
+                            for (CandidatesDTO candidatesDTO : data.getCandidatesDTOList()) {
+                                String alyName = candidatesDTO.getAllyName();
+                                if (alyName != null) {
+                                    Integer allyVersion = alliesVersions.get(alyName);
+                                    if (allyVersion != null) {
+                                        if(candidatesDTO.getCandidates().size() > allyVersion){
+                                            if(allyVersion != 0){
+                                                candidatesDTO.changeVersion(allyVersion);
+                                            }
+                                            alliesVersions.put(alyName, allyVersion + candidatesDTO.getCandidates().size());
+                                            candidatesConsumer.accept(candidatesDTO);
+                                            System.out.println("candidates accepted");
+                                        }
+                                    }
+                                    else {
                                         alliesVersions.put(alyName, candidatesDTO.getCandidates().size());
                                         candidatesConsumer.accept(candidatesDTO);
+                                        System.out.println("candidates accepted");
                                     }
-                                } else {
-                                    alliesVersions.put(alyName, candidatesDTO.getCandidates().size());
                                 }
                             }
+                            updateLock.notifyAll();
                         }
                     }
                 }
                 else {
+                    System.out.println(body);
                     Platform.runLater(() -> showErrors(body));
                 }
                 response.close();

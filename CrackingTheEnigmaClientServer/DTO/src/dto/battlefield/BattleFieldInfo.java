@@ -36,45 +36,40 @@ public class BattleFieldInfo implements Serializable {
 
     public BattleFieldInfo() {}
 
-    public synchronized String getBattleFieldName() {
+    public String getBattleFieldName() {
         return battleFieldName;
     }
 
-    public synchronized String getLevel() {
+    public String getLevel() {
         return level;
     }
 
-    public synchronized Integer getNeededNumOfAllies() {
+    public Integer getNeededNumOfAllies() {
         return neededNumOfAllies;
     }
 
-    public synchronized Integer getRegisteredAllies() {
+    public Integer getRegisteredAllies() {
         return registeredAllies;
     }
 
-    public synchronized String getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public synchronized String getUBoat() {
+    public String getUBoat() {
         return uBoat;
     }
 
-    public synchronized void setRegisteredAllies(Integer registeredAllies) {
-        this.registeredAllies = registeredAllies;
-    }
-
-    public synchronized void setStatus(String status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public synchronized void setUBoat(String uBoat){
+    public void setUBoat(String uBoat){
         this.uBoat = uBoat;
     }
 
-    public synchronized boolean incrementAllies() {
+    public boolean incrementAllies() {
         if (this.status.equals("Full")) {
-
             return false;
         } else {
             this.registeredAllies++;
@@ -86,27 +81,31 @@ public class BattleFieldInfo implements Serializable {
         }
     }
 
-    public synchronized void setTotalNumberOfAssignment(String totalNumberOfAssignment) {
+    public void setTotalNumberOfAssignment(String totalNumberOfAssignment) {
         this.totalNumberOfAssignment = totalNumberOfAssignment;
     }
 
-    public synchronized String getTotalNumberOfAssignment() {
+    public String getTotalNumberOfAssignment() {
         return totalNumberOfAssignment;
     }
 
-    public synchronized void setMessageToDecipher(String messageToDecipher) {
+    public void setMessageToDecipher(String messageToDecipher) {
         this.messageToDecipher = messageToDecipher;
     }
 
-    public synchronized String getWinner() {
+    public String getWinner() {
         return winner;
     }
 
-    public synchronized void setWinner(String winner) {
+    public void setWinner(String winner) {
         this.winner = winner;
     }
 
-    public synchronized String getMessageToDecipher() {
+    public String getMessageToDecipher() {
         return messageToDecipher;
+    }
+
+    public void decrementAllies() {
+        this.registeredAllies--;
     }
 }

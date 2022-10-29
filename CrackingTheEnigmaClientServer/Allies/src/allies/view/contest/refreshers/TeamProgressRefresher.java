@@ -17,17 +17,13 @@ import static httpcommon.utils.Utils.showErrors;
 
 public class TeamProgressRefresher extends TimerTask {
 
-    private String allyUserName = null;
-
     private Consumer<AgentsDTO> agentsConsumer = null;
 
-    public TeamProgressRefresher(String allyUserName, Consumer<AgentsDTO> agentsConsumer){
+    public TeamProgressRefresher(Consumer<AgentsDTO> agentsConsumer){
         this.agentsConsumer = agentsConsumer;
-        this.allyUserName = allyUserName;
     }
     @Override
     public void run() {
-
         String finalUrl = HttpUrl
                 .parse(REFRESH_DATA)
                 .newBuilder()

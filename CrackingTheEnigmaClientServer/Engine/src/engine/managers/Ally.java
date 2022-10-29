@@ -22,10 +22,19 @@ public class Ally {
 
     private CandidatesManager candidatesManager = null;
 
+    private Object candidateLock = null;
+
+    private Object allyLock = null;
+
+    private Object agentsLock = null;
+
     public Ally(String allyName){
+        this.candidateLock = new Object();
         this.info = new AlliesInfo(allyName);
         this.agents = new AgentsManager();
         this.candidatesManager = new CandidatesManager();
+        this.allyLock = new Object();
+        this.agentsLock = new Object();
     }
 
     public synchronized void updateAlly(String battleName){
@@ -34,13 +43,16 @@ public class Ally {
         this.hasJoined = true;
     }
 
-    public synchronized  AlliesInfo getInfo() {
+    public synchronized AlliesInfo getInfo() {
         return info;
     }
 
     public synchronized void addAgent(AgentsInfo agent) {
-        this.info.incrementNumOfAgents();
-        this.agents.addAgent(agent);
+        synchronized (agentsLock){
+            this.info.incrementNumOfAgents();
+            this.agents.addAgent(agent);
+            agentsLock.notifyAll();
+        }
     }
 
     public synchronized void setReady(String assignmentSize) {
@@ -53,14 +65,25 @@ public class Ally {
         return this.battleName;
     }
 
-    public synchronized CandidatesDTO refreshCandidates() {
+    public CandidatesDTO refreshCandidates() {
+        CandidatesDTO candidatesDTO;
+        synchronized (candidateLock){
+            candidatesDTO =
+                    this.candidatesManager.getCandidates();
+            candidateLock.notifyAll();
+        }
 
-        return this.candidatesManager.getCandidates();
+        return candidatesDTO;
     }
 
-    public synchronized List<AgentsInfo> getAgents() {
+    public List<AgentsInfo> getAgents() {
+        List<AgentsInfo> agents;
+        synchronized (agentsLock){
+            agents =  this.agents.getAgents();
+            agentsLock.notifyAll();
+        }
 
-        return this.agents.getAgents();
+        return agents;
     }
 
     public synchronized boolean isReady() {
@@ -71,11 +94,34 @@ public class Ally {
         return this.hasJoined;
     }
 
-    public synchronized void setReady(boolean ready) {
-        isReady = ready;
+    public void updateCandidates(CandidatesDTO candidatesDTO, String allyName) {
+        synchronized (candidateLock){
+            this.candidatesManager.addCandidates(candidatesDTO, allyName);
+            candidateLock.notifyAll();
+        }
     }
 
-    public synchronized void updateCandidates(CandidatesDTO candidatesDTO, String allyName) {
-        this.candidatesManager.addCandidates(candidatesDTO, allyName);
+    public synchronized void removeFromContest() {
+        this.assignmentSize ="0";
+        this.battleName = "Hasn't joined yet";
+        this.isReady = false;
+        this.hasJoined = false;
+        this.info.removeContestInfo();
+        synchronized (agentsLock){
+            this.agents.clearContestInfo();
+            agentsLock.notifyAll();
+        }
+        synchronized (candidateLock){
+            this.candidatesManager.clearInfo();
+            candidateLock.notifyAll();
+        }
+    }
+
+    public void updateAgent(AgentsInfo agentsInfo) {
+
+        synchronized (agentsLock){
+            this.agents.addAgent(agentsInfo);
+            agentsLock.notifyAll();
+        }
     }
 }

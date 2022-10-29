@@ -31,20 +31,20 @@ public class EnigmaMachine implements Serializable {
 
     public EnigmaMachine(){this.currentMachineHistory = new MachineHistory();}
 
-    public void setRotorsCount(int rotorsCount) {
+    public synchronized void setRotorsCount(int rotorsCount) {
         this.rotorsCount = rotorsCount;
         this.rotors = new ArrayList<>(this.rotorsCount);
     }
 
-    public void setABC(String abc) {
+    public synchronized void setABC(String abc) {
         this.alphabet = abc;
     }
 
-    public void addRotor(Rotor rotorToAdd) {
+    public synchronized void addRotor(Rotor rotorToAdd) {
         this.rotors.add(rotorToAdd);
     }
 
-    public String process(String messageToEncrypt) {
+    public synchronized String process(String messageToEncrypt) {
         String res = "";
 
         for (Character ch : messageToEncrypt.toCharArray()) {
@@ -54,7 +54,7 @@ public class EnigmaMachine implements Serializable {
         return res;
     }
 
-    public char encrypt(char charToEncrypt) {
+    public synchronized char encrypt(char charToEncrypt) {
         int charIndex = -1;
         this.advanceRotors();
         charIndex = this.alphabet.lastIndexOf(charToEncrypt);
@@ -72,7 +72,7 @@ public class EnigmaMachine implements Serializable {
         return this.alphabet.charAt(charIndex);
     }
 
-    private void advanceRotors() {
+    private synchronized void advanceRotors() {
         this.rotors.get(0).advance();
         boolean isCheckWindowPos = true;
 
@@ -86,37 +86,38 @@ public class EnigmaMachine implements Serializable {
         }
     }
 
-    public void addReflector(Reflector inputReflector) {
+    public synchronized void addReflector(Reflector inputReflector) {
         this.reflector = inputReflector;
     }
 
-    public boolean setRotorsStartingPosition(int rotorIndex, String startingPos) {
+    public synchronized boolean setRotorsStartingPosition(int rotorIndex, String startingPos) {
         return this.rotors.get(rotorIndex).setStartingPosition(startingPos);
     }
 
-    public void setIsConfigured(boolean isConfigured) {
+    public synchronized void setIsConfigured(boolean isConfigured) {
         this.isConfigured = isConfigured;
     }
 
-    public void clearCodeConfig() {
+    public synchronized void clearCodeConfig() {
         this.rotors.clear();
         this.reflector = null;
         this.isPlugBoardUsed = false;
     }
 
-    public void resetMachine() {
+    public synchronized void resetMachine() {
         this.alphabet = "";
         this.isPlugBoardUsed = false;
         this.isConfigured = false;
         this.numOfProcessedMessages = 0;
+        this.currentMachineHistory.clear();
         this.clearCodeConfig();
     }
 
-    public List<Rotor> getMachineRotors() {
+    public synchronized List<Rotor> getMachineRotors() {
         return this.rotors;
     }
 
-    public CodeConfiguration getCurrentComponents() {
+    public synchronized CodeConfiguration getCurrentComponents() {
         CodeConfiguration currentConfig = new CodeConfiguration();
         currentConfig.setRotorsOrder(this.rotors);
         currentConfig.setReflector(this.reflector);
@@ -124,7 +125,7 @@ public class EnigmaMachine implements Serializable {
         return currentConfig;
     }
 
-    public CodeConfigInfo setCodeConfig(CodeConfiguration code){
+    public synchronized CodeConfigInfo setCodeConfig(CodeConfiguration code){
         List<Integer> rotorsOrder = new ArrayList<>();
         List<String> rotorsStartingPos = new ArrayList<>();
         List<Integer> rotorsNotchPosFromWindow = new ArrayList<>();
@@ -152,16 +153,16 @@ public class EnigmaMachine implements Serializable {
         );
     }
 
-    public void addCodeConfigToCurrentHistory(CodeConfigInfo setCodeConfig) {
+    public synchronized void addCodeConfigToCurrentHistory(CodeConfigInfo setCodeConfig) {
         this.currentMachineHistory.addNewCodeConfig(setCodeConfig);
     }
 
-    public List<CodeConfigInfo> getCurrentMachineHistory() {
+    public synchronized List<CodeConfigInfo> getCurrentMachineHistory() {
 
         return this.currentMachineHistory.getCodeConfigStats();
     }
 
-    public CodeConfigInfo getCurrentCodeConfig() {
+    public synchronized CodeConfigInfo getCurrentCodeConfig() {
         List<Integer> rotorsOrder = new ArrayList<>();
         List<Integer> rotorsNotchPos = new ArrayList<>();
         String rotorsPos = "";

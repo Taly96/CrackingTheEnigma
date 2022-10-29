@@ -16,19 +16,13 @@ import static httpcommon.utils.HttpClientUtil.runAsync;
 import static httpcommon.utils.Utils.showErrors;
 
 public class ContestantsRefresher extends TimerTask {
-
-    private String allyUserName = null;
-
     private Consumer<AlliesDTO> alliesConsumer;
 
-
-    public ContestantsRefresher(String allyUserName, Consumer<AlliesDTO> alliesConsumer){
+    public ContestantsRefresher(Consumer<AlliesDTO> alliesConsumer){
         this.alliesConsumer = alliesConsumer;
-        this.allyUserName = allyUserName;
     }
     @Override
     public void run() {
-
         String finalUrl = HttpUrl
                 .parse(REFRESH_DATA)
                 .newBuilder()

@@ -18,13 +18,7 @@ public class BattleFieldsRefresher extends TimerTask {
 
     private final Consumer<BattleFieldDTO> battleFieldsDataConsumer;
 
-    private String alliesUserName = null;
-
-    public BattleFieldsRefresher(
-            Consumer<BattleFieldDTO> battleFieldsDataConsumer,
-            String alliesUserName
-    ){
-        this.alliesUserName = alliesUserName;
+    public BattleFieldsRefresher(Consumer<BattleFieldDTO> battleFieldsDataConsumer){
         this.battleFieldsDataConsumer = battleFieldsDataConsumer;
     }
     @Override

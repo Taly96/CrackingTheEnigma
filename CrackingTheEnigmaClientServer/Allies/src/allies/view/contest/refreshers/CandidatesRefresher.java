@@ -21,12 +21,16 @@ public class CandidatesRefresher extends TimerTask {
 
     private int version = 0;
 
+    private Object updateLock = null;
+
     public CandidatesRefresher(Consumer<CandidatesDTO> candidatesConsumer) {
         this.candidatesConsumer = candidatesConsumer;
+        this.updateLock = new Object();
     }
 
     @Override
     public void run() {
+        System.out.println("Ally updating candidates from server, about to send request");
         String finalUrl = HttpUrl
                 .parse(REFRESH_DATA)
                 .newBuilder()
@@ -48,23 +52,27 @@ public class CandidatesRefresher extends TimerTask {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String body = response.body().string();
                 if(response.code() == SC_OK){
-                    CandidatesDTO data =
-                            GSON_INSTANCE.fromJson(
-                                    body,
-                                    CandidatesDTO.class
-                            );
-                    if(data.getCandidates().size() > version) {
-                        if (version != 0) {
-                            data.changeVersion(version);
-
+                    synchronized (updateLock) {
+                        CandidatesDTO data =
+                                GSON_INSTANCE.fromJson(
+                                        body,
+                                        CandidatesDTO.class
+                                );
+                        System.out.println("ally got candidates json");
+                        if (data.getCandidates().size() > version) {
+                            if (version != 0) {
+                                data.changeVersion(version);
+                            }
+                            version += data.getCandidates().size();
+                            candidatesConsumer.accept(data);
+                            System.out.println("allies candidates accepted");
                         }
-                        version = data.getCandidates().size();
-                        candidatesConsumer.accept(data);
-
+                        updateLock.notifyAll();
                     }
                 }
                 else {
                     Platform.runLater(() -> showErrors(body));
+                    System.out.println(body);
                 }
                 response.close();
             }

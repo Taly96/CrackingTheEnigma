@@ -17,12 +17,9 @@ import static httpcommon.utils.Utils.showErrors;
 
 public class CurrentBattleRefresher extends TimerTask {
 
-    private String allyUserName = null;
-
     private Consumer<BattleFieldInfo> battleFieldInfoConsumer = null;
 
-    public CurrentBattleRefresher(String allyUserName, Consumer<BattleFieldInfo> battleFieldInfoConsumer){
-        this.allyUserName = allyUserName;
+    public CurrentBattleRefresher(Consumer<BattleFieldInfo> battleFieldInfoConsumer){
         this.battleFieldInfoConsumer = battleFieldInfoConsumer;
     }
     @Override

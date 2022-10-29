@@ -12,15 +12,15 @@ public class CandidatesDTO {
     public CandidatesDTO(){
         this.candidates = new ArrayList<>();
     }
-    public synchronized List<CandidatesInfo> getCandidates() {
+    public List<CandidatesInfo> getCandidates() {
         return this.candidates;
     }
 
-    public synchronized void addInfo(CandidatesInfo candidatesInfo){
+    public void addInfo(CandidatesInfo candidatesInfo){
         this.candidates.add(candidatesInfo);
     }
 
-    public synchronized void changeVersion(int version) {
+    public void changeVersion(int version) {
         this.candidates = this.candidates.subList((this.candidates.size() - version) + 1, this.candidates.size());
     }
 
@@ -30,5 +30,10 @@ public class CandidatesDTO {
 
     public void setAllyName(String allyName) {
         this.allyName = allyName;
+    }
+
+    public void clear() {
+        this.candidates.clear();
+        this.allyName = null;
     }
 }

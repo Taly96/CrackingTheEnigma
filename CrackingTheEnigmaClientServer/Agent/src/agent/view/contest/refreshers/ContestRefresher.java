@@ -27,7 +27,6 @@ public class ContestRefresher extends TimerTask {
 
     @Override
     public void run() {
-
         String finalUrl = HttpUrl
                 .parse(REFRESH_DATA)
                 .newBuilder()
@@ -58,6 +57,7 @@ public class ContestRefresher extends TimerTask {
                 }
                 else {
                     Platform.runLater(() -> showErrors(body));
+                    System.out.println(body);
                 }
                 response.close();
             }

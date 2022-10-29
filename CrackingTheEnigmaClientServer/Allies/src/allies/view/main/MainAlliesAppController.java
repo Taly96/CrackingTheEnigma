@@ -3,7 +3,6 @@ package allies.view.main;
 import allies.view.contest.AlliesContestController;
 import allies.view.dashboard.AlliesDashBoardController;
 import allies.view.login.AlliesLoginController;
-import dto.activeteams.AlliesInfo;
 import dto.battlefield.BattleFieldInfo;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -166,13 +165,9 @@ public class MainAlliesAppController {
         setMainPanelTo(contestComponent);
     }
 
-    public String getUserName() {
-        return this.currentUserProperty.get();
-    }
-
     public void loggedIn(String userName) {
         this.updateUserName(userName);
-        this.dashBoardController.startBattleRefresher();
+        this.dashBoardController.startRefreshers();
         this.contestController.updateUserName(userName);
         this.switchToDashBoardView();
     }
@@ -208,5 +203,10 @@ public class MainAlliesAppController {
             }
         });
 
+    }
+
+    public void contestEnded() {
+        this.dashBoardController.startRefreshers();
+        this.switchToDashBoardView();
     }
 }

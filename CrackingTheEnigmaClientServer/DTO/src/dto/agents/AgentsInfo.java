@@ -7,17 +7,17 @@ public class AgentsInfo {
 
     private Integer numberOfThreads = null;
 
-    private String assignmentSize = null;
+    private Integer assignmentSize = null;
 
     private String alliesTeam = null;
 
     private Integer assignmentsPerDraw = null;
 
-    private Integer candidatesFound = 0;
+    private long candidatesFound = 0;
 
-    private String assignmentsCompleted = "0";
+    private Integer assignmentsCompleted = 0;
 
-    private String assignmentsLeft = "0";
+    private Integer assignmentsLeft = 0;
 
     public AgentsInfo(
             String userName,
@@ -31,35 +31,59 @@ public class AgentsInfo {
         this.name = userName;
     }
 
-    public synchronized String getName() {
+    public  String getName() {
         return name;
     }
 
-    public synchronized Integer getNumberOfThreads() {
+    public  Integer getNumberOfThreads() {
         return numberOfThreads;
     }
 
-    public synchronized String getAssignmentSize() {
+    public  Integer getAssignmentSize() {
         return assignmentSize;
     }
 
-    public synchronized Integer getCandidatesFound() {
+    public  Long getCandidatesFound() {
         return candidatesFound;
     }
 
-    public synchronized String getAssignmentsCompleted() {
+    public  Integer getAssignmentsCompleted() {
         return assignmentsCompleted;
     }
 
-    public synchronized String getAssignmentsLeft() {
+    public  Integer getAssignmentsLeft() {
         return assignmentsLeft;
     }
 
-    public synchronized String getAlliesTeam() {
+    public  String getAlliesTeam() {
         return alliesTeam;
     }
 
-    public synchronized Integer getAssignmentsPerDraw() {
+    public  Integer getAssignmentsPerDraw() {
         return assignmentsPerDraw;
+    }
+
+    public void clearContestInfo() {
+        this.candidatesFound = 0;
+        this.assignmentsCompleted = 0;
+        this.assignmentsLeft = 0;
+        this.assignmentSize = 0;
+    }
+
+    public void setDrawn(int drawnAssignments) {
+
+        this.assignmentSize = drawnAssignments;
+    }
+
+    public void setLeft(int left) {
+        this.assignmentsLeft = left;
+    }
+
+    public void setCompleted(int completed) {
+        this.assignmentsCompleted = completed;
+    }
+
+    public void setTotalFound(long totalFound) {
+        this.candidatesFound = totalFound;
     }
 }

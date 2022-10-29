@@ -8,7 +8,6 @@ import dto.agents.AgentsInfo;
 import dto.battlefield.BattleFieldDTO;
 import dto.battlefield.BattleFieldInfo;
 import javafx.application.Platform;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -125,14 +124,14 @@ public class AlliesDashBoardController {
         this.alliesAppController = mainAlliesAppController;
     }
 
-    public void startBattleRefresher(){
+    public void startRefreshers(){
+        this.tableViewContests.getItems().clear();
+        this.tableViewAgents.getItems().clear();
         this.battleFieldsRefresher = new BattleFieldsRefresher(
-                this::updateContests,
-                this.alliesAppController.getUserName()
+                this::updateContests
         );
         this.agentsRefresher = new AgentsRefresher(
-                this::updateAgents,
-                this.alliesAppController.getUserName()
+                this::updateAgents
         );
         this.timer = new Timer();
         this.timer.schedule(this.agentsRefresher, REFRESH_RATE, REFRESH_RATE);
@@ -175,5 +174,6 @@ public class AlliesDashBoardController {
         this.agentsRefresher.cancel();
         this.battleFieldsRefresher.cancel();
         this.timer.cancel();
+        this.chosenBattleFieldProperty.set("");
     }
 }

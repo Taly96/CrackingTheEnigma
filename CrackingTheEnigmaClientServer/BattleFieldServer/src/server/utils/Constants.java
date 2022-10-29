@@ -25,4 +25,8 @@ public class Constants {
 
     public final static String MACHINE_INVENTORY = "inventory";
 
+    public final static String WINNER = "winner";
+
+    public final static String STATUS = "status";
+
 }

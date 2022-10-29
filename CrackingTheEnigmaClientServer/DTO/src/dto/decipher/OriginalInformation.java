@@ -4,10 +4,10 @@ public class OriginalInformation {
 
     private String originalMessage = null;
 
-    private String messageToDecipher = null;
+    private String originalConfig = null;
 
     public OriginalInformation(String originalMessage, String originalConfig){
-        this.messageToDecipher = originalConfig;
+        this.originalConfig = originalConfig;
         this.originalMessage = originalMessage;
     }
 
@@ -15,7 +15,7 @@ public class OriginalInformation {
         return originalMessage;
     }
 
-    public String getMessageToDecipher() {
-        return messageToDecipher;
+    public String getOriginalConfig() {
+        return originalConfig;
     }
 }

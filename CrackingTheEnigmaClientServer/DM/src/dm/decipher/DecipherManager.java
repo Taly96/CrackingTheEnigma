@@ -65,16 +65,10 @@ public class DecipherManager {
     }
 
     public synchronized void startProducingAssignments(){
-        System.out.println(Thread.currentThread().getName());
         this.assignmentProdThread.start();
     }
 
-    public synchronized String getCreatedAssignments() {
-
-        return this.createdAssignments.get().toString();
-    }
-
-    public synchronized AssignmentDTOList getAssignments(int agentsDraw){
+    public AssignmentDTOList getAssignments(int agentsDraw){
         List<AssignmentDTO> assignments = new ArrayList<>();
        synchronized (queueLock){
            for(int i = 0; i < agentsDraw; i++){
@@ -82,7 +76,6 @@ public class DecipherManager {
                        this.assignments.poll();
                if(assignment != null){
                    assignments.add(assignment);
-                   System.out.println("added assignment " + (i+1));
                }
                else{
                    break;
@@ -91,17 +84,11 @@ public class DecipherManager {
            queueLock.notifyAll();
        }
 
-
-        System.out.println("Got assignments");
        return new AssignmentDTOList(assignments, this.hasMoreAssignments.get());
     }
 
-    public void stopProducing() {
+    public synchronized void stopProducing() {
         this.hasMoreAssignments.set(false);
-        try {
-            this.assignmentProdThread.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        this.assignmentProdThread.interrupt();
     }
 }
